@@ -4,6 +4,8 @@
         BottoGram
     */
     namespace WeRtOG\BottoGram;
+
+    include 'Constants.php';
     
     // Используем зависимости
     use Exception;

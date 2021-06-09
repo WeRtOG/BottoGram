@@ -1,0 +1,15 @@
+{
+    "name": "wertog/bottogram",
+    "description": "PHP8 Telegram bot engine",
+    "type": "library",
+    "require": {
+        "guzzlehttp/guzzle": "7.0"
+    },
+    "license": "GPL-3.0-or-later",
+    "autoload": {
+        "psr-4": {
+            "WeRtOG\\BottoGram\\": "src/"
+        }
+    },
+    "minimum-stability": "stable"
+}

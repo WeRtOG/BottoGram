@@ -5,8 +5,6 @@
     */
     namespace WeRtOG\BottoGram;
     
-    require_once 'Autoload.php';
-
     // Используем зависимости
     use Exception;
     use WeRtOG\BottoGram\BottoConfig;
@@ -26,8 +24,6 @@
     use WeRtOG\BottoGram\Models\TelegramUsers;
     use WeRtOG\BottoGram\Telegram\Model\Update;
     use WeRtOG\BottoGram\Telegram\Model\UpdateType;
-
-    if(!defined('FOXYMVC')) throw new Exception('FoxyMVC module is required for BottoGram to work properly.');
 
     /**
      * # BottoGram

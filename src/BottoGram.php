@@ -5,7 +5,9 @@
     */
     namespace WeRtOG\BottoGram;
 
-    require_once __DIR__ . '/../vendor/autoload.php';
+    $AutoloadFile = __DIR__ . '/../vendor/autoload.php';
+    if(file_exists($AutoloadFile)) require_once $AutoloadFile;
+    
     require_once 'Constants.php';
     
     use WeRtOG\BottoGram\BottoConfig;

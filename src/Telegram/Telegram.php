@@ -5,8 +5,6 @@
     */
     namespace WeRtOG\BottoGram\Telegram;
 
-	// Используем нужные зависимости
-
 	use GuzzleHttp\Client as HttpClient;
 	use GuzzleHttp\Promise\Promise;
 	use GuzzleHttp\Psr7\MultipartStream;
@@ -23,13 +21,6 @@
 	use WeRtOG\BottoGram\Telegram\Model\Response;
 	use WeRtOG\BottoGram\Telegram\Model\Update;
 
-	/**
-	 * Класс для взаимодействия с API Telegram
-	 * @property string $ApiURL Ссылка на API
-	 * @property string $FileApiURL Ссылка на файловое API
-	 * @property string $Token Токен
-	 * @property bool $ButtonsAutoSize Флаг автоматической смены размера кнопок
-	 */
 	class Telegram implements TelegramInterface
 	{
 		public string $ApiURL;
@@ -39,14 +30,8 @@
 
 		private HttpClient $HttpClient;
 
-		/**
-		 * Конструктор класса
-		 * @param string $Token Токен
-		 * @param bool $ButtonsAutoSize Флаг автоматической смены размера кнопок
-		 */
 		function __construct(string $Token, bool $ButtonsAutoSize = true)
 		{
-			// Запоминаем токен и генерим ссылки
 			$this->Token = $Token;
 			$this->ApiURL = "https://api.telegram.org/bot" . $Token . "/";
 			$this->FileApiURL = "https://api.telegram.org/file/bot" . $Token;
@@ -60,11 +45,6 @@
 			]);
 		}
 
-		/**
-		 * Метод для выполнения HTTP-запроса (для API)
-		 * @param string $URL URL
-		 * @return string Ответ
-		 */
 		private function MakeRequest(string $URL, string $Method = 'GET', array $FormData = null, array $CustomOptions = []): Promise
 		{
 			return $this->HttpClient->requestAsync($Method, $URL, array_merge([
@@ -78,11 +58,7 @@
 			return new Request($JSONInput);
 		}
 
-		/**
-		 * Метод для получения пути к файлу на серверах Telegram
-		 * @param string $FileID ID файла
-		 * @return string Путь к файлу на серверах Telegram
-		 */
+
 		public function GetFilename(string $FileID): ?string
 		{
 			$Query = file_get_contents('getFile?file_id='.$FileID);
@@ -91,15 +67,6 @@
 			return $Result['file_path'] ?? null;
 		}
 
-		/**
-		 * Метод для получения файла с серверов Telegram
-		 * 
-		 * **ВАЖНО:** в папке с проектом должна быть папка uploads*
-		 * 
-		 * @param string $FileName Имя файла
-		 * @param string $Folder Путь к папке, в которую нужно разместить файл (необязательно)
-		 * @return string Конечный путь к файлу
-		 */
 		public function GetFile(string $FileName, string $Folder = 'uploads'): string
 		{
 			$Path = $Folder . '/' . str_replace("_", "", basename($FileName));
@@ -108,22 +75,11 @@
 			return $Path;
 		}
 
-		/**
-		 * Метод для получения BLOB файла с серверов Telegram
-		 * @param string $FileName Имя файла
-		 * @return string BLOB
-		 */
 		public function GetBlob(string $FileName): string
 		{
 			return addslashes(file_get_contents($this->FileApiURL.'/'.$FileName));
 		}
 		
-		/**
-		 * Метод для генерации клавиатур Telegram
-		 * @param array $MainKeyboard Основная клавиатура
-		 * @param array $Inlinenew KeyboardState(Keyboard Инлайновая клавиатура
-		 * @return string Клавиатура Telegram
-		 */
 		private function GenerateReplyMarkup(array|string|null $MainKeyboard, array|string|null $InlineKeyboard): ?string
 		{	
 			$ReplyMarkup = [];
@@ -195,15 +151,6 @@
 			return null;
 		}
 
-		/**
-		 * Метод для отправки сообщения
-		 * @param string $Message Сообщение
-		 * @param string $ChatID ID чата
-		 * @param array|string $MainKeyboard Массив кнопок основной клавиатуры
-		 * @param array|string $InlineKeyboard Инлайновая клавиатура
-		 * @param string $ParseMode Метод парсинга текста
-		 * @return Response Ответ от Telegram
-		 */
 		public function SendMessage(string $Message, ?string $ChatID, string|array|null $MainKeyboard = [], array|null $InlineKeyboard = [], string $ParseMode = ParseMode::Markdown): Response
 		{
 			$ReplyMarkup = $this->GenerateReplyMarkup($MainKeyboard, $InlineKeyboard);
@@ -211,13 +158,6 @@
 			return new Response($Query);
 		}
 
-		/**
-		 * Метод для подтверждения оплаты
-		 * @param string $QueryID ID запроса
-		 * @param bool $Ok Подтверждаем ли
-		 * @param string $ErrorMessage Текст ошибки
-		 * @return Response Ответ от Telegram
-		 */
 		public function AnswerPreCheckoutQuery(string $QueryID, bool $Ok, string $ErrorMessage = ''): Response
 		{
 			$ParametersString = http_build_query([
@@ -228,18 +168,7 @@
 			$Query = $this->MakeRequest('answerPreCheckoutQuery?' . $ParametersString);
 			return new Response($Query);
 		}
-		
-		/**
-		 * Метод для отправки запроса на оплату
-		 * @param string|null $ChatID ID чата
-		 * @param string $Title Заголовок
-		 * @param string $Description Описание
-		 * @param string $Payload Скрытый ключ
-		 * @param string $Currency Валюта
-		 * @param array $Prices Массив цен
-		 * @param string $PaymentToken Платёжный токен
-		 * @return Response Ответ от Telegram
-		 */
+
 		public function SendInvoice(?string $ChatID, string $Title, string $Description, string $Payload, string $Currency, array $Prices, string $PaymentToken): Response
 		{
 			$ParametersString = http_build_query([
@@ -256,26 +185,12 @@
 			return new Response($Query);
 		}
 
-		/**
-		 * Метод для отправки описания выполняемого действия
-		 * @param string $Action Действие
-		 * @param string $ChatID ID чата
-		 * @return Response Ответ от Telegram
-		 */
 		public function SendChatAction(string $Action, ?string $ChatID): Response
 		{
 			$Query = $this->MakeRequest('sendChatAction?chat_id='.$ChatID.'&action='.urlencode($Action));
 			return new Response($Query);
 		}
-		
-		/**
-		 * Метод для отправки медиагруппы
-		 * @param array $Content Контент
-		 * @param string $ChatID ID чата
-		 * @param string $Caption Подпись
-		 * @param string $ParseMode Метод парсинга текста
-		 * @return Response Ответ от Telegram
-		 */
+
 		public function SendMediaGroup(array $Content, string $ChatID, string $Caption = "", string $ParseMode = ParseMode::Markdown): Response
 		{
 			// Строим ссылку
@@ -355,40 +270,6 @@
 				'body' => new MultipartStream($Fields, $Boundary)
 			]);
 			return new Response($Promise);
-		}
-
-		/**
-		 * Метод для отправки медиагруппы только с фото
-		 * @param array $Photos фотографии
-		 * @param string $ChatID ID чата
-		 * @param string $Caption Подпись
-		 * @param bool $isID Являются ли фото ID
-		 * @param string $ParseMode Метод парсинга текста
-		 * @return Response Ответ от Telegram
-		 */
-		public function SendPhotoGroup(array $Photos, string $ChatID, string $Caption = "", bool $isID = false, string $ParseMode = ParseMode::Markdown): Response
-		{
-			$Content = [];
-
-			foreach($Photos as $Photo)
-			{
-				if($isID)
-				{
-					$Content[] = [
-						'ID' => $Photo,
-						'Type' => 'photo'
-					];
-				}
-				else
-				{
-					$Content[] = [
-						'File' => $Photo,
-						'Type' => 'photo'
-					];
-				}
-			}
-
-			return $this->SendMediaGroup($Content, $ChatID, $Caption, $ParseMode);
 		}
 
 		/**

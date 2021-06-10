@@ -10,23 +10,23 @@
 
 	class Response
 	{
-		private Promise $Promise;
+		private ?Promise $Promise;
 		private ?ResponseData $Data = null;
 
-		public function __construct(Promise $Promise)
+		public function __construct(?Promise $Promise = null)
 		{
 			$this->Promise = $Promise;
 		}
 
-		public function GetData(): ?ResponseData
+		public function GetData(): ResponseData
 		{
-			if($this->Data == null)
+			if($this->Data == null && $this->Promise != null)
 			{
 				$HttpResponse = $this->Promise->wait();
 				$this->Data = new ResponseData((string)$HttpResponse->getBody());
 			}
 
-			return $this->Data;
+			return $this->Data ?? new ResponseData();
 		}
 	}
     

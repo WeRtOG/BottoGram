@@ -147,7 +147,7 @@
                             if($Text == BOT_COMMAND_GETID)
                             {
                                 $Response = $this->Telegram->SendMessage("👤 Channel ID: " . $this->Update->Message->ChatID, $this->Update->Message->ChatID);
-                                $this->Log->ResponseSuccess($Response);
+                                $this->Log->ResponseSuccess($Response->GetData());
                             }
     
                             $this->Log->RequestSuccess();

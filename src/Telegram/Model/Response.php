@@ -6,50 +6,27 @@
     */
     namespace WeRtOG\BottoGram\Telegram\Model;
 
+	use GuzzleHttp\Promise\Promise;
+
 	class Response
 	{
-		public bool $ok = false;
-		public int $code = 200;
-		public string $error = "";
-		public $result;
-		public string $raw;
+		private Promise $Promise;
+		private ?ResponseData $Data = null;
 
-		public function __construct(string $json = '')
+		public function __construct(Promise $Promise)
 		{
-			$this->raw = $json;
-			$array = (array)json_decode($json);
-
-			if(array_key_exists('ok', $array))
-			{
-				$this->ok = $array['ok'];
-
-				if($this->ok)
-				{
-					$this->result = $array['result'];
-				}
-				else
-				{
-					if(array_key_exists('error_code', $array)) $this->code = $array['error_code'];
-					if(array_key_exists('description', $array)) $this->error = $array['description'];
-				}
-			}
+			$this->Promise = $Promise;
 		}
 
-		public function GetMessageID(): ?int
+		public function GetData(): ?ResponseData
 		{
-			if($this->ok)
+			if($this->Data == null)
 			{
-				return $this->result->{'message_id'} ?? null;
+				$HttpResponse = $this->Promise->wait();
+				$this->Data = new ResponseData((string)$HttpResponse->getBody());
 			}
-			else
-			{
-				return null;
-			}
-		}
 
-		public function __toString()
-		{
-			return $this->raw;
+			return $this->Data;
 		}
 	}
     

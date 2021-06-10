@@ -9,17 +9,18 @@
     use WeRtOG\BottoGram\DatabaseManager\Database;
     use WeRtOG\BottoGram\Telegram\Model\Request;
     use WeRtOG\BottoGram\Telegram\Model\Response;
+    use WeRtOG\BottoGram\Telegram\Model\ResponseData;
 
     /**
      * Модуль для работы с логами
-     * @property Database $DB База данных
+     * @property Database $Database База данных
      * @property string|null $ChatID ID пользователя (Telegram)
      * @property int $Row ID строки
      * @property bool $EnableTextLog Флаг текстовых логов
      */
     class Log
     {
-        public Database $DB;
+        public Database $Database;
         public ?string $ChatID;
         public int $Row;
         public bool $EnableTextLog;
@@ -28,23 +29,23 @@
         private string $Table;
 
 
-        public function __construct(?string $ChatID, Request $Request, Database $DB, bool $EnableTextLog = true, bool $EnableExtendedLog = false)
+        public function __construct(?string $ChatID, Request $Request, Database $Database, bool $EnableTextLog = true, bool $EnableExtendedLog = false)
         {
-            $this->DB = $DB;
+            $this->Database = $Database;
             $this->ChatID = $ChatID;
             $this->Table = BOTTOGRAM_DB_TABLE_BOTLOG;
 
-            $Request = $DB->EscapeString($Request);
+            $Request = $Database->EscapeString($Request);
 
             $this->EnableTextLog = $EnableTextLog;
             $this->EnableExtendedLog = $EnableExtendedLog;
 
             if($this->EnableExtendedLog)
-                $this->DB->FetchQuery("INSERT INTO $this->Table (ChatID, Request) VALUES ('$ChatID', '$Request')");
+                $this->Database->FetchQuery("INSERT INTO $this->Table (ChatID, Request) VALUES ('$ChatID', '$Request')");
             else
-                $this->DB->FetchQuery("INSERT INTO $this->Table (ChatID) VALUES ('$ChatID')");
+                $this->Database->FetchQuery("INSERT INTO $this->Table (ChatID) VALUES ('$ChatID')");
 
-            $this->Row = $this->DB->GetInsertID();
+            $this->Row = $this->Database->GetInsertID();
 
             $this->WriteToLogs('');
             $this->WriteToLogs('👾 App started.');
@@ -69,7 +70,7 @@
         public function RequestSuccess()
         {
             $Row = $this->Row;
-            $this->DB->FetchQuery("UPDATE $this->Table SET RequestCode='200' WHERE id='$Row'");
+            $this->Database->FetchQuery("UPDATE $this->Table SET RequestCode='200' WHERE id='$Row'");
 
             $this->WriteToLogs('');
             $this->WriteToLogs('✅⬅️ Request: ok');
@@ -78,8 +79,8 @@
         public function RequestFail(?int $Code, string $Error)
         {
             $Row = $this->Row;
-            $Error = $this->DB->EscapeString($Error);
-            $this->DB->FetchQuery("UPDATE $this->Table SET RequestCode='$Code', RequestError='$Error' WHERE id='$Row'");
+            $Error = $this->Database->EscapeString($Error);
+            $this->Database->FetchQuery("UPDATE $this->Table SET RequestCode='$Code', RequestError='$Error' WHERE id='$Row'");
 
             $this->WriteToLogs('');
             $this->WriteToLogs('❌⬅️ Request: fail');
@@ -87,30 +88,30 @@
             $this->WriteToLogs('Error: ' . $Error);
         }
 
-        public function ResponseSuccess(Response $Response)
+        public function ResponseSuccess(ResponseData $Response)
         {
-            $Response = $this->DB->EscapeString($Response);
+            $Response = $this->Database->EscapeString($Response);
             $Row = $this->Row;
 
             if($this->EnableExtendedLog)
-                $this->DB->FetchQuery("UPDATE $this->Table SET ResponseCode='200', Response='$Response' WHERE ID='$Row'");
+                $this->Database->FetchQuery("UPDATE $this->Table SET ResponseCode='200', Response='$Response' WHERE ID='$Row'");
             else
-                $this->DB->FetchQuery("UPDATE $this->Table SET ResponseCode='200' WHERE ID='$Row'");
+                $this->Database->FetchQuery("UPDATE $this->Table SET ResponseCode='200' WHERE ID='$Row'");
 
             $this->WriteToLogs('');
             $this->WriteToLogs('✅➡️ Response: ok');
         }
 
-        public function ResponseFail(?int $Code, ?string $Error, Response $Response)
+        public function ResponseFail(?int $Code, ?string $Error, ResponseData $Response)
         {
-            $Response = $this->DB->EscapeString($Response);
+            $Response = $this->Database->EscapeString($Response);
             $Row = $this->Row;
-            $Error = $this->DB->EscapeString($Error);
+            $Error = $this->Database->EscapeString($Error);
 
             if($this->EnableExtendedLog)
-                $this->DB->FetchQuery("UPDATE $this->Table SET ResponseCode='$Code', ResponseError='$Error', Response='$Response' WHERE id='$Row'");
+                $this->Database->FetchQuery("UPDATE $this->Table SET ResponseCode='$Code', ResponseError='$Error', Response='$Response' WHERE id='$Row'");
             else
-                $this->DB->FetchQuery("UPDATE $this->Table SET ResponseCode='$Code', ResponseError='$Error' WHERE id='$Row'");
+                $this->Database->FetchQuery("UPDATE $this->Table SET ResponseCode='$Code', ResponseError='$Error' WHERE id='$Row'");
 
             $this->WriteToLogs('');
             $this->WriteToLogs('❌➡️ Response: fail');
@@ -120,13 +121,17 @@
 
         public function ProcessResponse(Response $Response): void
         {
-            if($Response->ok)
+            $ResponseData = $Response->GetData();
+            if($ResponseData != null)
             {
-                $this->ResponseSuccess($Response);
-            }
-            else
-            {
-                $this->ResponseFail($Response->code, $Response->error, $Response);
+                if($ResponseData->ok)
+                {
+                    $this->ResponseSuccess($ResponseData);
+                }
+                else
+                {
+                    $this->ResponseFail($ResponseData->code, $ResponseData->error, $ResponseData);
+                }
             }
         }
     }

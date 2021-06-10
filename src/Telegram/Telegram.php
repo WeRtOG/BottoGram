@@ -6,11 +6,16 @@
     namespace WeRtOG\BottoGram\Telegram;
 
 	// Используем нужные зависимости
+
+	use GuzzleHttp\Client as HttpClient;
+	use GuzzleHttp\Promise\Promise;
+	use GuzzleHttp\Psr7\MultipartStream;
 	use stdClass;
 	use WeRtOG\BottoGram\Navigation\Button;
 	use WeRtOG\BottoGram\Navigation\InlineButton;
 	use WeRtOG\BottoGram\Navigation\KeyboardState;
 	use WeRtOG\BottoGram\Telegram\Model\InlineQuery;
+	use WeRtOG\BottoGram\Telegram\Model\MediaType;
 	use WeRtOG\BottoGram\Telegram\Model\Message;
 	use WeRtOG\BottoGram\Telegram\Model\ParseMode;
 	use WeRtOG\BottoGram\Telegram\Model\PreCheckoutQuery;
@@ -25,13 +30,15 @@
 	 * @property string $Token Токен
 	 * @property bool $ButtonsAutoSize Флаг автоматической смены размера кнопок
 	 */
-	class Telegram
+	class Telegram implements TelegramInterface
 	{
 		public string $ApiURL;
 		public string $FileApiURL;
 		public string $Token;
 		public bool $ButtonsAutoSize = true;
-		
+
+		private HttpClient $HttpClient;
+
 		/**
 		 * Конструктор класса
 		 * @param string $Token Токен
@@ -41,9 +48,16 @@
 		{
 			// Запоминаем токен и генерим ссылки
 			$this->Token = $Token;
-			$this->ApiURL = "https://api.telegram.org/bot" . $Token;
+			$this->ApiURL = "https://api.telegram.org/bot" . $Token . "/";
 			$this->FileApiURL = "https://api.telegram.org/file/bot" . $Token;
 			$this->ButtonsAutoSize = $ButtonsAutoSize;
+
+			$this->HttpClient = new HttpClient([
+				'base_uri' => $this->ApiURL,
+				'timeout'  => 30,
+				'http_errors' => false,
+				'verify' => false
+			]);
 		}
 
 		/**
@@ -51,37 +65,16 @@
 		 * @param string $URL URL
 		 * @return string Ответ
 		 */
-		private function MakeRequest(string $URL, bool $isPOST = false, array $Data = []): string
+		private function MakeRequest(string $URL, string $Method = 'GET', array $FormData = null, array $CustomOptions = []): Promise
 		{
-			if($isPOST)
-			{
-				$Curl = curl_init();
-
-				curl_setopt_array($Curl, [
-					CURLOPT_URL => $URL,
-					CURLOPT_RETURNTRANSFER => 1,
-					CURLOPT_MAXREDIRS => 10,
-					CURLOPT_TIMEOUT => 30,
-					CURLOPT_CUSTOMREQUEST => "POST",
-					CURLOPT_POST => 1,
-					CURLOPT_SSL_VERIFYPEER => false,
-					CURLOPT_POSTFIELDS => $Data
-				]);
-
-				return curl_exec($Curl);
-			}
-			else
-			{
-				$Context = stream_context_create([
-					'http' => ['ignore_errors' => true],
-				]);
-				return file_get_contents($URL, false, $Context);
-			}
+			return $this->HttpClient->requestAsync($Method, $URL, array_merge([
+				'form_params' => $FormData,
+			], $CustomOptions));
 		}
 
-		public function GetRequest(): Request
+		private function GetInputRequest(): Request
 		{
-			$JSONInput = $this->MakeRequest('php://input');
+			$JSONInput = file_get_contents('php://input');
 			return new Request($JSONInput);
 		}
 
@@ -92,7 +85,7 @@
 		 */
 		public function GetFilename(string $FileID): ?string
 		{
-			$Query = $this->MakeRequest($this->ApiURL.'/getFile?file_id='.$FileID);
+			$Query = file_get_contents('getFile?file_id='.$FileID);
 			$Array = json_decode($Query, true);
 			$Result = $Array['result'] ?? ['file_path' => null];
 			return $Result['file_path'] ?? null;
@@ -122,7 +115,7 @@
 		 */
 		public function GetBlob(string $FileName): string
 		{
-			return addslashes($this->MakeRequest($this->FileApiURL.'/'.$FileName));
+			return addslashes(file_get_contents($this->FileApiURL.'/'.$FileName));
 		}
 		
 		/**
@@ -211,10 +204,10 @@
 		 * @param string $ParseMode Метод парсинга текста
 		 * @return Response Ответ от Telegram
 		 */
-		public function SendMessage(string $Message, ?string $ChatID, $MainKeyboard = [], $InlineKeyboard = [], string $ParseMode = ParseMode::Markdown): Response
+		public function SendMessage(string $Message, ?string $ChatID, string|array|null $MainKeyboard = [], array|null $InlineKeyboard = [], string $ParseMode = ParseMode::Markdown): Response
 		{
 			$ReplyMarkup = $this->GenerateReplyMarkup($MainKeyboard, $InlineKeyboard);
-			$Query = $this->MakeRequest($this->ApiURL . '/sendMessage?chat_id=' . $ChatID . '&text=' . urlencode($Message)  . '&reply_markup=' . $ReplyMarkup . "&parse_mode=" . $ParseMode);
+			$Query = $this->MakeRequest('sendMessage?chat_id=' . $ChatID . '&text=' . urlencode($Message)  . '&reply_markup=' . $ReplyMarkup . "&parse_mode=" . $ParseMode);
 			return new Response($Query);
 		}
 
@@ -232,7 +225,7 @@
 				'ok' => $Ok,
 				'error_message' => $ErrorMessage
 			]);
-			$Query = $this->MakeRequest($this->ApiURL . '/answerPreCheckoutQuery?' . $ParametersString);
+			$Query = $this->MakeRequest('answerPreCheckoutQuery?' . $ParametersString);
 			return new Response($Query);
 		}
 		
@@ -259,7 +252,7 @@
 				'currency' => $Currency,
 				'prices' => json_encode($Prices)
 			]);
-			$Query = $this->MakeRequest($this->ApiURL . '/sendInvoice?' . $ParametersString);
+			$Query = $this->MakeRequest('sendInvoice?' . $ParametersString);
 			return new Response($Query);
 		}
 
@@ -271,7 +264,7 @@
 		 */
 		public function SendChatAction(string $Action, ?string $ChatID): Response
 		{
-			$Query = $this->MakeRequest($this->ApiURL.'/sendChatAction?chat_id='.$ChatID.'&action='.urlencode($Action));
+			$Query = $this->MakeRequest('sendChatAction?chat_id='.$ChatID.'&action='.urlencode($Action));
 			return new Response($Query);
 		}
 		
@@ -286,7 +279,7 @@
 		public function SendMediaGroup(array $Content, string $ChatID, string $Caption = "", string $ParseMode = ParseMode::Markdown): Response
 		{
 			// Строим ссылку
-			$URL = $this->ApiURL.'/sendMediaGroup?chat_id=' . $ChatID;
+			$URL = 'sendMediaGroup?chat_id=' . $ChatID;
 
 			// Подготавливаем массив для media и для файлов
 			$Media = [];
@@ -299,7 +292,7 @@
 				if(isset($Item['File']))
 				{
 					// Добавляем файл
-					$FileContent = $this->MakeRequest($Item['File']);
+					$FileContent = fopen($Item['File'], 'r');
 					$Files[basename($Item['File'])] = $FileContent;
 
 					// Создаём массив элемента
@@ -333,37 +326,35 @@
 
 			// Подготавливаем поля к отправке
 			$Fields = [
-				"chat_id" => $ChatID, 
-				"media" => json_encode($Media)
+				[
+					'name' => 'chat_id',
+					'contents' => $ChatID
+				],
+				[
+					'name' => 'media',
+					'contents' => json_encode($Media)
+				]
 			];
 
+			foreach($Files as $FileName => $FileContent)
+			{
+				$Fields[] = [
+					'name' => $FileName,
+					'contents' => $FileContent
+				];
+			}
+
 			// CURL
-			$Curl = curl_init();
+			
 			$Boundary = uniqid();
-			$Delimiter = '-------------' . $Boundary;
-
-			// Строим данные запроса
-			$POST_DATA = $this->RequestBuildDataFiles($Boundary, $Fields, $Files);
-
-
-			curl_setopt_array($Curl, array(
-				CURLOPT_URL => $URL,
-				CURLOPT_RETURNTRANSFER => 1,
-				CURLOPT_MAXREDIRS => 10,
-				CURLOPT_TIMEOUT => 30,
-				CURLOPT_CUSTOMREQUEST => "POST",
-				CURLOPT_POST => 1,
-				CURLOPT_SSL_VERIFYPEER => false,
-				CURLOPT_POSTFIELDS => $POST_DATA,
-				CURLOPT_HTTPHEADER => array(
-					"Content-Type: multipart/form-data; boundary=" . $Delimiter,
-					"Content-Length: " . strlen($POST_DATA)
-				)
-			));
-
-			// Получаем ответ, декодируем его и возвращаем результат
-			$response = curl_exec($Curl);
-			return new Response($response);
+			$Promise = $this->MakeRequest($URL, 'POST', null, [
+				'headers' => [
+					'Connection' => 'close',
+					'Content-Type' => 'multipart/form-data; boundary='.$Boundary,
+				],
+				'body' => new MultipartStream($Fields, $Boundary)
+			]);
+			return new Response($Promise);
 		}
 
 		/**
@@ -409,169 +400,117 @@
 		 * @param array $InlineKeyboard Инлайновая клавиатура
 		 * @return Response Ответ от Telegram
 		 */
-		public function SendPhoto(string $Photo, string $ChatID, string $Caption = "", $MainKeyboard = [], $InlineKeyboard = []): Response
+		public function SendPhotoByURL(string $Photo, string $ChatID, string $Caption = "", $MainKeyboard = [], $InlineKeyboard = []): Response
 		{
 			$ReplyMarkup = $this->GenerateReplyMarkup($MainKeyboard, $InlineKeyboard);
-			$Query = $this->MakeRequest($this->ApiURL.'/sendPhoto?chat_id='.$ChatID.'&photo='.urlencode($Photo)."&caption=".urlencode($Caption) . '&reply_markup=' . $ReplyMarkup . "&parse_mode=markdown");
+			$Query = $this->MakeRequest('sendPhoto?chat_id='.$ChatID.'&photo='.urlencode($Photo)."&caption=".urlencode($Caption) . '&reply_markup=' . $ReplyMarkup . "&parse_mode=markdown");
 			return new Response($Query);
 		}
 
-		/**
-		 * Альтернативныйетод для отправки фотографии
-		 * @param string $Photo Фотография
-		 * @param string $ChatID ID чата
-		 * @param string $Caption Подпись
-		 * @param array $MainKeyboard Основная клавиатура
-		 * @param array $InlineKeyboard Инлайновая клавиатура
-		 * @return Response Ответ от Telegram
-		 */
-		public function SendPhotoAlt(string $Photo, string $ChatID, string $Caption = "", $MainKeyboard = [], $InlineKeyboard = []): Response
+		public function SendMedia(string $ApiMethod, string $Path, string $MediaType, string $ChatID, string $Caption = '', string|array|null $MainKeyboard = [], array|null $InlineKeyboard = [], string $ParseMode = ParseMode::Markdown): Response
 		{
 			$ReplyMarkup = $this->GenerateReplyMarkup($MainKeyboard, $InlineKeyboard);
-			
-			// Строим ссылку
-			$URL = $this->ApiURL.'/sendPhoto?chat_id='.$ChatID . '&reply_markup=' . $ReplyMarkup . "&parse_mode=markdown";
+			$URL = $ApiMethod . '?chat_id='. $ChatID . '&reply_markup=' . $ReplyMarkup . '&parse_mode=' . $ParseMode;
+			$FileContent = fopen($Path, 'r');
 
-			// Подготавливаем массив для media и для файлов
-			$Files = [];
-
-			$FileContent = $this->MakeRequest($Photo);
-			$Files[basename($Photo)] = $FileContent;
-
-			// Подготавливаем поля к отправке
-			$Fields = array("chat_id" => $ChatID, "photo" => "attach://" . basename($Photo), "caption" => $Caption);
-
-			// CURL
-			$Curl = curl_init();
-			$Boundary = uniqid();
-			$Delimiter = '-------------' . $Boundary;
-
-			// Строим данные запроса
-			$POST_DATA = $this->RequestBuildDataFiles($Boundary, $Fields, $Files);
-
-
-			curl_setopt_array($Curl, [
-				CURLOPT_URL => $URL,
-				CURLOPT_RETURNTRANSFER => 1,
-				CURLOPT_MAXREDIRS => 10,
-				CURLOPT_TIMEOUT => 30,
-				CURLOPT_CUSTOMREQUEST => "POST",
-				CURLOPT_POST => 1,
-				CURLOPT_SSL_VERIFYPEER => false,
-				CURLOPT_POSTFIELDS => $POST_DATA,
-				CURLOPT_HTTPHEADER => [
-					"Content-Type: multipart/form-data; boundary=" . $Delimiter,
-					"Content-Length: " . strlen($POST_DATA)
+			$Promise = $this->MakeRequest($URL, 'POST', null, [
+				'multipart' => [
+					[
+						'name' => 'chat_id',
+						'contents' => $ChatID
+					],
+					[
+						'name' => $MediaType,
+						'contents' => $FileContent
+					],
+					[
+						'name' => 'caption',
+						'contents' => $Caption
+					]
 				]
 			]);
-
-			// Получаем ответ, декодируем его и возвращаем результат
-			$response = curl_exec($Curl);
-			return new Response($response);
+			return new Response($Promise);
 		}
 
-		/**
-		 * Метод для отправки голосового сообщения
-		 * @param string $URL URL
-		 * @param string $ChatID ID чата
-		 * @return Response Ответ от Telegram
-		 */
-		public function SendVoice(string $URL, string $ChatID): Response
+
+		public function SendPhoto(string $Photo, string $ChatID, string $Caption = "", string|array|null $MainKeyboard = [], array|null $InlineKeyboard = [], string $ParseMode = ParseMode::Markdown): Response
 		{
-			$query = $this->MakeRequest($this->ApiURL.'/sendVoice?chat_id='.$ChatID.'&voice='.$URL);
-			return new Response($query);
+			return $this->SendMedia(
+				ApiMethod: 'sendPhoto',
+				Path: $Photo,
+				MediaType: MediaType::Photo,
+				ChatID: $ChatID,
+				Caption: $Caption,
+				MainKeyboard: $MainKeyboard,
+				InlineKeyboard: $InlineKeyboard,
+				ParseMode: $ParseMode
+			);
 		}
 
-		/**
-		 * Метод для отправки документа
-		 * @param string $Document Документ
-		 * @param string $ChatID ID чата
-		 * @return Response Ответ от Telegram
-		 */
-		public function SendDocument(string $Document, string $ChatID): Response
+		public function SendVoice(string $Voice, string $ChatID, string $Caption = "", string|array|null $MainKeyboard = [], array|null $InlineKeyboard = [], string $ParseMode = ParseMode::Markdown): Response
 		{
-			// Строим ссылку
-			$URL = $this->ApiURL.'/sendDocument?chat_id='.$ChatID;
-
-			// Подготавливаем массив для media и для файлов
-			$Files = [];
-
-			$FileContent = $this->MakeRequest($Document);
-			$Files[basename($Document)] = $FileContent;
-
-			// Подготавливаем поля к отправке
-			$Fields = ["chat_id" => $ChatID, "document" => "attach://" . basename($Document)];
-
-			// CURL
-			$Curl = curl_init();
-			$Boundary = uniqid();
-			$Delimiter = '-------------' . $Boundary;
-
-			// Строим данные запроса
-			$POST_DATA = $this->RequestBuildDataFiles($Boundary, $Fields, $Files);
-
-
-			curl_setopt_array($Curl, [
-				CURLOPT_URL => $URL,
-				CURLOPT_RETURNTRANSFER => 1,
-				CURLOPT_MAXREDIRS => 10,
-				CURLOPT_TIMEOUT => 30,
-				CURLOPT_CUSTOMREQUEST => "POST",
-				CURLOPT_POST => 1,
-				CURLOPT_SSL_VERIFYPEER => false,
-				CURLOPT_POSTFIELDS => $POST_DATA,
-				CURLOPT_HTTPHEADER => [
-					"Content-Type: multipart/form-data; boundary=" . $Delimiter,
-					"Content-Length: " . strlen($POST_DATA)
-				]
-			]);
-
-			// Получаем ответ, декодируем его и возвращаем результат
-			$response = curl_exec($Curl);
-			return new Response($response);
+			return $this->SendMedia(
+				ApiMethod: 'sendVoice',
+				Path: $Voice,
+				MediaType: MediaType::Voice,
+				ChatID: $ChatID,
+				Caption: $Caption,
+				MainKeyboard: $MainKeyboard,
+				InlineKeyboard: $InlineKeyboard,
+				ParseMode: $ParseMode
+			);
 		}
 
-		/**
-		 * Метод для отправки аудио
-		 * @param string $URL URL
-		 * @param string $ChatID ID чата
-		 * @return Response Ответ от Telegram
-		 */
-		public function SendAudio(string $URL, string $ChatID): Response
+		public function SendDocument(string $Document, string $ChatID, string $Caption = "", string|array|null $MainKeyboard = [], array|null $InlineKeyboard = [], string $ParseMode = ParseMode::Markdown): Response
 		{
-			$query = $this->MakeRequest($this->ApiURL.'/sendAudio?chat_id='.$ChatID.'&audio='.$URL);
-			return new Response($query);
+			return $this->SendMedia(
+				ApiMethod: 'sendDocument',
+				Path: $Document,
+				MediaType: MediaType::Document,
+				ChatID: $ChatID,
+				Caption: $Caption,
+				MainKeyboard: $MainKeyboard,
+				InlineKeyboard: $InlineKeyboard,
+				ParseMode: $ParseMode
+			);
 		}
 
-		/**
-		 * Метод для отправки геолокации
-		 * @param string $Lat Широта
-		 * @param string $Long Долгота
-		 * @param string $ChatID ID чата
-		 * @return Response Ответ от Telegram
-		 */
+		public function SendAudio(string $Audio, string $ChatID, string $Caption = "", string|array|null $MainKeyboard = [], array|null $InlineKeyboard = [], string $ParseMode = ParseMode::Markdown): Response
+		{
+			return $this->SendMedia(
+				ApiMethod: 'sendAudio',
+				Path: $Audio,
+				MediaType: MediaType::Audio,
+				ChatID: $ChatID,
+				Caption: $Caption,
+				MainKeyboard: $MainKeyboard,
+				InlineKeyboard: $InlineKeyboard,
+				ParseMode: $ParseMode
+			);
+		}
+
+		public function SendVideo(string $Video, string $ChatID, string $Caption = "", string|array|null $MainKeyboard = [], array|null $InlineKeyboard = [], string $ParseMode = ParseMode::Markdown): Response
+		{
+			return $this->SendMedia(
+				ApiMethod: 'sendVideo',
+				Path: $Video,
+				MediaType: MediaType::Video,
+				ChatID: $ChatID,
+				Caption: $Caption,
+				MainKeyboard: $MainKeyboard,
+				InlineKeyboard: $InlineKeyboard,
+				ParseMode: $ParseMode
+			);
+		}
+
+
 		public function SendLocation(string $Lat, string $Long, string $ChatID): Response
 		{
-			$query = $this->MakeRequest($this->ApiURL.'/sendLocation?chat_id='.$ChatID.'&latitude='.urlencode($Lat).'&longitude='.urlencode($Long));
+			$query = $this->MakeRequest('sendLocation?chat_id='.$ChatID.'&latitude='.urlencode($Lat).'&longitude='.urlencode($Long));
 			return new Response($query);
 		}
 
-		/**
-		 * Метод для отправки видео
-		 * @param string $Video Видео
-		 * @param string $ChatID ID чата
-		 * @param string $Caption Подпись
-		 * @param array $MainKeyboard Основная клавиатура
-		 * @param array $InlineKeyboard Инлайновая клавиатура
-		 * @param string $ParseMode Метод парсинга
-		 * @return Response Ответ от Telegram
-		 */
-		public function SendVideo(string $Video, string $ChatID, string $Caption = "", $MainKeyboard = [], $InlineKeyboard = [], string $ParseMode = ParseMode::Markdown): Response
-		{
-			$ReplyMarkup = $this->GenerateReplyMarkup($MainKeyboard, $InlineKeyboard);
-			$Query = $this->MakeRequest($this->ApiURL.'/sendVideo?chat_id='.$ChatID.'&video='.urlencode($Video)."&caption=".urlencode($Caption) . '&reply_markup=' . $ReplyMarkup . "&parse_mode=" . $ParseMode);
-			return new Response($Query);
-		}
+		
 
 		/**
 		 * Метод для пересылки сообщения
@@ -582,7 +521,7 @@
 		 */
 		public function ForwardMessage(string $FromID, int $MessageID, string $ChatID): Response
 		{
-			$query = $this->MakeRequest($this->ApiURL.'/forwardMessage?chat_id='.$ChatID.'&from_chat_id='.$FromID.'&message_id='.$MessageID);
+			$query = $this->MakeRequest('forwardMessage?chat_id='.$ChatID.'&from_chat_id='.$FromID.'&message_id='.$MessageID);
 			return new Response($query);
 		}
 
@@ -594,7 +533,7 @@
 		 */
 		public function DeleteMessage(int $MessageID, string $ChatID): Response
 		{
-			$query = $this->MakeRequest($this->ApiURL.'/deleteMessage?chat_id='.$ChatID.'&message_id='.$MessageID);
+			$query = $this->MakeRequest('deleteMessage?chat_id='.$ChatID.'&message_id='.$MessageID);
 			return new Response($query);
 		}
 
@@ -608,7 +547,7 @@
 		 */
 		public function EditMessage(string $MessageID, string $NewText, string $ChatID, string $ParseMode = ParseMode::Markdown): Response
 		{
-			$query = $this->MakeRequest($this->ApiURL.'/editMessageText?chat_id='.$ChatID.'&message_id='.$MessageID.'&text='.urlencode($NewText)."&parse_mode=" . $ParseMode);
+			$query = $this->MakeRequest('editMessageText?chat_id='.$ChatID.'&message_id='.$MessageID.'&text='.urlencode($NewText)."&parse_mode=" . $ParseMode);
 			return new Response($query);
 		}
 
@@ -622,7 +561,7 @@
 		public function EditMessageInlineButtons(int $MessageID, $InlineKeyboard, string $ChatID): Response
 		{
 			$ReplyMarkup = $this->GenerateReplyMarkup([], $InlineKeyboard);
-			$query = $this->MakeRequest($this->ApiURL.'/editMessageReplyMarkup?chat_id='.$ChatID.'&message_id='.$MessageID . '&reply_markup=' . $ReplyMarkup);
+			$query = $this->MakeRequest('editMessageReplyMarkup?chat_id='.$ChatID.'&message_id='.$MessageID . '&reply_markup=' . $ReplyMarkup);
 			return new Response($query);
 		}
 
@@ -657,7 +596,7 @@
 			}
 
 			$Json = json_encode($Results);
-			$Query = $this->MakeRequest($this->ApiURL.'/answerInlineQuery?cache_time=1&inline_query_id='.$qID.'&results='.urlencode($Json));
+			$Query = $this->MakeRequest('answerInlineQuery?cache_time=1&inline_query_id='.$qID.'&results='.urlencode($Json));
 			return new Response($Query);
 		}
 
@@ -668,7 +607,7 @@
 		public function GetInlineQuery(Request $Request = null): ?InlineQuery
 		{
 			if($Request == null)
-				$Request = $this->GetRequest();
+				$Request = $this->GetInputRequest();
 			
 			if(property_exists($Request->Body, 'inline_query')) {
 				return new InlineQuery(
@@ -688,7 +627,7 @@
 		public function GetPreCheckoutQuery(Request $Request = null): ?PreCheckoutQuery
 		{
 			if($Request == null)
-				$Request = $this->GetRequest();
+				$Request = $this->GetInputRequest();
 			
 			if(property_exists($Request->Body, 'pre_checkout_query')) {
 				return new PreCheckoutQuery(
@@ -707,7 +646,7 @@
 		public function GetUserMessage(Request $Request = null): ?Message
 		{
 			if($Request == null)
-				$Request = $this->GetRequest();
+				$Request = $this->GetInputRequest();
 
 			// Если отправлено из канала - покидаем приложение
 			if(property_exists($Request->Body, 'channel_post'))
@@ -866,7 +805,7 @@
 
 		public function GetUpdate(): ?Update
 		{
-			$Request = $this->GetRequest();
+			$Request = $this->GetInputRequest();
 
 			if(isset($Request->Body->{'update_id'}))
 			{
@@ -887,40 +826,8 @@
 				'text' => $NotificationText,
 				'show_alert' => $ShowAlert
 			]);
-			$Query = $this->MakeRequest($this->ApiURL . '/answerCallbackQuery?' . $ParametersString);
+			$Query = $this->MakeRequest('answerCallbackQuery?' . $ParametersString);
 			return new Response($Query);
-		}
-
-		/**
-		 * Служебная функция для постройки CURL запроса с файлами и данными
-		 * @param string $Boundary Неведомый ID
-		 * @param array $Fields Основные поля
-		 * @param array $Files Файлы
-		 */
-		private function RequestBuildDataFiles(string $Boundary, array $Fields, array $Files)
-		{
-			$Data = '';
-			$Eol = "\r\n";
-			$Delimiter = '-------------' . $Boundary;
-		
-			foreach ($Fields as $Name => $Content)
-			{
-				$Data .= "--" . $Delimiter . $Eol
-					. 'Content-Disposition: form-data; name="' . $Name . "\"".$Eol.$Eol
-					. $Content . $Eol;
-			}
-			foreach ($Files as $Name => $Content)
-			{
-				$Data .= "--" . $Delimiter . $Eol
-					. 'Content-Disposition: form-data; name="' . $Name . '"; filename="' . $Name . '"' . $Eol
-					. 'Content-Transfer-Encoding: binary'.$Eol
-					;
-		
-				$Data .= $Eol;
-				$Data .= $Content . $Eol;
-			}
-			$Data .= "--" . $Delimiter . "--". $Eol;
-			return $Data;
 		}
 	}
 ?>

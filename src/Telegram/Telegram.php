@@ -13,7 +13,7 @@
 	use WeRtOG\BottoGram\Navigation\InlineButton;
 	use WeRtOG\BottoGram\Navigation\KeyboardState;
 	use WeRtOG\BottoGram\Telegram\Model\InlineQuery;
-	use WeRtOG\BottoGram\Telegram\Model\MediaType;
+	use WeRtOG\BottoGram\Telegram\Model\MessageType;
 	use WeRtOG\BottoGram\Telegram\Model\Message;
 	use WeRtOG\BottoGram\Telegram\Model\ParseMode;
 	use WeRtOG\BottoGram\Telegram\Model\PreCheckoutQuery;
@@ -54,17 +54,28 @@
 
 		private function GetInputRequest(): Request
 		{
-			$JSONInput = file_get_contents('php://input');
+			$JSONInput = '';
+			if($Stream = fopen('php://input', 'r')) {
+				$JSONInput = stream_get_contents($Stream);
+				fclose($Stream);
+			}
+			
 			return new Request($JSONInput);
 		}
 
 
 		public function GetFilename(string $FileID): ?string
 		{
-			$Query = file_get_contents('getFile?file_id='.$FileID);
-			$Array = json_decode($Query, true);
-			$Result = $Array['result'] ?? ['file_path' => null];
-			return $Result['file_path'] ?? null;
+			$Response = $this->MakeRequest('getFile?file_id='.$FileID)->wait();
+
+			if($Response != null)
+			{
+				$Array = json_decode((string)$Response->getBody(), true);
+				$Result = $Array['result'] ?? ['file_path' => null];
+				return $Result['file_path'] ?? null;
+			}
+
+			return null;
 		}
 
 		public function GetFile(string $FileName, string $Folder = 'uploads'): string
@@ -272,15 +283,6 @@
 			return new Response($Promise);
 		}
 
-		/**
-		 * Метод для отправки фотографии
-		 * @param string $Photo Фотография
-		 * @param string $ChatID ID чата
-		 * @param string $Caption Подпись
-		 * @param array $MainKeyboard Основная клавиатура
-		 * @param array $InlineKeyboard Инлайновая клавиатура
-		 * @return Response Ответ от Telegram
-		 */
 		public function SendPhotoByURL(string $Photo, string $ChatID, string $Caption = "", $MainKeyboard = [], $InlineKeyboard = []): Response
 		{
 			$ReplyMarkup = $this->GenerateReplyMarkup($MainKeyboard, $InlineKeyboard);
@@ -288,7 +290,7 @@
 			return new Response($Query);
 		}
 
-		public function SendMedia(string $ApiMethod, string $Path, string $MediaType, string $ChatID, string $Caption = '', string|array|null $MainKeyboard = [], array|null $InlineKeyboard = [], string $ParseMode = ParseMode::Markdown): Response
+		public function SendMedia(string $ApiMethod, string $Path, string $MessageType, string $ChatID, string $Caption = '', string|array|null $MainKeyboard = [], array|null $InlineKeyboard = [], string $ParseMode = ParseMode::Markdown): Response
 		{
 			$ReplyMarkup = $this->GenerateReplyMarkup($MainKeyboard, $InlineKeyboard);
 			$URL = $ApiMethod . '?chat_id='. $ChatID . '&reply_markup=' . $ReplyMarkup . '&parse_mode=' . $ParseMode;
@@ -301,7 +303,7 @@
 						'contents' => $ChatID
 					],
 					[
-						'name' => $MediaType,
+						'name' => $MessageType,
 						'contents' => $FileContent
 					],
 					[
@@ -319,7 +321,7 @@
 			return $this->SendMedia(
 				ApiMethod: 'sendPhoto',
 				Path: $Photo,
-				MediaType: MediaType::Photo,
+				MessageType: MessageType::Photo,
 				ChatID: $ChatID,
 				Caption: $Caption,
 				MainKeyboard: $MainKeyboard,
@@ -333,7 +335,7 @@
 			return $this->SendMedia(
 				ApiMethod: 'sendVoice',
 				Path: $Voice,
-				MediaType: MediaType::Voice,
+				MessageType: MessageType::Voice,
 				ChatID: $ChatID,
 				Caption: $Caption,
 				MainKeyboard: $MainKeyboard,
@@ -347,7 +349,7 @@
 			return $this->SendMedia(
 				ApiMethod: 'sendDocument',
 				Path: $Document,
-				MediaType: MediaType::Document,
+				MessageType: MessageType::Document,
 				ChatID: $ChatID,
 				Caption: $Caption,
 				MainKeyboard: $MainKeyboard,
@@ -361,7 +363,7 @@
 			return $this->SendMedia(
 				ApiMethod: 'sendAudio',
 				Path: $Audio,
-				MediaType: MediaType::Audio,
+				MessageType: MessageType::Audio,
 				ChatID: $ChatID,
 				Caption: $Caption,
 				MainKeyboard: $MainKeyboard,
@@ -375,7 +377,7 @@
 			return $this->SendMedia(
 				ApiMethod: 'sendVideo',
 				Path: $Video,
-				MediaType: MediaType::Video,
+				MessageType: MessageType::Video,
 				ChatID: $ChatID,
 				Caption: $Caption,
 				MainKeyboard: $MainKeyboard,
@@ -392,53 +394,24 @@
 		}
 
 		
-
-		/**
-		 * Метод для пересылки сообщения
-		 * @param string $FromID Чат из которого нужно переслать сообщение 
-		 * @param string $MessageID ID сообщения
-		 * @param string $ChatID ID чата
-		 * @return Response Ответ от Telegram
-		 */
 		public function ForwardMessage(string $FromID, int $MessageID, string $ChatID): Response
 		{
 			$query = $this->MakeRequest('forwardMessage?chat_id='.$ChatID.'&from_chat_id='.$FromID.'&message_id='.$MessageID);
 			return new Response($query);
 		}
 
-		/**
-		 * Метод для удаления сообщения
-		 * @param int $MessageID ID сообщения
-		 * @param string $ChatID ID чата
-		 * @return Response Ответ от Telegram
-		 */
 		public function DeleteMessage(int $MessageID, string $ChatID): Response
 		{
 			$query = $this->MakeRequest('deleteMessage?chat_id='.$ChatID.'&message_id='.$MessageID);
 			return new Response($query);
 		}
 
-		/**
-		 * Метод для редактирования сообщения
-		 * @param string $MessageID ID сообщения
-		 * @param string $NewText Новый текст
-		 * @param string $ChatID ID чата
-		 * @param string $ParseMode Метод парсинга
-		 * @return Response Ответ от Telegram
-		 */
 		public function EditMessage(string $MessageID, string $NewText, string $ChatID, string $ParseMode = ParseMode::Markdown): Response
 		{
 			$query = $this->MakeRequest('editMessageText?chat_id='.$ChatID.'&message_id='.$MessageID.'&text='.urlencode($NewText)."&parse_mode=" . $ParseMode);
 			return new Response($query);
 		}
 
-		/**
-		 * Метод для редактирования инлайновых кнопок сообщения
-		 * @param int $MessageID ID сообщения
-		 * @param array $InlineKeyboard Инлайновая клавиатура
-		 * @param string $ChatID ID чата
-		 * @return Response Ответ от Telegram
-		 */
 		public function EditMessageInlineButtons(int $MessageID, $InlineKeyboard, string $ChatID): Response
 		{
 			$ReplyMarkup = $this->GenerateReplyMarkup([], $InlineKeyboard);
@@ -446,12 +419,6 @@
 			return new Response($query);
 		}
 
-		/**
-		 * Метод для ответа на инлайновый запрос статьями
-		 * @param string $qID ID запроса
-		 * @param array $Articles Статьи
-		 * @return Response Ответ от Telegram
-		 */
 		public function AnswerInlineQueryWithArticles(string $qID, array $Articles): Response
 		{
 			$Results = [];
@@ -481,10 +448,6 @@
 			return new Response($Query);
 		}
 
-		/**
-		 * Метод для получения инлайнового запроса
-		 * @return InlineQuery Инлайновый запрос
-		 */
 		public function GetInlineQuery(Request $Request = null): ?InlineQuery
 		{
 			if($Request == null)
@@ -500,11 +463,7 @@
 				return null;
 			}
 		}
-		
-		/**
-		 * Метод для получения запроса на подтверждение оплаты
-		 * @return PreCheckoutQuery Запрос
-		 */
+
 		public function GetPreCheckoutQuery(Request $Request = null): ?PreCheckoutQuery
 		{
 			if($Request == null)
@@ -519,11 +478,7 @@
 				return null;
 			}
 		}
-		
-		/**
-		 * Метод для получения пользовательского сообщения
-		 * @return Message Сообщение
-		 */
+
 		public function GetUserMessage(Request $Request = null): ?Message
 		{
 			if($Request == null)
@@ -624,12 +579,6 @@
 					ChatID: $Request->Body->{'message'}->{'chat'}->{'id'},
 					FromID: $Request->Body->{'message'}->{'from'}->{'id'},
 					UserName: $UserName,
-					IsPhoto: !empty($PhotoID),
-					IsVideo: !empty($VideoID),
-					IsDocument: !empty($DocumentID),
-					IsMediaGroup: !empty($MediaGroup),
-					IsLocation: !empty($Location),
-					IsPay: !empty($Pay),
 					Location: $Location,
 					MediaGroupID: $MediaGroup,
 					PhotoID: $PhotoID,
@@ -668,9 +617,6 @@
 					FromID: $FromID,
 					MessageID: $MessageID,
 					UserName: $UserName,
-					IsPhoto: false,
-					IsVideo: false,
-					IsMediaGroup: false,
 					IsCallbackQuery: true,
 					MediaGroupID: "",
 					PhotoID: "",

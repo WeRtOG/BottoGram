@@ -28,7 +28,7 @@
         public function SendInvoice(?string $ChatID, string $Title, string $Description, string $Payload, string $Currency, array $Prices, string $PaymentToken): Response;
         public function SendChatAction(string $Action, ?string $ChatID): Response;
         public function SendMediaGroup(array $Content, string $ChatID, string $Caption = "", string $ParseMode = ParseMode::Markdown): Response;
-        public function SendMedia(string $ApiMethod, string $Path, string $MediaType, string $ChatID, string $Caption = '', string|array|null $MainKeyboard = [], array|null $InlineKeyboard = [], string $ParseMode = ParseMode::Markdown): Response;
+        public function SendMedia(string $ApiMethod, string $Path, string $MessageType, string $ChatID, string $Caption = '', string|array|null $MainKeyboard = [], array|null $InlineKeyboard = [], string $ParseMode = ParseMode::Markdown): Response;
         public function SendPhotoByURL(string $Photo, string $ChatID, string $Caption = "", $MainKeyboard = [], $InlineKeyboard = []): Response;
         public function SendPhoto(string $Photo, string $ChatID, string $Caption = "", string|array|null $MainKeyboard = [], array|null $InlineKeyboard = [], string $ParseMode = ParseMode::Markdown): Response;
         public function SendVoice(string $Voice, string $ChatID, string $Caption = "", string|array|null $MainKeyboard = [], array|null $InlineKeyboard = [], string $ParseMode = ParseMode::Markdown): Response;
@@ -45,6 +45,7 @@
         public function GetInlineQuery(Request $Request = null): ?InlineQuery;
         public function GetPreCheckoutQuery(Request $Request = null): ?PreCheckoutQuery;
         public function GetUserMessage(Request $Request = null): ?Message;
+
         public function GetUpdate(): ?Update;
     }
 ?>

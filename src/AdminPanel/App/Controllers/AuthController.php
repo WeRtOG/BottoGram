@@ -14,9 +14,6 @@
 
     class AuthController extends Controller
 	{
-		/**
-         * Экшн коренной страницы
-         */
         #[Action]
 		public function Index(): View
 		{

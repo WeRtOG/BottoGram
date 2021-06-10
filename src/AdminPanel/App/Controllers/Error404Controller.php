@@ -8,15 +8,10 @@
 
     use WeRtOG\FoxyMVC\Attributes\Action;
     use WeRtOG\FoxyMVC\Controller;
-    use WeRtOG\FoxyMVC\ControllerResponse\Response;
     use WeRtOG\FoxyMVC\ControllerResponse\View;
-    use WeRtOG\FoxyMVC\Route;
 
     class Error404Controller extends Controller
 	{
-		/**
-         * Экшн коренной страницы
-         */
         #[Action]
 		public function Index(): View
 		{

@@ -25,6 +25,7 @@
     use WeRtOG\BottoGram\Telegram\Model\ParseMode;
     use WeRtOG\BottoGram\Models\TelegramUser;
     use WeRtOG\BottoGram\Models\TelegramUsers;
+    use WeRtOG\BottoGram\Telegram\Model\MessageType;
     use WeRtOG\BottoGram\Telegram\Model\Update;
     use WeRtOG\BottoGram\Telegram\Model\UpdateType;
 
@@ -120,7 +121,7 @@
                 
                             $this->OldMediaGroup = $this->TelegramUsers->GetUserLastMediaGroup($this->Update->Message->ChatID);
                             
-                            if($this->Update->Message->IsMediaGroup)
+                            if($this->Update->Message->Type == MessageType::MediaGroup)
                             {
                                 $this->NewMediaGroup = $this->Update->Message->MediaGroupID;
                                 $this->TelegramUsers->SetUserLastMediaGroup(
@@ -326,7 +327,7 @@
             return $Response;
         }
 
-        public function SendPhoto(string $Photo, string $Text = "", ?array $MainKeyboard = [], string $Channel = "", ?array $InlineKeyboard = []): TelegramResponse
+        public function SendPhoto(string $Photo, string $Text = "", string|array $MainKeyboard = KeyboardState::KeepLastKeyboard, string $Channel = "", array|null $InlineKeyboard = []): TelegramResponse
         {
             if($this->Update->Message == null) return new TelegramResponse();
 
@@ -443,21 +444,6 @@
         public function GetBlobFromID(int $ID): string
         {
             return $this->Telegram->GetBlob($this->Telegram->GetFilename($ID));
-        }
-
-        public function SendPhotoGroup(array $Photos, string $Caption = "", string $Channel = "", bool $isID = false, string $ParseMode = ParseMode::Markdown): TelegramResponse
-        {
-            if($this->Update->Message == null) return new TelegramResponse();
-
-            if(empty($Channel))
-            {
-                $Channel = $this->Update->Message->ChatID;
-            }
-
-            $Response = $this->Telegram->SendPhotoGroup($Photos, $Channel, $Caption, $isID, $ParseMode);
-
-            $this->Log->ProcessResponse($Response);
-            return $Response;
         }
 
         public function SendMediaGroup(array $Content, string $Caption = "", string $Channel = "", string $ParseMode = ParseMode::Markdown): TelegramResponse
@@ -717,7 +703,7 @@
                                 }
                             }
         
-                            if($this->Update->Message->IsPay)
+                            if($this->Update->Message->Type == MessageType::Pay)
                             {
                                 if(method_exists($CurrentMenu, 'OnPay')) $CurrentMenu->{'OnPay'}($this->Update->Message, $this);
                             }

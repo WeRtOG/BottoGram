@@ -8,7 +8,6 @@
 
     use Exception;
     use WeRtOG\FoxyMVC\Attributes\Action;
-    use WeRtOG\FoxyMVC\Controller;
     use WeRtOG\FoxyMVC\ControllerResponse\JsonView;
     use WeRtOG\FoxyMVC\ControllerResponse\Response;
     use WeRtOG\FoxyMVC\ControllerResponse\View;

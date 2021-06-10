@@ -8,8 +8,8 @@
 
 	class Message
 	{
-		public string $Type = 'text';
-		public string $Command = '';
+		public string $Type = MessageType::Text;
+		public string $Command = MessageType::Text;
 		public array $Arguments = [];
 
 		/**
@@ -22,31 +22,26 @@
 			public string $FromID = '',
 			public string $MessageID = "-1",
 			public string $UserName = '',
-			public bool $IsPhoto = false,
-			public bool $IsVideo = false,
-			public bool $IsDocument = false, 
-			public bool $IsMediaGroup = false, 
-			public bool $IsPay = false,
 			public bool $IsCallbackQuery = false,
-			public string $MediaGroupID = '',
-			public string $PhotoID = '',
-			public string $VideoID = '',
-			public string $DocumentID = '',
+			public ?string $MediaGroupID = null,
+			public ?string $PhotoID = null,
+			public ?string $VideoID = null,
+			public ?string $DocumentID = null,
 			public string $CallbackQueryID = '',
 			public bool $HasAttachments = false,
 			public string $UserFullName = '',
-			public bool $IsLocation = false,
-			public $Location = '',
 			public ?object $Pay = null,
 			public bool $IsFromGroup = false,
 			public bool $IsChannelPost = false,
-			public ?object $Data = null
+			public ?object $Data = null,
+			public ?array $Location = null
 		)
 		{
-			if($this->IsPhoto) $this->Type = 'photo';
-			if($this->IsVideo) $this->Type = 'video';
-			if($this->IsDocument) $this->Type = 'document';
-			if($this->IsLocation) $this->Type = 'location';
+			if($this->PhotoID != null) $this->Type = MessageType::Photo;
+			if($this->VideoID != null) $this->Type = MessageType::Video;
+			if($this->DocumentID != null) $this->Type = MessageType::Document;
+			if($this->Location != null) $this->Type = MessageType::Location;
+			if($this->MediaGroupID != null) $this->Type = MessageType::MediaGroup;
 
 			$EXP = explode(' ', $this->Text);
 

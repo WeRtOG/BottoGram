@@ -1,25 +1,25 @@
 <?php
 
-    /*
-        WeRtOG
-        BottoGram
-    */
-	namespace WeRtOG\BottoGram\AdminPanel\MVC;
+/*
+    WeRtOG
+    BottoGram
+*/
+namespace WeRtOG\BottoGram\AdminPanel\MVC;
 
-    use WeRtOG\BottoGram\AdminPanel\AdminPanel;
-    use WeRtOG\FoxyMVC\Controller;
-    use WeRtOG\FoxyMVC\Route;
+use WeRtOG\BottoGram\AdminPanel\AdminPanel;
+use WeRtOG\FoxyMVC\Controller;
+use WeRtOG\FoxyMVC\Route;
 
-    class CabinetPageController extends Controller
-	{
-        public AdminPanel $AdminPanel;
-        
-		public function __construct(array $Models = [])
-        {
-            parent::__construct($Models);
+class CabinetPageController extends Controller
+{
+    public AdminPanel $AdminPanel;
+    
+    public function __construct(array $Models = [])
+    {
+        parent::__construct($Models);
 
-            if(!$this->AdminPanel->AccessControl->IsAuthorized())
-                Route::Navigate('auth');
-        }
-	}
+        if(!$this->AdminPanel->AccessControl->IsAuthorized())
+            Route::Navigate('auth');
+    }
+}
 ?>

@@ -1,75 +1,75 @@
 <?php
 
-    /*
-        WeRtOG
-        BottoGram
-    */
-    namespace WeRtOG\BottoGram\AdminPanel;
+/*
+    WeRtOG
+    BottoGram
+*/
+namespace WeRtOG\BottoGram\AdminPanel;
+
+// Используем зависимости
+use WeRtOG\BottoGram\DatabaseManager\Database;
+
+
+class AccessControl
+{
+    protected Database $Database;
+    protected string $SessionKey;
     
-    // Используем зависимости
-    use WeRtOG\BottoGram\DatabaseManager\Database;
+    public AdminUsers $Users;
 
-
-    class AccessControl
+    function __construct(Database $Database, string $SessionKey)
     {
-        protected Database $Database;
-        protected string $SessionKey;
+        session_start();
+
+        $this->Database = $Database;
+        $this->Users = new AdminUsers($Database);
+        $this->SessionKey = $SessionKey;
+    }
+
+    public function IsAuthorized(): bool
+    {
+        return !empty($_SESSION[$this->SessionKey]);
+    }
+
+    public function GetUserName(): string
+    {
+        return $_SESSION[$this->SessionKey];
+    }
+
+    public function PrepareString(string $Source): string
+    {
+        return strip_tags($this->Database->EscapeString($Source));
+    }
+
+    public function DoLogin(string $Login, string $Password): int
+    {
+        $Login = $this->PrepareString($Login);
+        $Password = $this->Users->MakeHash($Password);
+    
+        $UserByLogin = $this->Users->GetUserByLogin($Login);
         
-        public AdminUsers $Users;
-
-        function __construct(Database $Database, string $SessionKey)
-        {
-            session_start();
-
-            $this->Database = $Database;
-            $this->Users = new AdminUsers($Database);
-            $this->SessionKey = $SessionKey;
-        }
-
-        public function IsAuthorized(): bool
-        {
-            return !empty($_SESSION[$this->SessionKey]);
-        }
-
-        public function GetUserName(): string
-        {
-            return $_SESSION[$this->SessionKey];
-        }
-
-        public function PrepareString(string $Source): string
-        {
-            return strip_tags($this->Database->EscapeString($Source));
-        }
-
-        public function DoLogin(string $Login, string $Password): int
-        {
-            $Login = $this->PrepareString($Login);
-            $Password = $this->Users->MakeHash($Password);
-        
-            $UserByLogin = $this->Users->GetUserByLogin($Login);
-            
-            if($UserByLogin != null && $UserByLogin->Login == $Login)
-            { 
-                if($UserByLogin->Password == $Password)
-                {
-                    $_SESSION[$this->SessionKey] = $Login;
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+        if($UserByLogin != null && $UserByLogin->Login == $Login)
+        { 
+            if($UserByLogin->Password == $Password)
+            {
+                $_SESSION[$this->SessionKey] = $Login;
+                return true;
             }
             else
             {
                 return false;
             }
         }
-
-        public function DoLogout()
+        else
         {
-            $_SESSION[$this->SessionKey] = "";
+            return false;
         }
     }
+
+    public function DoLogout()
+    {
+        $_SESSION[$this->SessionKey] = "";
+    }
+}
 
 ?>

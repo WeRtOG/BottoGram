@@ -1,20 +1,20 @@
 <?php
 
-    /*
-        WeRtOG
-        BottoGram
-    */
-    namespace WeRtOG\BottoGram\AdminPanel;
+/*
+    WeRtOG
+    BottoGram
+*/
+namespace WeRtOG\BottoGram\AdminPanel;
 
-    use WeRtOG\FoxyMVC\Model;
+use WeRtOG\FoxyMVC\Model;
 
-    class AdminUser extends Model
-    {
+class AdminUser extends Model
+{
 
-        public int $ID;
-        public string $Login;
-        public string $Password;
+    public int $ID;
+    public string $Login;
+    public string $Password;
 
-    }
+}
 
 ?>

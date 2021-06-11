@@ -1,20 +1,20 @@
 <?php
 
-    /*
-        WeRtOG
-        BottoGram
-    */
-    namespace WeRtOG\BottoGram\AdminPanel;
+/*
+    WeRtOG
+    BottoGram
+*/
+namespace WeRtOG\BottoGram\AdminPanel;
 
-    use WeRtOG\FoxyMVC\Model;
+use WeRtOG\FoxyMVC\Model;
 
-    class SidebarCustomItem extends Model
-    {
+class SidebarCustomItem extends Model
+{
 
-        public string $Name;
-        public string $Icon;
-        public string $Link;
+    public string $Name;
+    public string $Icon;
+    public string $Link;
 
-    }
+}
 
 ?>

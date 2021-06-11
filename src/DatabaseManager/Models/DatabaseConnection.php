@@ -1,24 +1,24 @@
 <?php
 
-    /*
-        WeRtOG
-        BottoGram
-    */
-    namespace WeRtOG\BottoGram\DatabaseManager\Models;
+/*
+    WeRtOG
+    BottoGram
+*/
+namespace WeRtOG\BottoGram\DatabaseManager\Models;
 
-    use WeRtOG\FoxyMVC\ModelHelper;
+use WeRtOG\FoxyMVC\ModelHelper;
 
-    class DatabaseConnection
+class DatabaseConnection
+{
+    public string $Server;
+    public string $User;
+    public string $Password;
+    public string $Database;
+
+    public function __construct(array $Parameters = [])
     {
-        public string $Server;
-        public string $User;
-        public string $Password;
-        public string $Database;
-
-        public function __construct(array $Parameters = [])
-        {
-            ModelHelper::SetParametersFromArray($this, $Parameters, false, true);
-        }
+        ModelHelper::SetParametersFromArray($this, $Parameters, false, true);
     }
+}
 
 ?>

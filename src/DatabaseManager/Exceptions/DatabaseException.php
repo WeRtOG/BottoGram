@@ -1,11 +1,11 @@
 <?php
-    /*
-        WeRtOG
-        BottoGram
-    */
-    namespace WeRtOG\BottoGram\DatabaseManager\Exceptions;
+/*
+    WeRtOG
+    BottoGram
+*/
+namespace WeRtOG\BottoGram\DatabaseManager\Exceptions;
 
-    use Exception;
+use Exception;
 
-    class DatabaseException extends Exception {}
+class DatabaseException extends Exception {}
 ?>

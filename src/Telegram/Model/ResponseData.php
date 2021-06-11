@@ -1,56 +1,56 @@
 <?php
 
-	/*
-        WeRtOG
-        BottoGram
-    */
-    namespace WeRtOG\BottoGram\Telegram\Model;
+/*
+	WeRtOG
+	BottoGram
+*/
+namespace WeRtOG\BottoGram\Telegram\Model;
 
-	class ResponseData
+class ResponseData
+{
+	public bool $ok = false;
+	public int $code = 200;
+	public string $error = "";
+	public $result;
+	public string $raw;
+
+	public function __construct(string $json = '')
 	{
-		public bool $ok = false;
-		public int $code = 200;
-		public string $error = "";
-		public $result;
-		public string $raw;
+		$this->raw = $json;
+		$array = (array)json_decode($json);
 
-		public function __construct(string $json = '')
+		if(array_key_exists('ok', $array))
 		{
-			$this->raw = $json;
-			$array = (array)json_decode($json);
+			$this->ok = $array['ok'];
 
-			if(array_key_exists('ok', $array))
-			{
-				$this->ok = $array['ok'];
-
-				if($this->ok)
-				{
-					$this->result = $array['result'];
-				}
-				else
-				{
-					if(array_key_exists('error_code', $array)) $this->code = $array['error_code'];
-					if(array_key_exists('description', $array)) $this->error = $array['description'];
-				}
-			}
-		}
-
-		public function GetMessageID(): ?int
-		{
 			if($this->ok)
 			{
-				return $this->result->{'message_id'} ?? null;
+				$this->result = $array['result'];
 			}
 			else
 			{
-				return null;
+				if(array_key_exists('error_code', $array)) $this->code = $array['error_code'];
+				if(array_key_exists('description', $array)) $this->error = $array['description'];
 			}
 		}
+	}
 
-		public function __toString()
+	public function GetMessageID(): ?int
+	{
+		if($this->ok)
 		{
-			return $this->raw;
+			return $this->result->{'message_id'} ?? null;
+		}
+		else
+		{
+			return null;
 		}
 	}
-    
+
+	public function __toString()
+	{
+		return $this->raw;
+	}
+}
+
 ?>

@@ -1,76 +1,76 @@
 <?php
 
-    /*
-        WeRtOG
-        BottoGram
-    */
-	namespace WeRtOG\BottoGram\AdminPanel\MVC;
+/*
+    WeRtOG
+    BottoGram
+*/
+namespace WeRtOG\BottoGram\AdminPanel\MVC;
 
-    use WeRtOG\FoxyMVC\Attributes\Action;
-    use WeRtOG\FoxyMVC\Controller;
-    use WeRtOG\FoxyMVC\ControllerResponse\Response;
-    use WeRtOG\FoxyMVC\ControllerResponse\View;
-    use WeRtOG\FoxyMVC\Route;
+use WeRtOG\FoxyMVC\Attributes\Action;
+use WeRtOG\FoxyMVC\Controller;
+use WeRtOG\FoxyMVC\ControllerResponse\Response;
+use WeRtOG\FoxyMVC\ControllerResponse\View;
+use WeRtOG\FoxyMVC\Route;
 
-    class AuthController extends Controller
-	{
-        #[Action]
-		public function Index(): View
-		{
-            if($this->AdminPanel->AccessControl->IsAuthorized())
-                Route::NavigateToRoot();
+class AuthController extends Controller
+{
+    #[Action]
+    public function Index(): View
+    {
+        if($this->AdminPanel->AccessControl->IsAuthorized())
+            Route::NavigateToRoot();
 
-            $Error = null;
-            switch(ActionRequestMethod)
-            {
-                case 'POST':
-                    $Login = $_POST['Login'] ?? null;
-                    $Password = $_POST['Password'] ?? null;
-                    
-                    if(!empty($Login) && !empty($Password))
+        $Error = null;
+        switch(ActionRequestMethod)
+        {
+            case 'POST':
+                $Login = $_POST['Login'] ?? null;
+                $Password = $_POST['Password'] ?? null;
+                
+                if(!empty($Login) && !empty($Password))
+                {
+                    $LoginSuccess = $this->AdminPanel->AccessControl->DoLogin($Login, $Password);
+                    if($LoginSuccess)
                     {
-                        $LoginSuccess = $this->AdminPanel->AccessControl->DoLogin($Login, $Password);
-                        if($LoginSuccess)
-                        {
-                            Route::NavigateToRoot();
-                        }
-                        else
-                        {
-                            $Error = 'Неверный логин или пароль.';
-                        }
+                        Route::NavigateToRoot();
                     }
                     else
                     {
-                        $Error = 'Не все поля заполнены.';
+                        $Error = 'Неверный логин или пароль.';
                     }
+                }
+                else
+                {
+                    $Error = 'Не все поля заполнены.';
+                }
 
-                    break;
-            }
-
-            return new View(
-                ContentView: '',
-                PageTitle: 'Необходима авторизация',
-                TemplateView: BOTTOGRAM_MVC_VIEWS . '/AuthView.php',
-                Data: $Error != null ? ['Error' => $Error] : []
-            );
-		}
-
-        #[Action(RequestMethod: ['GET'])]
-        public function Logout(): void
-        {
-            $this->AdminPanel->AccessControl->DoLogout();
-            Route::Navigate('auth');
+                break;
         }
 
-        #[Action(RequestMethod: ['GET'])]
-        public function GenerateToken(): Response
-        {
-            $Password = $_GET['password'] ?? null;
+        return new View(
+            ContentView: '',
+            PageTitle: 'Необходима авторизация',
+            TemplateView: BOTTOGRAM_MVC_VIEWS . '/AuthView.php',
+            Data: $Error != null ? ['Error' => $Error] : []
+        );
+    }
 
-            if($Password != null)
-                return new Response($this->AdminPanel->AccessControl->Users->MakeHash($Password));
-            else
-                return new Response('');
-        }
-	}
+    #[Action(RequestMethod: ['GET'])]
+    public function Logout(): void
+    {
+        $this->AdminPanel->AccessControl->DoLogout();
+        Route::Navigate('auth');
+    }
+
+    #[Action(RequestMethod: ['GET'])]
+    public function GenerateToken(): Response
+    {
+        $Password = $_GET['password'] ?? null;
+
+        if($Password != null)
+            return new Response($this->AdminPanel->AccessControl->Users->MakeHash($Password));
+        else
+            return new Response('');
+    }
+}
 ?>

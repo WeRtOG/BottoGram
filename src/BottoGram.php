@@ -25,6 +25,9 @@
     use WeRtOG\BottoGram\Telegram\Model\ParseMode;
     use WeRtOG\BottoGram\Models\TelegramUser;
     use WeRtOG\BottoGram\Models\TelegramUsers;
+    use WeRtOG\BottoGram\Navigation\ChannelCommand;
+    use WeRtOG\BottoGram\Navigation\ChatCommand;
+    use WeRtOG\BottoGram\Navigation\GlobalCommand;
     use WeRtOG\BottoGram\Telegram\Model\MessageType;
     use WeRtOG\BottoGram\Telegram\Model\Update;
     use WeRtOG\BottoGram\Telegram\Model\UpdateType;
@@ -53,6 +56,7 @@
 
         public $InlineQueryAction;
         public $PreCheckoutQueryAction;
+        public $ChannelPostAction;
 
         public string $RootMenu;
 
@@ -70,6 +74,18 @@
 
             $this->Database = self::DatabaseFromConfig($Config);
             $this->TelegramUsers = new TelegramUsers($this->Database);
+
+            $this->RegisterCommand(
+                Command: new GlobalCommand(
+                    Name: '/getid',
+                    Action: function(Update $Update, BottoGram $BottoGram)
+                    {
+                        $this->Log?->RequestSuccess();
+                        $this->Send("👤 Your ID: " . $this->Update->Message->ChatID);
+                        exit();
+                    }
+                )
+            );
 
             if($GetInputUpdate)
             {
@@ -93,13 +109,6 @@
                                 EnableTextLog: $Config->EnableTextLog,
                                 EnableExtendedLog: $Config->EnableExtendedLog
                             );
-        
-                            if($this->Update->Message->Text == BOT_COMMAND_GETID)
-                            {
-                                $this->Log->RequestSuccess();
-                                $this->Send("👤 Your ID: " . $this->Update->Message->ChatID);
-                                exit();
-                            }
         
                             if($this->Update->Message->IsFromGroup && !$this->Config->AllowGroups)
                             {
@@ -611,12 +620,17 @@
 
         public function OnInlineQuery($Action)
         {
-            $this->Update->InlineQueryAction = $Action;
+            $this->InlineQueryAction = $Action;
         }
 
         public function OnPreCheckoutQuery($Action)
         {
-            $this->Update->PreCheckoutQueryAction = $Action;
+            $this->PreCheckoutQueryAction = $Action;
+        }
+
+        public function OnChannelPost($Action)
+        {
+            $this->ChannelPostAction = $Action;
         }
 
         public function GetNav(): ?string
@@ -678,28 +692,28 @@
                             $KeyboardAction = $this->GetKeyboardActionFromMessage($this->Update->Message->Text, $CurrentMenu);
                             $this->Keyboard = $CurrentMenu->Buttons ?? null;
         
-                            if($this->Update->Message->IsCallbackQuery)
-                            {
-                                if(method_exists($CurrentMenu, 'OnCallbackQuery'))
-                                {
-                                    $CurrentMenu->{'OnCallbackQuery'}($this->Update->Message, $this);
-                                }
-                            }
-        
                             $ExecuteMenuOrKeyboardAction = true;
+                            $ExecuteCallbackLogic = true;
                             foreach($this->Commands as $Command)
                             {
-                                if($Command instanceof Command)
+                                if($Command instanceof ChatCommand || $Command instanceof GlobalCommand)
                                 {
                                     if($this->Update->Message->Command == $Command->Name)
                                     {
                                         $Command->Execute($this->Update, $this);
             
                                         if($Command->ExitAfterExecute) {
-                                            $this->Log->RequestSuccess();
                                             $ExecuteMenuOrKeyboardAction = false;
                                         }
                                     }
+                                }
+                            }
+
+                            if($this->Update->Message->IsCallbackQuery)
+                            {
+                                if(method_exists($CurrentMenu, 'OnCallbackQuery'))
+                                {
+                                    $CurrentMenu->{'OnCallbackQuery'}($this->Update->Message, $this);
                                 }
                             }
         
@@ -733,19 +747,45 @@
                             $this->Send("*Меню не найдено. 😞*\nДля того, чтобы вернутся в главное меню введите " . BOT_COMMAND_START);
                         }
                     }
+                    else
+                    {
+                        $ExecuteOnChannelPostAction = true;
+                        foreach($this->Commands as $Command)
+                        {
+                            if($Command instanceof ChannelCommand || $Command instanceof GlobalCommand)
+                            {
+                                if($this->Update->Message->Command == $Command->Name)
+                                {
+                                    $Command->Execute($this->Update, $this);
+                                    if($Command->ExitAfterExecute) {
+                                        $ExecuteOnChannelPostAction = false;
+                                    }
+                                }
+                            }
+                        }
+
+                        if($ExecuteOnChannelPostAction)
+                        {
+                            if(is_callable($this->ChannelPostAction))
+                            { 
+                                call_user_func($this->ChannelPostAction, $this->Update, $this);       
+                            }
+                        }
+                        
+                    }
                     break;
                 
                 case UpdateType::InlineQuery:
-                    if(is_callable($this->Update->InlineQueryAction))
+                    if(is_callable($this->InlineQueryAction))
                     { 
-                        call_user_func($this->Update->InlineQueryAction, $this->Update->InlineQuery, $this);       
+                        call_user_func($this->InlineQueryAction, $this->Update->InlineQuery, $this);       
                     }
                     break;
 
                 case UpdateType::PreCheckoutQuery:
-                    if(is_callable($this->Update->PreCheckoutQueryAction))
+                    if(is_callable($this->PreCheckoutQueryAction))
                     { 
-                        call_user_func($this->Update->PreCheckoutQueryAction, $this->Update->PreCheckoutQuery, $this);       
+                        call_user_func($this->PreCheckoutQueryAction, $this->Update->PreCheckoutQuery, $this);       
                     }
                     break;
             }                

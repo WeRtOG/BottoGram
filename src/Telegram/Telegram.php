@@ -12,14 +12,19 @@
 	use WeRtOG\BottoGram\Navigation\Button;
 	use WeRtOG\BottoGram\Navigation\InlineButton;
 	use WeRtOG\BottoGram\Navigation\KeyboardState;
+	use WeRtOG\BottoGram\Telegram\Model\Audio;
+	use WeRtOG\BottoGram\Telegram\Model\Document;
 	use WeRtOG\BottoGram\Telegram\Model\InlineQuery;
+	use WeRtOG\BottoGram\Telegram\Model\Location;
 	use WeRtOG\BottoGram\Telegram\Model\MessageType;
 	use WeRtOG\BottoGram\Telegram\Model\Message;
 	use WeRtOG\BottoGram\Telegram\Model\ParseMode;
+	use WeRtOG\BottoGram\Telegram\Model\Photo;
 	use WeRtOG\BottoGram\Telegram\Model\PreCheckoutQuery;
 	use WeRtOG\BottoGram\Telegram\Model\Request;
 	use WeRtOG\BottoGram\Telegram\Model\Response;
 	use WeRtOG\BottoGram\Telegram\Model\Update;
+	use WeRtOG\BottoGram\Telegram\Model\Video;
 
 	class Telegram implements TelegramInterface
 	{
@@ -479,153 +484,104 @@
 			}
 		}
 
+		private function GetMediaIDFromTelegramMessage(object $MessageObject, string $MediaType): ?string
+		{
+			if(property_exists($MessageObject, $MediaType))
+			{
+				$TelegramMedia = $MessageObject->{$MediaType};
+				$TelegramMediaSingle = (array)(is_array($TelegramMedia) ? end($TelegramMedia) : $TelegramMedia);
+				return $TelegramMediaSingle['file_id'];
+			}
+
+			return null;
+		}
+
 		public function GetUserMessage(Request $Request = null): ?Message
 		{
 			if($Request == null)
 				$Request = $this->GetInputRequest();
 
+			$MessageObject = null;
+			$IsChannelPost = false;
+
 			// Если отправлено из канала - покидаем приложение
 			if(property_exists($Request->Body, 'channel_post'))
 			{
-				if($Request->Body->{'channel_post'}->{'chat'}->{'type'} == "channel")
-				{
-					return new Message(
-						ChatID: $Request->Body->{'channel_post'}->{'chat'}->{'id'},
-						IsChannelPost: true,
-						Data: $Request
-					);
-				}
-			}
-			
-			// Если не Callback Query
-			if(empty($Request->Body->{'callback_query'}))
-			{
-				if(!isset($Request->Body->{'message'})) exit();
-
-				// Получаем UserName
-				$UserName = $Request->Body->{'message'}->{'chat'}->{'username'} ?? '';
-				
-				// Если он пуст, то им будет ID
-				if(empty($UserName)) {
-					$UserName = $Request->Body->{'message'}->{'chat'}->{'id'} ?? '';
-				}
-
-				// Получаем фото если таковое есть
-				$PhotoID = "";
-				if(property_exists($Request->Body->{'message'}, 'photo'))
-				{
-					$PhotoID = (array)$Request->Body->{'message'}->{'photo'}[count($Request->Body->{'message'}->{'photo'}) - 1];
-					$PhotoID = $PhotoID['file_id'];
-				}
-
-				// Получаем видео если таковое есть
-				$VideoID = "";
-				if(property_exists($Request->Body->{'message'}, 'video'))
-				{
-					$VideoID = (array)$Request->Body->{'message'}->{'video'};
-					$VideoID = $VideoID['file_id'];
-				}
-
-				// Получаем документ если таковой есть
-				$DocumentID = "";
-				if(property_exists($Request->Body->{'message'}, 'document'))
-				{
-					$DocumentID = (array)$Request->Body->{'message'}->{'document'};
-					$DocumentID = $DocumentID['file_id'];
-				}
-
-				// Получаем локацию, если она есть
-				$Location = [];
-				if(property_exists($Request->Body->{'message'}, 'location'))
-				{
-					$Location = (array)$Request->Body->{'message'}->{'location'};
-				}
-				
-				// Получаем медиа группу, если она есть
-				$MediaGroup = "";
-				if(property_exists($Request->Body->{'message'}, 'media_group_id'))
-				{
-					$MediaGroup = $Request->Body->{'message'}->{'media_group_id'};
-				}
-
-				// Получаем текст сообщения
-				$Text = "";
-				if(property_exists($Request->Body->{'message'}, 'text'))
-				{
-					$Text = $Request->Body->{'message'}->{'text'};
-				}
-
-				// Получаем сообщение об оплате
-				$Pay = '';
-				if(property_exists($Request->Body->{'message'}, 'successful_payment'))
-				{
-					$Pay = $Request->Body->{'message'}->{'successful_payment'};
-				}
-
-				if(property_exists($Request->Body->{'message'}, 'contact'))
-				{
-					if(property_exists($Request->Body->{'message'}->{'contact'}, 'phone_number'))
-					{
-						$Text = $Request->Body->{'message'}->{'contact'}->{'phone_number'};
-					}
-				}
-
-				$UserFirstName = $Request->Body->{'message'}->{'chat'}->{'first_name'} ?? '';
-				$UserLastName = $Request->Body->{'message'}->{'chat'}->{'last_name'} ?? '';
-
-				// Возвращаем результат
-				return new Message(
-					Text: $Text,
-					ChatID: $Request->Body->{'message'}->{'chat'}->{'id'},
-					FromID: $Request->Body->{'message'}->{'from'}->{'id'},
-					UserName: $UserName,
-					Location: $Location,
-					MediaGroupID: $MediaGroup,
-					PhotoID: $PhotoID,
-					VideoID: $VideoID,
-					DocumentID: $DocumentID,
-					HasAttachments: (!empty($PhotoID) || !empty($VideoID) || !empty($DocumentID)),
-					UserFullName: !empty($UserFirstName) && !empty($UserLastName) ? $UserFirstName . ' ' . $UserLastName : '',
-					Pay: !empty($Pay) ? $Pay : new stdClass(),
-					IsFromGroup: isset($Request->Body->{'message'}->{'chat'}->{'type'}) ? (in_array($Request->Body->{'message'}->{'chat'}->{'type'}, ['supergroup', 'group']) ? true : false) : false,
-					Data: $Request
-				);
-			// Если таки CallbackQuery
+				$MessageObject = $Request->Body->{'channel_post'} ?? null;
+				$IsChannelPost = true;
 			}
 			else
 			{
-				// Получаем UserName
-				$UserName = $Request->Body->{'callback_query'}->{'from'}->{'username'};
+				$MessageObject = $Request->Body->{'message'} ?? null;
+			}
 
-				// Если он пуст, то им будет ID
-				if(empty($UserName))
+			if($MessageObject != null)
+			{
+				// Получаем текст сообщения
+				$Text = $MessageObject->{'text'} ?? '';
+
+				if(property_exists($MessageObject, 'contact'))
 				{
-					$UserName = $Request->Body->{'callback_query'}->{'message'}->{'chat'}->{'id'};
+					if(property_exists($MessageObject->{'contact'}, 'phone_number'))
+					{
+						$Text = $MessageObject->{'contact'}->{'phone_number'};
+					}
 				}
 
-				// Получаем основные сведения
-				$CallbackID = $Request->Body->{'callback_query'}->{'id'};
-				$MessageID = $Request->Body->{'callback_query'}->{'message'}->{'message_id'};
-				$ChatID = $Request->Body->{'callback_query'}->{'message'}->{'chat'}->{'id'};
-				$FromID = $Request->Body->{'callback_query'}->{'from'}->{'id'};
-				$Text = $Request->Body->{'callback_query'}->{'data'};
-				
+				$UserFirstName = $MessageObject->{'chat'}->{'first_name'} ?? '';
+				$UserLastName = $MessageObject->{'chat'}->{'last_name'} ?? '';
+
 				// Возвращаем результат
 				return new Message(
 					Text: $Text,
-					ChatID: $ChatID,
-					FromID: $FromID,
-					MessageID: $MessageID,
-					UserName: $UserName,
-					IsCallbackQuery: true,
-					MediaGroupID: "",
-					PhotoID: "",
-					VideoID: "",
-					CallbackQueryID: $CallbackID,
-					UserFullName: ($Request->Body->{'callback_query'}->{'from'}->{'first_name'} ?? '') . ' ' . ($Request->Body->{'callback_query'}->{'from'}->{'last_name'} ?? ''),
-					IsFromGroup: isset($Request->Body->{'message'}->{'chat'}->{'type'}) ? (in_array($Request->Body->{'message'}->{'chat'}->{'type'}, ['supergroup', 'group']) ? true : false) : false,
+					ChatID: $MessageObject->{'chat'}->{'id'} ?? null,
+					FromID: $MessageObject->{'from'}->{'id'} ?? null,
+					UserName: $MessageObject->{'chat'}->{'username'} ?? $MessageObject->{'chat'}->{'id'} ?? 'Anonymous',
+					Location: Location::FromTelegramFormat($MessageObject->{'location'} ?? null),
+					MediaGroupID: $MessageObject->{'media_group_id'} ?? null,
+					Photo: Photo::FromTelegramFormat($MessageObject->{'photo'} ?? null),
+					Video: Video::FromTelegramFormat($MessageObject->{'video'} ?? null),
+					Document: Document::FromTelegramFormat($MessageObject->{'document'} ?? null),
+					Audio: Audio::FromTelegramFormat($MessageObject->{'audio'} ?? null),
+					UserFullName: implode(' ', [$UserFirstName, $UserLastName]),
+					Pay: $MessageObject->{'successful_payment'} ?? new stdClass(),
+					IsFromGroup: !$IsChannelPost && isset($MessageObject->{'chat'}->{'type'}) ? (in_array($MessageObject->{'chat'}->{'type'}, ['supergroup', 'group']) ? true : false) : false,
+					IsChannelPost: $IsChannelPost,
 					Data: $Request
 				);
+			}
+			else
+			{
+				if(isset($Request->Body->{'callback_query'}))
+				{
+					$UserName = $Request->Body->{'callback_query'}->{'from'}->{'username'};
+
+					if(empty($UserName))
+					{
+						$UserName = $Request->Body->{'callback_query'}->{'message'}->{'chat'}->{'id'};
+					}
+
+					// Получаем основные сведения
+					$CallbackID = $Request->Body->{'callback_query'}->{'id'};
+					$MessageID = $Request->Body->{'callback_query'}->{'message'}->{'message_id'};
+					$ChatID = $Request->Body->{'callback_query'}->{'message'}->{'chat'}->{'id'};
+					$FromID = $Request->Body->{'callback_query'}->{'from'}->{'id'};
+					$Text = $Request->Body->{'callback_query'}->{'data'};
+
+					// Возвращаем результат
+					return new Message(
+						Text: $Text,
+						ChatID: $ChatID,
+						FromID: $FromID,
+						MessageID: $MessageID,
+						UserName: $UserName,
+						IsCallbackQuery: true,
+						CallbackQueryID: $CallbackID,
+						UserFullName: ($Request->Body->{'callback_query'}->{'from'}->{'first_name'} ?? '') . ' ' . ($Request->Body->{'callback_query'}->{'from'}->{'last_name'} ?? ''),
+						IsFromGroup: isset($MessageObject->{'chat'}->{'type'}) ? (in_array($MessageObject->{'chat'}->{'type'}, ['supergroup', 'group']) ? true : false) : false,
+						Data: $Request
+					);
+				}
 			}
 		}
 

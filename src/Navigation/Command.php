@@ -6,9 +6,7 @@
     namespace WeRtOG\BottoGram\Navigation;
 
     use WeRtOG\BottoGram\BottoGram;
-    use WeRtOG\BottoGram\Telegram\Model\Message;
     use WeRtOG\BottoGram\Telegram\Model\Update;
-    use WeRtOG\FoxyMVC\ModelHelper;
 
     class Command
     {

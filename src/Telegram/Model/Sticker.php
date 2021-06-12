@@ -6,17 +6,18 @@
 */
 namespace WeRtOG\BottoGram\Telegram\Model;
 
-class Video extends Document
+class Sticker
 {
     public function __construct(
         public string $FileID,
         public string $FileUniqueID,
         public int $Width,
         public int $Height,
-        public int $Duration,
+        public bool $IsAnimated,
         public ?PhotoSize $Thumb,
-        public ?string $FileName,
-        public ?string $MimeType,
+        public ?string $Emoji,
+        public ?string $SetName,
+        public ?MaskPosition $MaskPosition,
         public ?int $FileSize
     )
     { }
@@ -30,10 +31,11 @@ class Video extends Document
                 FileUniqueID: $Object->{'file_unique_id'},
                 Width: $Object->{'width'},
                 Height: $Object->{'height'},
-                Duration: $Object->{'duration'},
-                Thumb: PhotoSize::FromTelegramFormat($Object->{'thumb'}),
-                FileName: $Object->{'file_name'} ?? null,
-                MimeType: $Object->{'mime_type'} ?? null,
+                IsAnimated: $Object->{'is_animated'},
+                Thumb: PhotoSize::FromTelegramFormat($Object->{'thumb'} ?? null),
+                Emoji: $Object->{'emoji'} ?? null,
+                SetName: $Object->{'set_name'} ?? null,
+                MaskPosition: MaskPosition::FromTelegramFormat($Object->{'mask_position'}),
                 FileSize: $Object->{'file_size'} ?? null
             );
         }

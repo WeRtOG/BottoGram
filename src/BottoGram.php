@@ -28,7 +28,7 @@ use WeRtOG\BottoGram\Models\TelegramUsers;
 use WeRtOG\BottoGram\Navigation\ChannelCommand;
 use WeRtOG\BottoGram\Navigation\ChatCommand;
 use WeRtOG\BottoGram\Navigation\GlobalCommand;
-use WeRtOG\BottoGram\Telegram\Model\MessageType;
+use WeRtOG\BottoGram\Telegram\Model\MediaType;
 use WeRtOG\BottoGram\Telegram\Model\Update;
 use WeRtOG\BottoGram\Telegram\Model\UpdateType;
 
@@ -81,7 +81,7 @@ class BottoGram
                 Action: function(Update $Update, BottoGram $BottoGram)
                 {
                     $this->Log?->RequestSuccess();
-                    $this->Send("👤 Your ID: " . $this->Update->Message->ChatID);
+                    $this->Send("👤 Your ID: " . $this->Update->Message->Chat->ID);
                     exit();
                 }
             )
@@ -97,13 +97,13 @@ class BottoGram
                     if(!$this->Update->Message->IsChannelPost)
                     {
                         $this->CurrentUser = $this->TelegramUsers->RegisterUserIfNotExists(
-                            ChatID: $this->Update->Message->ChatID,
-                            UserName: $this->Update->Message->UserName,
-                            FullName: $this->Update->Message->UserFullName
+                            ChatID: $this->Update->Message->Chat->ID,
+                            UserName: isset($this->Update->Message->User->UserName) ? $this->Update->Message->User->UserName : $this->Update->Message->Chat->ID,
+                            FullName: implode(' ', [$this->Update->Message->Chat->FirstName ?? null, $this->Update->Message->Chat->LastName ?? null])
                         );
 
                         $this->Log = new Log(
-                            ChatID: $this->Update->Message->ChatID,
+                            ChatID: $this->Update->Message->Chat->ID,
                             Request: $this->Update->Request,
                             Database: $this->Database,
                             EnableTextLog: $Config->EnableTextLog,
@@ -116,7 +116,7 @@ class BottoGram
                             exit();
                         }
             
-                        if($Config->Private && !in_array($this->Update->Message->ChatID, $Config->PrivateAllow))
+                        if($Config->Private && !in_array($this->Update->Message->Chat->ID, $Config->PrivateAllow))
                         {
                             $this->Log->RequestFail(403, "User not allowed.");
                             $this->Send("🚫 Access to this bot is restricted.");
@@ -128,26 +128,26 @@ class BottoGram
                             $this->SendChatAction(ChatAction::Typing);
                         }
             
-                        $this->OldMediaGroup = $this->TelegramUsers->GetUserLastMediaGroup($this->Update->Message->ChatID);
+                        $this->OldMediaGroup = $this->TelegramUsers->GetUserLastMediaGroup($this->Update->Message->Chat->ID);
                         
-                        if($this->Update->Message->Type == MessageType::MediaGroup)
+                        if($this->Update->Message->MediaGroupID != null)
                         {
                             $this->NewMediaGroup = $this->Update->Message->MediaGroupID;
                             $this->TelegramUsers->SetUserLastMediaGroup(
                                 Group: $this->Update->Message->MediaGroupID,
-                                ChatID: $this->Update->Message->ChatID
+                                ChatID: $this->Update->Message->Chat->ID
                             );
                         }
                     }
                     else
                     {
                         $this->CurrentUser = $this->TelegramUsers->RegisterUserIfNotExists(
-                            ChatID: $this->Update->Message->ChatID,
-                            UserName: 'Channel: ' . $this->Update->Message->ChatID,
+                            ChatID: $this->Update->Message->Chat->ID,
+                            UserName: 'Channel: ' . $this->Update->Message->Chat->ID,
                             FullName: ''
                         );
                         $this->Log = new Log(
-                            ChatID: $this->Update->Message->ChatID,
+                            ChatID: $this->Update->Message->Chat->ID,
                             Request: $this->Update->Request,
                             Database: $this->Database,
                             EnableTextLog: $Config->EnableTextLog,
@@ -156,7 +156,7 @@ class BottoGram
                         $Text = $this->Update->Message->Data->{'channel_post'}->{'text'} ?? '';
                         if($Text == BOT_COMMAND_GETID)
                         {
-                            $Response = $this->Telegram->SendMessage("👤 Channel ID: " . $this->Update->Message->ChatID, $this->Update->Message->ChatID);
+                            $Response = $this->Telegram->SendMessage("👤 Channel ID: " . $this->Update->Message->Chat->ID, $this->Update->Message->Chat->ID);
                             $this->Log->ResponseSuccess($Response->GetData());
                         }
 
@@ -272,7 +272,7 @@ class BottoGram
         {
             $MainKeyboard = $this->PrepareKeyboard($MainKeyboard);
             
-            $Response = $this->Telegram->SendMessage($Text, $this->Update->Message->ChatID, $MainKeyboard, $InlineKeyboard, $ParseMode);
+            $Response = $this->Telegram->SendMessage($Text, $this->Update->Message->Chat->ID, $MainKeyboard, $InlineKeyboard, $ParseMode);
         }
         else
         {
@@ -294,11 +294,11 @@ class BottoGram
 
             if(empty($InlineKeyboard))
             {
-                $Response = $this->Telegram->SendPhotoByURL($Photo, $this->Update->Message->ChatID, $Text, $MainKeyboard, []);
+                $Response = $this->Telegram->SendPhotoByURL($Photo, $this->Update->Message->Chat->ID, $Text, $MainKeyboard, []);
             }
             else
             {
-                $Response = $this->Telegram->SendPhotoByURL($Photo, $this->Update->Message->ChatID, $Text, null, $InlineKeyboard);
+                $Response = $this->Telegram->SendPhotoByURL($Photo, $this->Update->Message->Chat->ID, $Text, null, $InlineKeyboard);
             }
             
         }
@@ -321,11 +321,11 @@ class BottoGram
 
             if(empty($InlineKeyboard))
             {
-                $Response = $this->Telegram->SendVideo($Video, $this->Update->Message->ChatID, $Text, $MainKeyboard, [], $ParseMode);
+                $Response = $this->Telegram->SendVideo($Video, $this->Update->Message->Chat->ID, $Text, $MainKeyboard, [], $ParseMode);
             }
             else
             {
-                $Response = $this->Telegram->SendVideo($Video, $this->Update->Message->ChatID, $Text, null, $InlineKeyboard, $ParseMode);
+                $Response = $this->Telegram->SendVideo($Video, $this->Update->Message->Chat->ID, $Text, null, $InlineKeyboard, $ParseMode);
             }
             
         }
@@ -348,11 +348,11 @@ class BottoGram
             
             if(empty($InlineKeyboard))
             {
-                $Response = $this->Telegram->SendPhoto($Photo, $this->Update->Message->ChatID, $Text, $MainKeyboard, []);
+                $Response = $this->Telegram->SendPhoto($Photo, $this->Update->Message->Chat->ID, $Text, $MainKeyboard, []);
             }
             else
             {
-                $Response = $this->Telegram->SendPhoto($Photo, $this->Update->Message->ChatID, $Text, null, $InlineKeyboard);
+                $Response = $this->Telegram->SendPhoto($Photo, $this->Update->Message->Chat->ID, $Text, null, $InlineKeyboard);
             }
             
         }
@@ -369,7 +369,7 @@ class BottoGram
     {
         if($this->Update->Message == null) return new TelegramResponse();
 
-        $Response = $this->Telegram->SendDocument($document, $this->Update->Message->ChatID);
+        $Response = $this->Telegram->SendDocument($document, $this->Update->Message->Chat->ID);
 
         $this->Log->ProcessResponse($Response);
 
@@ -380,7 +380,7 @@ class BottoGram
     {
         if($this->Update->Message == null) return new TelegramResponse();
 
-        $Response = $this->Telegram->SendLocation($lat, $long, $this->Update->Message->ChatID);
+        $Response = $this->Telegram->SendLocation($lat, $long, $this->Update->Message->Chat->ID);
 
         $this->Log->ProcessResponse($Response);
         return $Response;
@@ -390,7 +390,7 @@ class BottoGram
     {
         if($this->Update->Message == null) return new TelegramResponse();
 
-        $Response = $this->Telegram->ForwardMessage($ChatID, $MessageID, $this->Update->Message->ChatID);
+        $Response = $this->Telegram->ForwardMessage($ChatID, $MessageID, $this->Update->Message->Chat->ID);
 
         $this->Log->ProcessResponse($Response);
         return $Response;
@@ -400,7 +400,7 @@ class BottoGram
     {
         if($this->Update->Message == null) return new TelegramResponse();
 
-        $Response = $this->Telegram->EditMessage($MessageID, $NewText, $this->Update->Message->ChatID, $ParseMode);
+        $Response = $this->Telegram->EditMessage($MessageID, $NewText, $this->Update->Message->Chat->ID, $ParseMode);
 
         $this->Log->ProcessResponse($Response);
         return $Response;
@@ -410,7 +410,7 @@ class BottoGram
     {
         if($this->Update->Message == null) return new TelegramResponse();
 
-        $Response = $this->Telegram->EditMessageInlineButtons($MessageID, $InlineKeyboard, $this->Update->Message->ChatID);
+        $Response = $this->Telegram->EditMessageInlineButtons($MessageID, $InlineKeyboard, $this->Update->Message->Chat->ID);
 
         $this->Log->ProcessResponse($Response);
         return $Response;
@@ -420,7 +420,7 @@ class BottoGram
     {
         if($this->Update->Message == null) return new TelegramResponse();
 
-        $Response = $this->Telegram->DeleteMessage($MessageID, $this->Update->Message->ChatID);
+        $Response = $this->Telegram->DeleteMessage($MessageID, $this->Update->Message->Chat->ID);
 
         $this->Log->ProcessResponse($Response);
         return $Response;
@@ -431,7 +431,7 @@ class BottoGram
     {
         if($this->Update->Message == null) return new TelegramResponse();
 
-        $Response = $this->Telegram->SendChatAction($Action, $this->Update->Message->ChatID);
+        $Response = $this->Telegram->SendChatAction($Action, $this->Update->Message->Chat->ID);
 
         $this->Log->ProcessResponse($Response);
         return $Response;
@@ -463,7 +463,7 @@ class BottoGram
         
         if(empty($Channel))
         {
-            $Channel = $this->Update->Message->ChatID;
+            $Channel = $this->Update->Message->Chat->ID;
         }
 
         $Response = $this->Telegram->SendMediaGroup($Content, $Channel, $Caption, $ParseMode);
@@ -542,7 +542,7 @@ class BottoGram
     public function NavTo(string $Nav, bool $Silent = false)
     {
         $this->TelegramUsers->SetUserNav($Nav, $this->CurrentUser);
-        $this->TelegramUsers->SetUserLastMediaGroup("-1", $this->Update->Message->ChatID);
+        $this->TelegramUsers->SetUserLastMediaGroup("-1", $this->Update->Message->Chat->ID);
 
         $CurrentMenu = $this->GetMenuByName($Nav);
         
@@ -719,9 +719,9 @@ class BottoGram
                             }
                         }
     
-                        if($this->Update->Message->Type == MessageType::Pay)
+                        if($this->Update->Message->SuccessfulPayment != null)
                         {
-                            if(method_exists($CurrentMenu, 'OnPay')) $CurrentMenu->{'OnPay'}($this->Update->Message, $this);
+                            if(method_exists($CurrentMenu, 'OnSuccessfulPayment')) $CurrentMenu->{'OnSuccessfulPayment'}($this->Update->Message, $this);
                         }
                         else
                         {

@@ -6,7 +6,7 @@
 */
 namespace WeRtOG\BottoGram\Telegram\Model;
 
-class Video extends Document
+class Animation extends Document
 {
     public function __construct(
         public string $FileID,

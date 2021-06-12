@@ -5,6 +5,7 @@
 */
 namespace WeRtOG\BottoGram\Telegram;
 
+use DateTime;
 use GuzzleHttp\Client as HttpClient;
 use GuzzleHttp\Promise\Promise;
 use GuzzleHttp\Psr7\MultipartStream;
@@ -13,18 +14,22 @@ use WeRtOG\BottoGram\Navigation\Button;
 use WeRtOG\BottoGram\Navigation\InlineButton;
 use WeRtOG\BottoGram\Navigation\KeyboardState;
 use WeRtOG\BottoGram\Telegram\Model\Audio;
+use WeRtOG\BottoGram\Telegram\Model\Contact;
 use WeRtOG\BottoGram\Telegram\Model\Document;
 use WeRtOG\BottoGram\Telegram\Model\InlineQuery;
 use WeRtOG\BottoGram\Telegram\Model\Location;
-use WeRtOG\BottoGram\Telegram\Model\MessageType;
+use WeRtOG\BottoGram\Telegram\Model\MediaType;
 use WeRtOG\BottoGram\Telegram\Model\Message;
 use WeRtOG\BottoGram\Telegram\Model\ParseMode;
 use WeRtOG\BottoGram\Telegram\Model\Photo;
 use WeRtOG\BottoGram\Telegram\Model\PreCheckoutQuery;
 use WeRtOG\BottoGram\Telegram\Model\Request;
 use WeRtOG\BottoGram\Telegram\Model\Response;
+use WeRtOG\BottoGram\Telegram\Model\Sticker;
 use WeRtOG\BottoGram\Telegram\Model\Update;
 use WeRtOG\BottoGram\Telegram\Model\Video;
+use WeRtOG\BottoGram\Telegram\Model\VideoNote;
+use WeRtOG\BottoGram\Telegram\Model\Voice;
 
 class Telegram implements TelegramInterface
 {
@@ -295,7 +300,7 @@ class Telegram implements TelegramInterface
 		return new Response($Query);
 	}
 
-	public function SendMedia(string $ApiMethod, string $Path, string $MessageType, string $ChatID, string $Caption = '', string|array|null $MainKeyboard = [], array|null $InlineKeyboard = [], string $ParseMode = ParseMode::Markdown): Response
+	public function SendMedia(string $ApiMethod, string $Path, string $MediaType, string $ChatID, string $Caption = '', string|array|null $MainKeyboard = [], array|null $InlineKeyboard = [], string $ParseMode = ParseMode::Markdown): Response
 	{
 		$ReplyMarkup = $this->GenerateReplyMarkup($MainKeyboard, $InlineKeyboard);
 		$URL = $ApiMethod . '?chat_id='. $ChatID . '&reply_markup=' . $ReplyMarkup . '&parse_mode=' . $ParseMode;
@@ -308,7 +313,7 @@ class Telegram implements TelegramInterface
 					'contents' => $ChatID
 				],
 				[
-					'name' => $MessageType,
+					'name' => $MediaType,
 					'contents' => $FileContent
 				],
 				[
@@ -326,7 +331,7 @@ class Telegram implements TelegramInterface
 		return $this->SendMedia(
 			ApiMethod: 'sendPhoto',
 			Path: $Photo,
-			MessageType: MessageType::Photo,
+			MediaType: MediaType::Photo,
 			ChatID: $ChatID,
 			Caption: $Caption,
 			MainKeyboard: $MainKeyboard,
@@ -340,7 +345,7 @@ class Telegram implements TelegramInterface
 		return $this->SendMedia(
 			ApiMethod: 'sendVoice',
 			Path: $Voice,
-			MessageType: MessageType::Voice,
+			MediaType: MediaType::Voice,
 			ChatID: $ChatID,
 			Caption: $Caption,
 			MainKeyboard: $MainKeyboard,
@@ -354,7 +359,7 @@ class Telegram implements TelegramInterface
 		return $this->SendMedia(
 			ApiMethod: 'sendDocument',
 			Path: $Document,
-			MessageType: MessageType::Document,
+			MediaType: MediaType::Document,
 			ChatID: $ChatID,
 			Caption: $Caption,
 			MainKeyboard: $MainKeyboard,
@@ -368,7 +373,7 @@ class Telegram implements TelegramInterface
 		return $this->SendMedia(
 			ApiMethod: 'sendAudio',
 			Path: $Audio,
-			MessageType: MessageType::Audio,
+			MediaType: MediaType::Audio,
 			ChatID: $ChatID,
 			Caption: $Caption,
 			MainKeyboard: $MainKeyboard,
@@ -382,7 +387,7 @@ class Telegram implements TelegramInterface
 		return $this->SendMedia(
 			ApiMethod: 'sendVideo',
 			Path: $Video,
-			MessageType: MessageType::Video,
+			MediaType: MediaType::Video,
 			ChatID: $ChatID,
 			Caption: $Caption,
 			MainKeyboard: $MainKeyboard,
@@ -484,18 +489,6 @@ class Telegram implements TelegramInterface
 		}
 	}
 
-	private function GetMediaIDFromTelegramMessage(object $MessageObject, string $MediaType): ?string
-	{
-		if(property_exists($MessageObject, $MediaType))
-		{
-			$TelegramMedia = $MessageObject->{$MediaType};
-			$TelegramMediaSingle = (array)(is_array($TelegramMedia) ? end($TelegramMedia) : $TelegramMedia);
-			return $TelegramMediaSingle['file_id'];
-		}
-
-		return null;
-	}
-
 	public function GetUserMessage(Request $Request = null): ?Message
 	{
 		if($Request == null)
@@ -517,69 +510,19 @@ class Telegram implements TelegramInterface
 
 		if($MessageObject != null)
 		{
-			// Получаем текст сообщения
-			$Text = $MessageObject->{'text'} ?? '';
-
-			if(property_exists($MessageObject, 'contact'))
-			{
-				if(property_exists($MessageObject->{'contact'}, 'phone_number'))
-				{
-					$Text = $MessageObject->{'contact'}->{'phone_number'};
-				}
-			}
-
-			$UserFirstName = $MessageObject->{'chat'}->{'first_name'} ?? '';
-			$UserLastName = $MessageObject->{'chat'}->{'last_name'} ?? '';
-
-			// Возвращаем результат
-			return new Message(
-				Text: $Text,
-				ChatID: $MessageObject->{'chat'}->{'id'} ?? null,
-				FromID: $MessageObject->{'from'}->{'id'} ?? null,
-				UserName: $MessageObject->{'chat'}->{'username'} ?? $MessageObject->{'chat'}->{'id'} ?? 'Anonymous',
-				Location: Location::FromTelegramFormat($MessageObject->{'location'} ?? null),
-				MediaGroupID: $MessageObject->{'media_group_id'} ?? null,
-				Photo: Photo::FromTelegramFormat($MessageObject->{'photo'} ?? null),
-				Video: Video::FromTelegramFormat($MessageObject->{'video'} ?? null),
-				Document: Document::FromTelegramFormat($MessageObject->{'document'} ?? null),
-				Audio: Audio::FromTelegramFormat($MessageObject->{'audio'} ?? null),
-				UserFullName: implode(' ', [$UserFirstName, $UserLastName]),
-				Pay: $MessageObject->{'successful_payment'} ?? new stdClass(),
-				IsFromGroup: !$IsChannelPost && isset($MessageObject->{'chat'}->{'type'}) ? (in_array($MessageObject->{'chat'}->{'type'}, ['supergroup', 'group']) ? true : false) : false,
-				IsChannelPost: $IsChannelPost,
-				Data: $Request
+			return Message::FromTelegramFormat(
+				Object: $MessageObject,
+				IsChannelPost: $IsChannelPost
 			);
 		}
 		else
 		{
 			if(isset($Request->Body->{'callback_query'}))
 			{
-				$UserName = $Request->Body->{'callback_query'}->{'from'}->{'username'};
-
-				if(empty($UserName))
-				{
-					$UserName = $Request->Body->{'callback_query'}->{'message'}->{'chat'}->{'id'};
-				}
-
-				// Получаем основные сведения
-				$CallbackID = $Request->Body->{'callback_query'}->{'id'};
-				$MessageID = $Request->Body->{'callback_query'}->{'message'}->{'message_id'};
-				$ChatID = $Request->Body->{'callback_query'}->{'message'}->{'chat'}->{'id'};
-				$FromID = $Request->Body->{'callback_query'}->{'from'}->{'id'};
-				$Text = $Request->Body->{'callback_query'}->{'data'};
-
-				// Возвращаем результат
-				return new Message(
-					Text: $Text,
-					ChatID: $ChatID,
-					FromID: $FromID,
-					MessageID: $MessageID,
-					UserName: $UserName,
-					IsCallbackQuery: true,
-					CallbackQueryID: $CallbackID,
-					UserFullName: ($Request->Body->{'callback_query'}->{'from'}->{'first_name'} ?? '') . ' ' . ($Request->Body->{'callback_query'}->{'from'}->{'last_name'} ?? ''),
-					IsFromGroup: isset($MessageObject->{'chat'}->{'type'}) ? (in_array($MessageObject->{'chat'}->{'type'}, ['supergroup', 'group']) ? true : false) : false,
-					Data: $Request
+				$CallbackQueryObject = $Request->Body->{'callback_query'};
+				return Message::FromTelegramCallbackQueryFormat(
+					Object: $CallbackQueryObject,
+					IsChannelPost: $IsChannelPost
 				);
 			}
 		}

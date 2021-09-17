@@ -8,7 +8,7 @@ namespace WeRtOG\BottoGram\Telegram\Model;
 
 use ArrayIterator;
 
-class UsersArray extends ArrayIterator
+class UsersArray extends TelegramModelArray
 {
     public function __construct(User ...$Users)
     {
@@ -52,4 +52,3 @@ class UsersArray extends ArrayIterator
     }
 }
 
-?>

@@ -1,4 +1,5 @@
 <?php
+
 /*
     WeRtOG
     BottoGram
@@ -11,7 +12,7 @@ class ChatCommand extends Command {
         public mixed $Action,
         public bool $ExitAfterExecute = true,
         public bool $IgnoreGroupAllow = false,
+        public ?string $UpdateType = null
     )
     { }
 }
-?>

@@ -6,13 +6,11 @@
 */
 namespace WeRtOG\BottoGram\Telegram\Model;
 
-class VideoNote
+class VideoNote extends TelegramModel
 {
     public function __construct(
         public string $FileID,
         public string $FileUniqueID,
-        public int $Width,
-        public int $Height,
         public int $Length,
         public int $Duration,
         public ?PhotoSize $Thumb,
@@ -27,11 +25,9 @@ class VideoNote
             return new self(
                 FileID: $Object->{'file_id'},
                 FileUniqueID: $Object->{'file_unique_id'},
-                Width: $Object->{'width'},
-                Height: $Object->{'height'},
                 Length: $Object->{'length'},
                 Duration: $Object->{'duration'},
-                Thumb: PhotoSize::FromTelegramFormat($Object->{'thumb'}),
+                Thumb: PhotoSize::FromTelegramFormat($Object->{'thumb'} ?? null),
                 FileSize: $Object->{'file_size'} ?? null
             );
         }
@@ -40,4 +36,3 @@ class VideoNote
     }
 }
 
-?>

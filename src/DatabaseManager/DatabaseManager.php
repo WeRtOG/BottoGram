@@ -1,4 +1,5 @@
 <?php
+
 /*
     WeRtOG
     BottoGram
@@ -67,4 +68,3 @@ class DatabaseManager
         }
     }
 }
-?>

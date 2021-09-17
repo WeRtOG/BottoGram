@@ -6,7 +6,7 @@
 */
 namespace WeRtOG\BottoGram\Telegram\Model;
 
-class OrderInfo
+class OrderInfo extends TelegramModel
 {
     public function __construct(
         public ?string $Name,
@@ -32,4 +32,3 @@ class OrderInfo
     }
 }
 
-?>

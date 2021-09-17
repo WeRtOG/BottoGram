@@ -6,7 +6,7 @@
 */
 namespace WeRtOG\BottoGram\Telegram\Model;
 
-class Location
+class Location extends TelegramModel
 {
     public function __construct(
         public float $Longitude,
@@ -28,7 +28,7 @@ class Location
                 HorizontalAccuracy: $Object->{'horizontal_accuracy'} ?? null,
                 LivePeriod: $Object->{'live_period'} ?? null,
                 Heading: $Object->{'heading'} ?? null,
-                ProximityAlertRadius: $Object->{'proximity_alert_radius'}
+                ProximityAlertRadius: $Object->{'proximity_alert_radius'} ?? null
             );
         }
 
@@ -36,4 +36,3 @@ class Location
     }
 }
 
-?>

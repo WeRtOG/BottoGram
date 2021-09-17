@@ -6,7 +6,7 @@
 */
 namespace WeRtOG\BottoGram\Telegram\Model;
 
-class PhotoSize
+class PhotoSize extends TelegramModel
 {
     public function __construct(
         public string $FileID,
@@ -34,4 +34,3 @@ class PhotoSize
     }
 }
 
-?>

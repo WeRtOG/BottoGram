@@ -1,11 +1,11 @@
 <?php
+
 /*
     WeRtOG
     BottoGram
 */
 namespace WeRtOG\BottoGram;
 
-// Используем зависимости
 use WeRtOG\BottoGram\DatabaseManager\Database;
 use WeRtOG\BottoGram\Telegram\Model\Request;
 use WeRtOG\BottoGram\Telegram\Model\Response;
@@ -135,4 +135,3 @@ class Log
         }
     }
 }
-?>

@@ -34,12 +34,10 @@ class Audio extends Document
                 FileName: $Object->{'file_name'} ?? null,
                 MimeType: $Object->{'mime_type'} ?? null,
                 FileSize: $Object->{'file_size'} ?? null,
-                Thumb: PhotoSize::FromTelegramFormat($Object->{'thumb'})
+                Thumb: PhotoSize::FromTelegramFormat($Object->{'thumb'} ?? null)
             );
         }
 
         return null;
     }
 }
-
-?>

@@ -8,7 +8,7 @@ namespace WeRtOG\BottoGram\Telegram\Model;
 
 use DateTime;
 
-class VoiceChatScheduled
+class VoiceChatScheduled extends TelegramModel
 {
     public function __construct(
         public DateTime $StartDate
@@ -28,4 +28,3 @@ class VoiceChatScheduled
     }
 }
 
-?>

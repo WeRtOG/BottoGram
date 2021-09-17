@@ -8,7 +8,7 @@ namespace WeRtOG\BottoGram\Telegram\Model;
 
 use ArrayIterator;
 
-class MessageEntities extends ArrayIterator
+class MessageEntities extends TelegramModelArray
 {
     public function __construct(MessageEntity ...$MessageEntities)
     {
@@ -52,4 +52,3 @@ class MessageEntities extends ArrayIterator
     }
 }
 
-?>

@@ -8,6 +8,7 @@ namespace WeRtOG\BottoGram\Models;
 
 use Exception;
 use WeRtOG\BottoGram\DatabaseManager\Database;
+use WeRtOG\BottoGram\DatabaseManager\Models\ChangedProperty;
 
 class TelegramUsers
 {
@@ -27,89 +28,21 @@ class TelegramUsers
 
     public function GetUser(string $ChatID): ?TelegramUser
     {
-        return $this->Database->FetchQuery("SELECT * FROM $this->Table WHERE ChatID='$ChatID' ORDER BY ID ASC LIMIT 1", false, TelegramUser::class);
-    }
-
-    /**
-     * Метод для изменения последней медиагруппы
-     * @param string $Group Медиагруппа
-     * @param string $ChatID ID пользователя
-     */
-    public function SetUserLastMediaGroup(string $Group, string $ChatID)
-    {
-        $this->Database->FetchQuery("UPDATE $this->Table SET LastMediaGroup='$Group' WHERE ChatID='$ChatID'");
-    }
-
-    /**
-     * Метод для получения последней медиагруппы пользователя
-     * @param string|null $ChatID ID пользователя (Telegram)
-     * @return string Медиагруппа
-     */
-    public function GetUserLastMediaGroup(?string $ChatID): string
-    {
-        $MediaGroup = '';
-        $User = $this->GetUser($ChatID ?? '');
-
+        $User = $this->Database->FetchQuery("SELECT * FROM $this->Table WHERE ChatID='$ChatID' ORDER BY ID ASC LIMIT 1", false, TelegramUser::class);
         if($User != null)
         {
-            $MediaGroup = isset($User->LastMediaGroup) ? $User->LastMediaGroup : '';
+            $User->OnPropertyChange(function (ChangedProperty $Property) {
+                if(is_array($Property->Value))
+                    $Property->Value = json_encode($Property->Value, JSON_UNESCAPED_UNICODE);
+                
+                $this->Database->FetchQuery("UPDATE $this->Table SET $Property->Name='$Property->Value'");
+                echo PHP_EOL . 'Property ' . $Property->Name . ' changed to "' . $Property->Value . '"' . PHP_EOL . PHP_EOL;
+            });
         }
 
-        return empty($MediaGroup) ? -1 : $MediaGroup;
+        return $User;
     }
 
-    /**
-     * Метод для изменения навигации пользователя
-     * @param string $Nav Навигация
-     * @param string $ChatID ID Пользователя (Telegram)
-     */
-    public function SetUserNav(string $Nav, TelegramUser &$User)
-    {
-        $User->Nav = $Nav;
-        return $this->Database->FetchQuery("UPDATE $this->Table SET Nav='$Nav' WHERE ChatID='$User->ChatID'");
-    }
-
-    /**
-     * Метод для получения элемента кеша
-     * @param string $Name Название элемента
-     * 
-     * @return mixed Значение
-     */
-    public function GetUserCacheItem(string $Name, TelegramUser &$User)
-    {
-        return $User->Cache[$Name] ?? null;
-    }
-
-    /**
-     * Метод для изменения значения элемента кеша
-     * @param string $Name Название элемента
-     * @param $Value Значение элемента
-     * 
-     */
-    public function SetUserCacheItem(string $Name, $Value, TelegramUser &$User)
-    {
-        $User->Cache = is_array($User->Cache) ? $User->Cache : [];
-        $User->Cache[$Name] = $Value;
-        $this->SetUserCache($User->Cache, $User);
-    }
-
-    /**
-     * Метод для изменения кеша пользователя
-     * @param mixed $Cache Кеш
-     * @param string $ChatID ID пользователя (Telegram)
-     */
-    public function SetUserCache($Cache, TelegramUser $User)
-    {
-        $Cache = json_encode($Cache, JSON_UNESCAPED_UNICODE);   
-        $this->Database->FetchQuery("UPDATE $this->Table SET Cache='$Cache' WHERE ChatID='$User->ChatID'");
-    }
-    
-    /**
-     * Метод для регистрации пользователя Telegram в БД
-     * @param string $ChatID ID пользователя (Telegram)
-     * @param string $UserName Имя пользователя
-     * @param string $FullName Полное имя пользователя
-     */
     public function RegisterUserIfNotExists(string $ChatID, ?string $UserName, ?string $FullName): TelegramUser
     {
         $User = $this->GetUser($ChatID);
@@ -139,5 +72,3 @@ class TelegramUsers
         }
     }
 }
-
-?>

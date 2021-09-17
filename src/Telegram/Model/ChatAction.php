@@ -8,7 +8,7 @@ namespace WeRtOG\BottoGram\Telegram\Model;
 
 use ReflectionClass;
 
-class ChatAction
+class ChatAction extends TelegramModel
 {
 	const Typing = 'typing';
 	const RecordVideo = 'record_video';
@@ -28,4 +28,3 @@ class ChatAction
 	}
 }
 
-?>

@@ -6,7 +6,7 @@
 */
 namespace WeRtOG\BottoGram\Telegram\Model;
 
-class Venue
+class Venue extends TelegramModel
 {
     public function __construct(
         public Location $Location,
@@ -24,13 +24,13 @@ class Venue
         if($Object != null)
         {
             return new self(
-                Location: Location::FromTelegramFormat($Object->{'locations'}),
+                Location: Location::FromTelegramFormat($Object->{'location'}),
                 Title: $Object->{'title'},
                 Address: $Object->{'address'},
-                FoursquareID: $Object->{'foursquare_id'},
-                FoursquareType: $Object->{'foursquare_type'},
-                GooglePlaceID: $Object->{'google_place_id'},
-                GooglePlaceType: $Object->{'google_place_type'}
+                FoursquareID: $Object->{'foursquare_id'} ?? null,
+                FoursquareType: $Object->{'foursquare_type'} ?? null,
+                GooglePlaceID: $Object->{'google_place_id'} ?? null,
+                GooglePlaceType: $Object->{'google_place_type'} ?? null
             );
         }
 
@@ -38,4 +38,3 @@ class Venue
     }
 }
 
-?>

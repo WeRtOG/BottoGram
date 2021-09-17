@@ -8,7 +8,7 @@ namespace WeRtOG\BottoGram\Telegram\Model;
 
 use ArrayIterator;
 
-class EncryptedPassportElements extends ArrayIterator
+class EncryptedPassportElements extends TelegramModelArray
 {
     public function __construct(EncryptedPassportElement ...$EncryptedPassportElements)
     {
@@ -52,4 +52,3 @@ class EncryptedPassportElements extends ArrayIterator
     }
 }
 
-?>

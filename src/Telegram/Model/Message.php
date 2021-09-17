@@ -8,7 +8,7 @@ namespace WeRtOG\BottoGram\Telegram\Model;
 
 use DateTime;
 
-class Message
+class Message extends TelegramModel
 {
 	public string $Command = '';
 	public array $Arguments = [];
@@ -19,7 +19,6 @@ class Message
 		public ?Chat $Chat,
 		public bool $IsChannelPost = false,
 		public bool $IsFromGroup = false,
-		public bool $IsCallbackQuery = false,
 		public ?User $From = null,
 		public ?Chat $SenderChat = null,
 		public ?User $ForwardFrom = null,
@@ -85,8 +84,6 @@ class Message
 			array_shift($TextParts);
 			$this->Arguments = $TextParts;
 		}
-
-		print_r($this);
 	}
 
 	public static function FromTelegramFormat(?object $Object, bool $IsChannelPost = false): ?self
@@ -156,26 +153,5 @@ class Message
 
         return null;
     }
-
-	public static function FromTelegramCallbackQueryFormat(?object $Object, bool $IsChannelPost = false): ?self
-	{
-		if($Object != null)
-        {
-			return new Message(
-				MessageID: $Object->{'message'}->{'message_id'} ?? null,
-				Date: new DateTime(),
-				Chat: Chat::FromTelegramFormat($Object->{'message'}->{'chat'} ?? null),
-				IsChannelPost: $IsChannelPost,
-				IsFromGroup: !$IsChannelPost && isset($Object->{'chat'}->{'type'}) ? (in_array($Object->{'chat'}->{'type'}, ['supergroup', 'group']) ? true : false) : false,
-				From: User::FromTelegramFormat($Object->{'from'} ?? null),
-				Text: $Object->{'data'} ?? '',
-				CallbackQueryID: $Object->{'id'},
-				IsCallbackQuery: true,
-			);
-		}
-
-		return null;
-	}
 }
 
-?>

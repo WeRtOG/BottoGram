@@ -6,7 +6,7 @@
 */
 namespace WeRtOG\BottoGram\Telegram\Model;
 
-class ProximityAlertTriggered
+class ProximityAlertTriggered extends TelegramModel
 {
     public function __construct(
         public User $Traveler,
@@ -30,4 +30,3 @@ class ProximityAlertTriggered
     }
 }
 
-?>

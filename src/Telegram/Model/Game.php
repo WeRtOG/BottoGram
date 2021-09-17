@@ -6,7 +6,7 @@
 */
 namespace WeRtOG\BottoGram\Telegram\Model;
 
-class Game
+class Game extends TelegramModel
 {
     public function __construct(
         public string $Title,
@@ -36,4 +36,3 @@ class Game
     }
 }
 
-?>

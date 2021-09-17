@@ -6,9 +6,7 @@
 */
 namespace WeRtOG\BottoGram\AdminPanel;
 
-// Используем зависимости
 use WeRtOG\BottoGram\DatabaseManager\Database;
-
 
 class AccessControl
 {
@@ -71,5 +69,3 @@ class AccessControl
         $_SESSION[$this->SessionKey] = "";
     }
 }
-
-?>

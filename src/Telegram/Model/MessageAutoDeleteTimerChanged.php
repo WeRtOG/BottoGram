@@ -8,7 +8,7 @@ namespace WeRtOG\BottoGram\Telegram\Model;
 
 use DateTime;
 
-class MessageAutoDeleteTimerChanged
+class MessageAutoDeleteTimerChanged extends TelegramModel
 {
     public function __construct(
         public DateTime $MessageAutoDeleteTime
@@ -28,4 +28,3 @@ class MessageAutoDeleteTimerChanged
     }
 }
 
-?>

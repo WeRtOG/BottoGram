@@ -6,7 +6,7 @@
 */
 namespace WeRtOG\BottoGram\Telegram\Model;
 
-class Sticker
+class Sticker extends TelegramModel
 {
     public function __construct(
         public string $FileID,
@@ -35,7 +35,7 @@ class Sticker
                 Thumb: PhotoSize::FromTelegramFormat($Object->{'thumb'} ?? null),
                 Emoji: $Object->{'emoji'} ?? null,
                 SetName: $Object->{'set_name'} ?? null,
-                MaskPosition: MaskPosition::FromTelegramFormat($Object->{'mask_position'}),
+                MaskPosition: MaskPosition::FromTelegramFormat($Object->{'mask_position'} ?? null),
                 FileSize: $Object->{'file_size'} ?? null
             );
         }
@@ -44,4 +44,3 @@ class Sticker
     }
 }
 
-?>

@@ -1,4 +1,5 @@
 <?php
+
 /*
     WeRtOG
     BottoGram
@@ -8,23 +9,15 @@ namespace WeRtOG\BottoGram\DatabaseManager;
 foreach (glob(__DIR__ . "/Exceptions/*.php") as $Filename) require_once $Filename;
 foreach (glob(__DIR__ . "/Models/*.php") as $Filename) require_once $Filename;
 
-use Exception;
 use mysqli;
 use WeRtOG\BottoGram\DatabaseManager\Exceptions\DatabaseException;
 use WeRtOG\BottoGram\DatabaseManager\Models\DatabaseConnection;
-use WeRtOG\FoxyMVC\Model;
 
-/**
- * Класс взаимодействия с БД
- * @property object $DB Сама БД
- */
 class Database
 {
     protected object $DB;
     protected DatabaseConnection $DatabaseConnection;
-    /**
-     * Конструктор класса взаимодействия с БД
-     */
+
     public function __construct(DatabaseConnection $DatabaseConnection)
     {
         $this->DatabaseConnection = $DatabaseConnection;
@@ -49,88 +42,57 @@ class Database
         $this->DB->set_charset("utf8mb4");
     }
 
-    /**
-     * Метод для переподключения к БД
-     */
     public function Reconnect()
     {
         $this->Disconnect();
         $this->Connect();
     }
 
-    /**
-     * Метод для отключения от БД
-     */
     public function Disconnect()
     {
         $this->DB->close();
     }
 
-    /**
-     * Метод для выполнения SQL-запроса
-     * @param string $Query Запрос
-     * @param bool $ReturnArray Флаг для принудительного возвращения массива
-     * @param string $ClassName Имя класса 
-     * @return mixed Результат
-     */
     public function FetchQuery(string $Query, bool $ReturnArray = false, string $ClassName = null)
     {
         if(!$this->DB->ping()) $this->Reconnect();
 
-        // Дожидаемся завершения предыдущих запросов
         while($this->DB->next_result()) $this->DB->store_result();
 
-        // Выполняем запрос
         $QueryResult = $this->DB->query($Query);
 
-        // Если запрос выполнен успешно
         if($QueryResult)
         {
 
-            // Проверяем есть ли результат
             if(array_key_exists('num_rows', (array)$QueryResult))
             {
-
-                // Если есть строки
                 if($QueryResult->num_rows > 0)
                 {
-                    // Обрабатываем первую строку
                     $FetchResult = $QueryResult->fetch_assoc();
 
-                    // Если строка всего одна 
-                    if($QueryResult->num_rows == 1 && $ReturnArray == false) {
-
-                        /* Если необходимо вернуть объект конкретного класса 
-                            И если этот класс существует, то его и возвращаем */
+                    if($QueryResult->num_rows == 1 && $ReturnArray == false)
+                    {
                         if($ClassName != null && class_exists($ClassName))
                         {
                             return new $ClassName($FetchResult);
                         }
 
-                        // В ином случае возвращаем просто массив
                         else 
                         {
                             return $FetchResult;
                         }
 
-                    // Если строк несколько
                     } else if($QueryResult->num_rows >= 1) {
 
-                        // Подготавливаем массив результата
                         $Result = [];
 
-                        // Проходимся по всем строкам
                         do {
 
-                            // Если необходимо вернуть массив объектов классов
-                            // И если класс существует
-                            // Добавляем объект в массив
                             if($ClassName != null && class_exists($ClassName))
                             {
                                 $Result[] = new $ClassName($FetchResult);
                             }
 
-                            // В ином случае просто добавляем массив текущей строки в массив результата
                             else 
                             {
                                 $Result[] = $FetchResult;
@@ -138,7 +100,6 @@ class Database
                         }
                         while($FetchResult = $QueryResult->fetch_assoc());
                         
-                        // Возвращаем массив результата
                         return $Result;
                     }
                 } else {
@@ -148,7 +109,6 @@ class Database
                 return null;
             }
         
-        // Если запрос провалился сообщаем об этом в логах
         } else {
             throw new DatabaseException("Возникла ошибка MySQL: " . $this->DB->error . "\n при выполнении запроса: " . $Query);
         }
@@ -228,4 +188,3 @@ class Database
         return true;
     }
 }
-?>

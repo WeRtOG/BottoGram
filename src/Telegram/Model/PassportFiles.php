@@ -8,7 +8,7 @@ namespace WeRtOG\BottoGram\Telegram\Model;
 
 use ArrayIterator;
 
-class PassportFiles extends ArrayIterator
+class PassportFiles extends TelegramModelArray
 {
     public function __construct(PassportFile ...$PassportFiles)
     {
@@ -52,4 +52,3 @@ class PassportFiles extends ArrayIterator
     }
 }
 
-?>

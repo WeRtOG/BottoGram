@@ -6,7 +6,7 @@
 */
 namespace WeRtOG\BottoGram\Telegram\Model;
 
-class User
+class User extends TelegramModel
 {
     public function __construct(
         public int $ID,
@@ -40,6 +40,15 @@ class User
 
         return null;
     }
+
+    public function GetUsername(): string
+    {
+        return isset($this->UserName) ? $this->UserName : $this->ID;
+    }
+
+    public function GetFullName(): string
+    {
+        return implode(' ', [$this->FirstName ?? null, $this->LastName ?? null]);
+    }
 }
 
-?>

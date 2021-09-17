@@ -6,7 +6,7 @@
 */
 namespace WeRtOG\BottoGram\Telegram\Model;
 
-class EncryptedPassportElement
+class EncryptedPassportElement extends TelegramModel
 {
     public function __construct(
         public string $Type,
@@ -44,4 +44,3 @@ class EncryptedPassportElement
     }
 }
 
-?>

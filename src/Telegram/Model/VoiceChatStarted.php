@@ -6,19 +6,16 @@
 */
 namespace WeRtOG\BottoGram\Telegram\Model;
 
-use DateTime;
-
-class VoiceChatStarted
+class VoiceChatStarted extends TelegramModel
 {
     public function __construct(
         
     )
     { }
 
-    public static function FromTelegramFormat(?object $Object): self
+    public static function FromTelegramFormat(object|null|array $Object): self
     {
         return new self();
     }
 }
 
-?>

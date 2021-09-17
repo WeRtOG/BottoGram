@@ -8,7 +8,7 @@ namespace WeRtOG\BottoGram\Telegram\Model;
 
 use ArrayIterator;
 
-class PollOptions extends ArrayIterator
+class PollOptions extends TelegramModelArray
 {
     public function __construct(PollOption ...$PollOptions)
     {
@@ -52,4 +52,3 @@ class PollOptions extends ArrayIterator
     }
 }
 
-?>

@@ -7,7 +7,7 @@
 namespace WeRtOG\BottoGram\Telegram\Model;
 
 
-class Request
+class Request extends TelegramModel
 {
 	public object $Body;
 	public string $Raw;
@@ -28,4 +28,3 @@ class Request
 	}
 }
 
-?>

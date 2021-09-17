@@ -1,4 +1,5 @@
 <?php
+
 /*
     WeRtOG
     BottoGram
@@ -16,60 +17,55 @@ use WeRtOG\BottoGram\DatabaseManager\DatabaseManager;
 use WeRtOG\BottoGram\Log;
 use WeRtOG\BottoGram\Models\MenuFolder;
 use WeRtOG\BottoGram\Telegram\Telegram;
-use WeRtOG\BottoGram\Telegram\Model\Message;
-use WeRtOG\BottoGram\Telegram\Model\Response as TelegramResponse;
 use WeRtOG\BottoGram\Navigation\Menu;
 use WeRtOG\BottoGram\Navigation\Command;
-use WeRtOG\BottoGram\Navigation\KeyboardState;
-use WeRtOG\BottoGram\Telegram\Model\ChatAction;
 use WeRtOG\BottoGram\Telegram\Model\ParseMode;
 use WeRtOG\BottoGram\Models\TelegramUser;
 use WeRtOG\BottoGram\Models\TelegramUsers;
 use WeRtOG\BottoGram\Navigation\ChannelCommand;
 use WeRtOG\BottoGram\Navigation\ChatCommand;
 use WeRtOG\BottoGram\Navigation\GlobalCommand;
-use WeRtOG\BottoGram\Telegram\Model\MediaType;
+use WeRtOG\BottoGram\Telegram\Model\ReplyKeyboardMarkup;
 use WeRtOG\BottoGram\Telegram\Model\Update;
 use WeRtOG\BottoGram\Telegram\Model\UpdateType;
+use WeRtOG\BottoGram\Telegram\Model\Response;
 
 /**
- * # BottoGram
+ * ## BottoGram
  * ##### By WeRtOG
  */
 class BottoGram
 {
-    private array $CustomModels = [];
-    private array $MenuFoldersList = [];
-    private array $Commands = [];
-    private int $OldMediaGroup = 0;
-    private int $NewMediaGroup = 0;
-
-    public Database $Database;
-
-    public TelegramUsers $TelegramUsers;
     public Telegram $Telegram;
-    public BottoConfig $Config;
     
     public ?Log $Log = null;
     public ?TelegramUser $CurrentUser = null;
     public ?Update $Update;
+    
+    private array $CustomModels = [];
+    private array $MenuFoldersList = [];
+    private array $Commands = [];
 
-    public $InlineQueryAction;
-    public $PreCheckoutQueryAction;
-    public $ChannelPostAction;
+    private Database $Database;
 
-    public string $RootMenu;
+    private TelegramUsers $TelegramUsers;
+    private BottoConfig $Config;
 
-    public array|string|null $Keyboard = null;
+    private $InlineQueryAction;
+    private $PreCheckoutQueryAction;
+    private $ChannelPostAction;
+
+    private string $RootMenu;
+
+    private array|string|null $Keyboard = null;
 
 
-    function __construct(BottoConfig $Config, bool $GetInputUpdate = true)
+    function __construct(BottoConfig $Config)
     {
         $this->Config = $Config;
 
         $this->Telegram = new Telegram(
             Token: $Config->Token,
-            ButtonsAutoSize: $Config->ButtonsAutoSize
         );
 
         $this->Database = self::DatabaseFromConfig($Config);
@@ -77,135 +73,15 @@ class BottoGram
 
         $this->RegisterCommand(
             Command: new GlobalCommand(
-                Name: '/getid',
-                Action: function(Update $Update, BottoGram $BottoGram)
+                Name: BOT_COMMAND_GETID,
+                Action: function (Update $Update, TelegramUser $User, Telegram $Telegram)
                 {
                     $this->Log?->RequestSuccess();
-                    $this->Send("👤 Your ID: " . $this->Update->Message->Chat->ID);
+                    $Telegram->SendMessage($User->ChatID, "👤 Your ID: " . $User->ChatID);
                     exit();
                 }
             )
         );
-
-        if($GetInputUpdate)
-        {
-            $this->Update = $this->Telegram->GetUpdate();
-
-            switch($this->Update->Type)
-            {
-                case UpdateType::Message:
-                    if(!$this->Update->Message->IsChannelPost)
-                    {
-                        $this->CurrentUser = $this->TelegramUsers->RegisterUserIfNotExists(
-                            ChatID: $this->Update->Message->Chat->ID,
-                            UserName: isset($this->Update->Message->User->UserName) ? $this->Update->Message->User->UserName : $this->Update->Message->Chat->ID,
-                            FullName: implode(' ', [$this->Update->Message->Chat->FirstName ?? null, $this->Update->Message->Chat->LastName ?? null])
-                        );
-
-                        $this->Log = new Log(
-                            ChatID: $this->Update->Message->Chat->ID,
-                            Request: $this->Update->Request,
-                            Database: $this->Database,
-                            EnableTextLog: $Config->EnableTextLog,
-                            EnableExtendedLog: $Config->EnableExtendedLog
-                        );
-    
-                        if($this->Update->Message->IsFromGroup && !$this->Config->AllowGroups)
-                        {
-                            $this->Log->RequestFail(403, "Groups not allowed.");
-                            exit();
-                        }
-            
-                        if($Config->Private && !in_array($this->Update->Message->Chat->ID, $Config->PrivateAllow))
-                        {
-                            $this->Log->RequestFail(403, "User not allowed.");
-                            $this->Send("🚫 Access to this bot is restricted.");
-                            exit();
-                        }
-            
-                        if($this->Update->Message->MessageID == -1)
-                        {
-                            $this->SendChatAction(ChatAction::Typing);
-                        }
-            
-                        $this->OldMediaGroup = $this->TelegramUsers->GetUserLastMediaGroup($this->Update->Message->Chat->ID);
-                        
-                        if($this->Update->Message->MediaGroupID != null)
-                        {
-                            $this->NewMediaGroup = $this->Update->Message->MediaGroupID;
-                            $this->TelegramUsers->SetUserLastMediaGroup(
-                                Group: $this->Update->Message->MediaGroupID,
-                                ChatID: $this->Update->Message->Chat->ID
-                            );
-                        }
-                    }
-                    else
-                    {
-                        $this->CurrentUser = $this->TelegramUsers->RegisterUserIfNotExists(
-                            ChatID: $this->Update->Message->Chat->ID,
-                            UserName: 'Channel: ' . $this->Update->Message->Chat->ID,
-                            FullName: ''
-                        );
-                        $this->Log = new Log(
-                            ChatID: $this->Update->Message->Chat->ID,
-                            Request: $this->Update->Request,
-                            Database: $this->Database,
-                            EnableTextLog: $Config->EnableTextLog,
-                            EnableExtendedLog: $Config->EnableExtendedLog);
-
-                        $Text = $this->Update->Message->Data->{'channel_post'}->{'text'} ?? '';
-                        if($Text == BOT_COMMAND_GETID)
-                        {
-                            $Response = $this->Telegram->SendMessage("👤 Channel ID: " . $this->Update->Message->Chat->ID, $this->Update->Message->Chat->ID);
-                            $this->Log->ResponseSuccess($Response->GetData());
-                        }
-
-                        $this->Log->RequestSuccess();
-                    }
-                    break;
-
-                case UpdateType::InlineQuery:
-                    $this->Log = new Log(
-                        ChatID: $this->Update->InlineQuery->ChatID,
-                        Request: $this->Update->Request,
-                        Database: $this->Database,
-                        EnableTextLog: $Config->EnableTextLog,
-                        EnableExtendedLog: $Config->EnableExtendedLog
-                    );
-
-                    $this->Update->Message = new Message(
-                        Text: '',
-                        ChatID: $this->Update->InlineQuery->ChatID
-                    );
-                    break;
-
-                case UpdateType::PreCheckoutQuery:
-                    $this->Log = new Log(
-                        ChatID: $this->Update->PreCheckoutQuery->ChatID,
-                        Request: $this->Update->Request,
-                        Database: $this->Database,
-                        EnableTextLog: $Config->EnableTextLog,
-                        EnableExtendedLog: $Config->EnableExtendedLog
-                    );
-
-                    $this->Update->Message = new Message(
-                        Text: '',
-                        ChatID: $this->Update->PreCheckoutQuery->ChatID
-                    );
-                    break;
-
-            }
-        }
-        else
-        {
-            $this->Log = new Log(
-                ChatID: -1,
-                Request: $this->Update->Request,
-                Database: $this->Database,
-                EnableTextLog: $Config->EnableTextLog,
-                EnableExtendedLog: $Config->EnableExtendedLog
-            );
-        }
     }
 
     public static function DatabaseFromConfig(BottoConfig $Config): ?Database
@@ -213,7 +89,12 @@ class BottoGram
         return DatabaseManager::Connect($Config->DatabaseConnection);
     }
 
-    public static function GetModel(string $Class, array $Models)
+    public function GetCurrentDatabaseInstance(): ?Database 
+    {
+        return $this->Database;
+    }
+
+    public static function GetModel(string $Class, array $Models): mixed
     {
         foreach($Models as $Model)
         {
@@ -224,7 +105,8 @@ class BottoGram
         }
         return null;
     }
-    public function ConnectMenuFolder(string $Folder, string $Namespace = '', ...$Models)
+    
+    public function ConnectMenuFolder(string $Folder, string $Namespace = '', ...$Models): void
     {
         $this->LastMenuFolderPath = $Folder;
         $this->CustomModels = array_merge($this->CustomModels, $Models);
@@ -233,243 +115,9 @@ class BottoGram
             $this->MenuFoldersList[] = new MenuFolder(Path: $Folder, Namespace: $Namespace);
     }
 
-    public function HasNewMediaGroup(): bool
-    {
-        return ($this->OldMediaGroup != $this->NewMediaGroup) && $this->OldMediaGroup != 0 && $this->NewMediaGroup != 0;
-    }
-
-    public function SetRootMenu(string $menu)
+    public function SetRootMenu(string $menu): void
     {
         $this->RootMenu = $menu;
-    }
-
-    public function PrepareKeyboard(string|array $Keyboard): string|array|null
-    {
-        switch($Keyboard)
-        {
-            case KeyboardState::KeepLastKeyboard:
-                $Keyboard = $this->Keyboard;
-                break;
-            
-            case KeyboardState::WithoutChanges:
-                $Keyboard = null;
-                break;
-
-            case KeyboardState::RemoveKeyboard:
-            default:
-                $this->Keyboard = $Keyboard;
-                break;
-        }
-
-        return $Keyboard;
-    }
-
-    public function Send(string $Text, string|array $MainKeyboard = KeyboardState::KeepLastKeyboard, ?array $InlineKeyboard = [], string $Channel = "", string $ParseMode = ParseMode::Markdown): TelegramResponse
-    {
-        if($this->Update->Message == null) return new TelegramResponse();
-
-        if(empty($Channel))
-        {
-            $MainKeyboard = $this->PrepareKeyboard($MainKeyboard);
-            
-            $Response = $this->Telegram->SendMessage($Text, $this->Update->Message->Chat->ID, $MainKeyboard, $InlineKeyboard, $ParseMode);
-        }
-        else
-        {
-            if(empty($InlineKeyboard)) $InlineKeyboard = null;
-            $Response = $this->Telegram->SendMessage($Text, $Channel, null, $InlineKeyboard, $ParseMode);
-        }
-
-        $this->Log->ProcessResponse($Response);
-        return $Response;
-    }
-
-    public function SendPhotoByURL(string $Photo, string $Text = "", ?array $MainKeyboard = [], string $Channel = "", ?array $InlineKeyboard = []): TelegramResponse
-    {
-        if($this->Update->Message == null) return new TelegramResponse();
-
-        if(empty($Channel))
-        {
-            $MainKeyboard = $this->PrepareKeyboard($MainKeyboard);
-
-            if(empty($InlineKeyboard))
-            {
-                $Response = $this->Telegram->SendPhotoByURL($Photo, $this->Update->Message->Chat->ID, $Text, $MainKeyboard, []);
-            }
-            else
-            {
-                $Response = $this->Telegram->SendPhotoByURL($Photo, $this->Update->Message->Chat->ID, $Text, null, $InlineKeyboard);
-            }
-            
-        }
-        else
-        {
-            $Response = $this->Telegram->SendPhotoByURL($Photo, $Channel);
-        }
-        
-        $this->Log->ProcessResponse($Response);
-        return $Response;
-    }
-
-    public function SendVideo(string $Video, string $Text = "", ?array $MainKeyboard = [], string $Channel = "", ?array $InlineKeyboard = [], string $ParseMode = ParseMode::Markdown): TelegramResponse
-    {
-        if($this->Update->Message == null) return new TelegramResponse();
-
-        if(empty($Channel))
-        {
-            $MainKeyboard = $this->PrepareKeyboard($MainKeyboard);
-
-            if(empty($InlineKeyboard))
-            {
-                $Response = $this->Telegram->SendVideo($Video, $this->Update->Message->Chat->ID, $Text, $MainKeyboard, [], $ParseMode);
-            }
-            else
-            {
-                $Response = $this->Telegram->SendVideo($Video, $this->Update->Message->Chat->ID, $Text, null, $InlineKeyboard, $ParseMode);
-            }
-            
-        }
-        else
-        {
-            $Response = $this->Telegram->SendVideo($Video, $Channel, $Text, null, $InlineKeyboard, $ParseMode);
-        }
-        
-        $this->Log->ProcessResponse($Response);
-        return $Response;
-    }
-
-    public function SendPhoto(string $Photo, string $Text = "", string|array $MainKeyboard = KeyboardState::KeepLastKeyboard, string $Channel = "", array|null $InlineKeyboard = []): TelegramResponse
-    {
-        if($this->Update->Message == null) return new TelegramResponse();
-
-        if(empty($Channel))
-        {
-            $MainKeyboard = $this->PrepareKeyboard($MainKeyboard);
-            
-            if(empty($InlineKeyboard))
-            {
-                $Response = $this->Telegram->SendPhoto($Photo, $this->Update->Message->Chat->ID, $Text, $MainKeyboard, []);
-            }
-            else
-            {
-                $Response = $this->Telegram->SendPhoto($Photo, $this->Update->Message->Chat->ID, $Text, null, $InlineKeyboard);
-            }
-            
-        }
-        else
-        {
-            $Response = $this->Telegram->SendPhoto($Photo, $Channel);
-        }
-        
-        $this->Log->ProcessResponse($Response);
-        return $Response;
-    }
-
-    public function SendDocument(string $document): TelegramResponse
-    {
-        if($this->Update->Message == null) return new TelegramResponse();
-
-        $Response = $this->Telegram->SendDocument($document, $this->Update->Message->Chat->ID);
-
-        $this->Log->ProcessResponse($Response);
-
-        return $Response;
-    }
-
-    public function SendLocation(string $lat, string $long): TelegramResponse
-    {
-        if($this->Update->Message == null) return new TelegramResponse();
-
-        $Response = $this->Telegram->SendLocation($lat, $long, $this->Update->Message->Chat->ID);
-
-        $this->Log->ProcessResponse($Response);
-        return $Response;
-    }
-
-    public function ForwardMessage(int $MessageID, string $ChatID): TelegramResponse
-    {
-        if($this->Update->Message == null) return new TelegramResponse();
-
-        $Response = $this->Telegram->ForwardMessage($ChatID, $MessageID, $this->Update->Message->Chat->ID);
-
-        $this->Log->ProcessResponse($Response);
-        return $Response;
-    }
-
-    public function EditMessage(string $MessageID, string $NewText, string $ParseMode = ParseMode::Markdown): TelegramResponse
-    {
-        if($this->Update->Message == null) return new TelegramResponse();
-
-        $Response = $this->Telegram->EditMessage($MessageID, $NewText, $this->Update->Message->Chat->ID, $ParseMode);
-
-        $this->Log->ProcessResponse($Response);
-        return $Response;
-    }
-
-    public function EditMessageInlineButtons(int $MessageID, array $InlineKeyboard): TelegramResponse
-    {
-        if($this->Update->Message == null) return new TelegramResponse();
-
-        $Response = $this->Telegram->EditMessageInlineButtons($MessageID, $InlineKeyboard, $this->Update->Message->Chat->ID);
-
-        $this->Log->ProcessResponse($Response);
-        return $Response;
-    }
-
-    public function DeleteMessage(int $MessageID): TelegramResponse
-    {
-        if($this->Update->Message == null) return new TelegramResponse();
-
-        $Response = $this->Telegram->DeleteMessage($MessageID, $this->Update->Message->Chat->ID);
-
-        $this->Log->ProcessResponse($Response);
-        return $Response;
-    }
-
-
-    public function SendChatAction(string $Action): TelegramResponse
-    {
-        if($this->Update->Message == null) return new TelegramResponse();
-
-        $Response = $this->Telegram->SendChatAction($Action, $this->Update->Message->Chat->ID);
-
-        $this->Log->ProcessResponse($Response);
-        return $Response;
-    }
-
-    public function GetFileFromID(string $ID, string $Folder = 'uploads'): string
-    {
-        return $this->Telegram->GetFile($this->Telegram->GetFilename($ID), $Folder);
-    }
-
-    public function GetFilenameFromID(string $ID): string
-    {
-        return $this->Telegram->GetFilename($ID);
-    }
-
-    public function GetFileFromPath(string $Path): string
-    {
-        return $this->Telegram->GetFile($Path);
-    }
-
-    public function GetBlobFromID(int $ID): string
-    {
-        return $this->Telegram->GetBlob($this->Telegram->GetFilename($ID));
-    }
-
-    public function SendMediaGroup(array $Content, string $Caption = "", string $Channel = "", string $ParseMode = ParseMode::Markdown): TelegramResponse
-    {
-        if($this->Update->Message == null) return new TelegramResponse();
-        
-        if(empty($Channel))
-        {
-            $Channel = $this->Update->Message->Chat->ID;
-        }
-
-        $Response = $this->Telegram->SendMediaGroup($Content, $Channel, $Caption, $ParseMode);
-
-        $this->Log->ProcessResponse($Response);
-        return $Response;
     }
 
     private function GetMenuFromClassNameIfExists(string $ClassName): ?Menu
@@ -525,7 +173,7 @@ class BottoGram
             {
                 foreach($Row as $Button)
                 {
-                    if($Button->Title == $Text) {
+                    if($Button->Text == $Text) {
                         return $Button->Action;
                     }
                 }
@@ -536,18 +184,15 @@ class BottoGram
 
     public function ReloadMenu(bool $Silent = false): void
     {
-        $this->NavTo($this->CurrentUser->Nav, $Silent);
+        $this->OnNavigated($Silent);
     }
 
-    public function NavTo(string $Nav, bool $Silent = false)
+    public function OnNavigated(bool $Silent = false): void
     {
-        $this->TelegramUsers->SetUserNav($Nav, $this->CurrentUser);
-        $this->TelegramUsers->SetUserLastMediaGroup("-1", $this->Update->Message->Chat->ID);
-
-        $CurrentMenu = $this->GetMenuByName($Nav);
+        $CurrentMenu = $this->GetMenuByName($this->CurrentUser->Nav);
         
         if(method_exists($CurrentMenu, 'OnInit'))
-            if($CurrentMenu != null) $CurrentMenu->{'OnInit'}($this, $this->CustomModels);
+            if($CurrentMenu != null) $CurrentMenu->{'OnInit'}($this->CurrentUser, $this->Telegram, $this->CustomModels);
 
         if($Silent) return;
 
@@ -555,96 +200,63 @@ class BottoGram
         $this->Update->Message->Command = BOT_COMMAND_INIT;
         $this->Keyboard = $CurrentMenu->Buttons ?? null;
 
+        $this->Telegram->SetDefaultReplyMarkup(
+            new ReplyKeyboardMarkup(
+                Keyboard: $this->Keyboard,
+                ResizeKeyboard: $this->Config->ButtonsAutoSize
+            )
+        );
+
         
         $Action = isset($CurrentMenu->OnLoad) ? $CurrentMenu->OnLoad : null;
 
         if(is_callable($Action))
         {
-            call_user_func($Action, $this->Update->Message, $this);
+            call_user_func($Action, $this->Update->Message, $this->CurrentUser, $this->Telegram);
         }
         else
         {
             if(method_exists($CurrentMenu, 'OnMessage'))
             {
-                $CurrentMenu->{'OnMessage'}($this->Update->Message, $this);
+                $CurrentMenu->{'OnMessage'}($this->Update->Message, $this->CurrentUser, $this->Telegram);
             }
         }
     }
 
-    public function SetCache($Cache): void
+    public function OnError(string $Message, bool $PHPError = true): void
     {
-        $this->TelegramUsers->SetUserCache($Cache, $this->CurrentUser);
-        $this->CurrentUser = $this->TelegramUsers->GetUser($this->CurrentUser->ChatID);
-    }
+        error_log($Message);
 
-    public function SetCacheItem(string $Name, $Value): void
-    {
-        $this->TelegramUsers->SetUserCacheItem($Name, $Value, $this->CurrentUser);
-        $this->CurrentUser = $this->TelegramUsers->GetUser($this->CurrentUser->ChatID);
-    }
+        if($this->CurrentUser == null) return;
 
-    public function GetCache()
-    {
-        return $this->CurrentUser->Cache ?? null;
-    }
-
-    public function GetCacheItem(string $Name)
-    {
-        return $this->TelegramUsers->GetUserCacheItem($Name, $this->CurrentUser);
-    }
-
-    public function NavToRoot(bool $Silent = false)
-    {
-        $this->NavTo($this->RootMenu, $Silent);
-    }
-
-    public function OnError(string $Message, bool $PHPError = true)
-    {
-        $this->Log->RequestFail(500, $Message);
+        if($this->Log != null)
+            $this->Log->RequestFail(500, $Message);
         
+        $this->Telegram->SetDefaultReplyMarkup(null);
         if($PHPError)
         {
-            $this->Send("🐘 <b>Ошибка PHP:</b> \n\n" . $Message, [], [], '', 'html');
+            $this->Telegram->SendMessage($this->CurrentUser->ChatID, "🐘 <b>Ошибка PHP:</b> \n\n" . $Message, ParseMode: ParseMode::HTML);
             exit();
         }
         else 
         {
-            $this->Send("⛔️ *Ошибка:* \n\n" . $Message);
+            $this->Telegram->SendMessage($this->CurrentUser->ChatID, "⛔️ *Ошибка:* \n\n" . $Message, ParseMode: ParseMode::HTML);
         }    
     }
 
-    public function GetURL(): string
-    {
-        $protocol = stripos($_SERVER['SERVER_PROTOCOL'],'https') === 0 ? 'https:' : 'http:';
-        $dir = dirname($_SERVER['SCRIPT_NAME']);
-        return $protocol . '//' . $_SERVER['HTTP_HOST'] . $dir . '/';
-    }
-
-    public function OnInlineQuery($Action)
+    public function OnInlineQuery($Action): void
     {
         $this->InlineQueryAction = $Action;
     }
 
-    public function OnPreCheckoutQuery($Action)
+    public function OnPreCheckoutQuery($Action): void
     {
         $this->PreCheckoutQueryAction = $Action;
     }
 
-    public function OnChannelPost($Action)
+    public function OnChannelPost($Action): void
     {
         $this->ChannelPostAction = $Action;
-    }
-
-    public function GetNav(): ?string
-    {
-        return $this->CurrentUser->Nav ?? null;
-    }
-
-
-    public function PhoneIsValid(string $Phone, string $CountryValidCode = '380'): bool
-    {
-        $Phone = str_replace('+', '', $Phone);
-        return !empty($Phone) && preg_match("/[0-9]{10}$/", $Phone) && substr($Phone, 0, 3) == $CountryValidCode && strlen($Phone) >= 12;
     }
 
     public function RegisterCommand(Command $Command): void
@@ -652,147 +264,266 @@ class BottoGram
         $this->Commands[] = $Command;
     }
 
-    public function AnswerCallbackQuery(Message $Message, bool $AutoDeleteMessage = true, string $NotificationText = null, bool $ShowAlert = false): TelegramResponse
+    public function TriggerCommandIfExistsInMessage(?string $MessageCommand, string $CommandType): ?Command
     {
-        $Response = $this->Telegram->AnswerCallbackQuery($Message->CallbackQueryID, $NotificationText, $ShowAlert);
-        if($AutoDeleteMessage)
+        foreach($this->Commands as $Command)
         {
-            $this->DeleteMessage($Message->MessageID);
+            if(is_a($Command, $CommandType) || $Command instanceof GlobalCommand)
+            {
+                if($MessageCommand == $Command->Name && ($this->Update->Type == $Command->UpdateType || $Command->UpdateType == null))
+                {
+                    $Command->Execute($this->Update, $this->CurrentUser, $this->Telegram);
+                    return $Command;
+                }
+            }
         }
 
-        $this->Log->ProcessResponse($Response);
-        return $Response;
+        return null;
     }
 
-    /**
-     * Метод для инициализации движка
-     */
-    public function Init()
+    public function Start(): void
     {
+        $this->Update = $this->Telegram->GetUpdateFromInput();
+
         switch($this->Update->Type)
         {
             case UpdateType::Message:
                 if(!$this->Update->Message->IsChannelPost)
                 {
-                    if($this->Update->Message->Command == BOT_COMMAND_RESET || $this->Update->Message->Command == BOT_COMMAND_START)
+                    $this->CurrentUser = $this->TelegramUsers->RegisterUserIfNotExists(
+                        ChatID: $this->Update->Message->Chat->ID,
+                        UserName: $this->Update->Message->Chat->GetUsername(),
+                        FullName: $this->Update->Message->Chat->GetFullName()
+                    );
+
+                    $this->CurrentUser->OnNavigated(function () {
+                        $this->OnNavigated();
+                    });
+
+                    $this->Log = new Log(
+                        ChatID: $this->Update->Message->Chat->ID,
+                        Request: $this->Update->Request,
+                        Database: $this->Database,
+                        EnableTextLog: $this->Config->EnableTextLog,
+                        EnableExtendedLog: $this->Config->EnableExtendedLog
+                    );
+
+                    if($this->Update->Message->IsFromGroup && !$this->Config->AllowGroups)
                     {
-                        $this->TelegramUsers->SetUserNav($this->RootMenu, $this->CurrentUser);
+                        $this->Log->RequestFail(403, "Groups not allowed.");
+                        exit();
                     }
-    
-                    $Nav = &$this->CurrentUser->Nav;
-                    if(empty($Nav))
-                        $Nav = $this->RootMenu;
-    
-                    $this->TelegramUsers->SetUserNav($Nav, $this->CurrentUser);
-                    
-                    $CurrentMenu = $this->GetMenuByName($Nav);
-                    if($CurrentMenu != null)
+                }
+                else
+                {
+                    $this->CurrentUser = $this->TelegramUsers->RegisterUserIfNotExists(
+                        ChatID: $this->Update->Message->Chat->ID,
+                        UserName: 'Channel: ' . $this->Update->Message->Chat->ID,
+                        FullName: ''
+                    );
+                    $this->Log = new Log(
+                        ChatID: $this->Update->Message->Chat->ID,
+                        Request: $this->Update->Request,
+                        Database: $this->Database,
+                        EnableTextLog: $this->Config->EnableTextLog,
+                        EnableExtendedLog: $this->Config->EnableExtendedLog
+                    );
+                }
+                break;
+
+            case UpdateType::EditedMessage:
+                $this->CurrentUser = $this->TelegramUsers->RegisterUserIfNotExists(
+                    ChatID: $this->Update->EditedMessage->Chat->ID,
+                    UserName: $this->Update->EditedMessage->Chat->GetUsername(),
+                    FullName: $this->Update->EditedMessage->Chat->GetFullName()
+                );
+                $this->Log = new Log(
+                    ChatID: $this->Update->EditedMessage->Chat->ID,
+                    Request: $this->Update->Request,
+                    Database: $this->Database,
+                    EnableTextLog: $this->Config->EnableTextLog,
+                    EnableExtendedLog: $this->Config->EnableExtendedLog
+                );
+                break;
+            
+            case UpdateType::InlineQuery:
+                $this->CurrentUser = $this->TelegramUsers->RegisterUserIfNotExists(
+                    ChatID: $this->Update->InlineQuery->From->ID,
+                    UserName: $this->Update->InlineQuery->From->GetUserName(),
+                    FullName: $this->Update->InlineQuery->From->GetFullName()
+                );
+                $this->Log = new Log(
+                    ChatID: $this->Update->InlineQuery->From->ID,
+                    Request: $this->Update->Request,
+                    Database: $this->Database,
+                    EnableTextLog: $this->Config->EnableTextLog,
+                    EnableExtendedLog: $this->Config->EnableExtendedLog
+                );
+                break;
+
+            case UpdateType::PreCheckoutQuery:
+                $this->CurrentUser = $this->TelegramUsers->RegisterUserIfNotExists(
+                    ChatID: $this->Update->PreCheckoutQuery->From->ID,
+                    UserName: $this->Update->PreCheckoutQuery->From->GetUserName(),
+                    FullName: $this->Update->PreCheckoutQuery->From->GetFullName()
+                );
+                $this->Log = new Log(
+                    ChatID: $this->Update->PreCheckoutQuery->From->ID,
+                    Request: $this->Update->Request,
+                    Database: $this->Database,
+                    EnableTextLog: $this->Config->EnableTextLog,
+                    EnableExtendedLog: $this->Config->EnableExtendedLog
+                );
+                break;
+
+            case UpdateType::CallbackQuery:
+                $this->CurrentUser = $this->TelegramUsers->RegisterUserIfNotExists(
+                    ChatID: $this->Update->CallbackQuery->From->ID,
+                    UserName: $this->Update->CallbackQuery->From->GetUserName(),
+                    FullName: $this->Update->CallbackQuery->From->GetFullName()
+                );
+                $this->Log = new Log(
+                    ChatID: $this->Update->CallbackQuery->From->ID,
+                    Request: $this->Update->Request,
+                    Database: $this->Database,
+                    EnableTextLog: $this->Config->EnableTextLog,
+                    EnableExtendedLog: $this->Config->EnableExtendedLog
+                );
+                break;
+
+        }
+
+        if(isset($this->CurrentUser) && ($this->Config->Private && !in_array($this->CurrentUser->ChatID, $this->Config->PrivateAllow)))
+        {
+            $this->Log->RequestFail(403, "User not allowed.");
+            $this->Telegram->SendMessage($this->CurrentUser->ChatID, "🚫 Access to this bot is restricted.");
+            exit();
+        }
+
+        if($this->Log != null)
+        {
+            $this->Telegram->OnResponse(function (Response $Response) {
+                print_r($Response->GetData());
+                $this->Log->ProcessResponse($Response);
+            });
+        }
+
+        $this->NavigationLogic();
+    }
+
+    private function NavigationLogic(): void
+    {
+        $Nav = &$this->CurrentUser->Nav;
+        if(empty($Nav))
+        {
+            $Nav = $this->RootMenu;
+            $this->CurrentUser->NavigateTo($Nav);
+            return;
+        }
+
+        $CurrentMenu = $this->GetMenuByName($Nav);
+        if($CurrentMenu != null)
+        {
+            if(method_exists($CurrentMenu, 'OnInit'))
+                $CurrentMenu->{'OnInit'}($this->CurrentUser, $this->Telegram, $this->CustomModels);
+            
+            $this->Keyboard = $CurrentMenu->Buttons ?? null;
+            $this->Telegram->SetDefaultReplyMarkup(
+                new ReplyKeyboardMarkup(
+                    Keyboard: $this->Keyboard,
+                    ResizeKeyboard: $this->Config->ButtonsAutoSize
+                )
+            );
+
+            if(in_array($this->Update->Type, [UpdateType::Message, UpdateType::CallbackQuery]))
+            {
+                $MessageCommand = $this->Update->Message->Command ?? $this->Update->CallbackQuery->DataCommand ?? null;
+                $Command = $this->TriggerCommandIfExistsInMessage($MessageCommand, ChatCommand::class);
+                if($Command != null && $Command->ExitAfterExecute) {
+                    $this->Log->RequestSuccess();
+                    return;
+                }
+            }
+
+            switch($this->Update->Type)
+            {
+                case UpdateType::CallbackQuery:
+                    if(method_exists($CurrentMenu, 'OnCallbackQuery'))
                     {
-                        if(method_exists($CurrentMenu, 'OnInit'))
-                            $CurrentMenu->{'OnInit'}($this, $this->CustomModels);
-                        
-                        $KeyboardAction = $this->GetKeyboardActionFromMessage($this->Update->Message->Text, $CurrentMenu);
-                        $this->Keyboard = $CurrentMenu->Buttons ?? null;
-    
-                        $ExecuteMenuOrKeyboardAction = true;
-                        $ExecuteCallbackLogic = true;
-                        foreach($this->Commands as $Command)
+                        $CurrentMenu->{'OnCallbackQuery'}($this->Update->CallbackQuery, $this);
+                    }
+                    break;
+                    
+                case UpdateType::Message:
+                    if(!$this->Update->Message->IsChannelPost)
+                    {
+                        if($this->Update->Message->Command == BOT_COMMAND_RESET || $this->Update->Message->Command == BOT_COMMAND_START)
                         {
-                            if($Command instanceof ChatCommand || $Command instanceof GlobalCommand)
-                            {
-                                if($this->Update->Message->Command == $Command->Name)
-                                {
-                                    $Command->Execute($this->Update, $this);
-        
-                                    if($Command->ExitAfterExecute) {
-                                        $ExecuteMenuOrKeyboardAction = false;
-                                    }
-                                }
-                            }
+                            $this->CurrentUser->NavigateTo($this->RootMenu);
+                            return;
                         }
 
-                        if($this->Update->Message->IsCallbackQuery)
-                        {
-                            if(method_exists($CurrentMenu, 'OnCallbackQuery'))
-                            {
-                                $CurrentMenu->{'OnCallbackQuery'}($this->Update->Message, $this);
-                            }
-                        }
-    
+                        $KeyboardAction = $this->GetKeyboardActionFromMessage($this->Update->Message->Text, $CurrentMenu);
                         if($this->Update->Message->SuccessfulPayment != null)
                         {
                             if(method_exists($CurrentMenu, 'OnSuccessfulPayment')) $CurrentMenu->{'OnSuccessfulPayment'}($this->Update->Message, $this);
                         }
                         else
                         {
-                            if($ExecuteMenuOrKeyboardAction)
+                            if($KeyboardAction != null)
                             {
-                                if($KeyboardAction != null)
+                                if(is_callable($KeyboardAction))
                                 {
-                                    if(is_callable($KeyboardAction))
-                                    {
-                                        call_user_func($KeyboardAction, $this->Update->Message, $this);
-                                    }
+                                    call_user_func($KeyboardAction, $this->Update->Message, $this->CurrentUser, $this->Telegram);
                                 }
-                                else
+                            }
+                            else
+                            {
+                                if(method_exists($CurrentMenu, 'OnMessage'))
                                 {
-                                    if(method_exists($CurrentMenu, 'OnMessage'))
-                                    {
-                                        $CurrentMenu->{'OnMessage'}($this->Update->Message, $this);
-                                    }
+                                    $CurrentMenu->{'OnMessage'}($this->Update->Message, $this->CurrentUser, $this->Telegram);
                                 }
                             }
                         }
                     }
                     else
                     {
-                        $this->Send("*Меню не найдено. 😞*\nДля того, чтобы вернутся в главное меню введите " . BOT_COMMAND_START);
-                    }
-                }
-                else
-                {
-                    $ExecuteOnChannelPostAction = true;
-                    foreach($this->Commands as $Command)
-                    {
-                        if($Command instanceof ChannelCommand || $Command instanceof GlobalCommand)
+                        $MessageCommand = $this->Update->Message->Command ?? null;
+                        $Command = $this->TriggerCommandIfExistsInMessage($MessageCommand, ChannelCommand::class);
+                        $ExecuteOnChannelPostAction = $Command == null || !$Command->ExitAfterExecute;
+
+                        if($ExecuteOnChannelPostAction)
                         {
-                            if($this->Update->Message->Command == $Command->Name)
-                            {
-                                $Command->Execute($this->Update, $this);
-                                if($Command->ExitAfterExecute) {
-                                    $ExecuteOnChannelPostAction = false;
-                                }
+                            if(is_callable($this->ChannelPostAction))
+                            { 
+                                call_user_func($this->ChannelPostAction, $this->Update, $this->CurrentUser, $this->Telegram);       
                             }
                         }
+                        
                     }
-
-                    if($ExecuteOnChannelPostAction)
-                    {
-                        if(is_callable($this->ChannelPostAction))
-                        { 
-                            call_user_func($this->ChannelPostAction, $this->Update, $this);       
-                        }
+                    break;
+                
+                case UpdateType::InlineQuery:
+                    if(is_callable($this->InlineQueryAction))
+                    { 
+                        call_user_func($this->InlineQueryAction, $this->Update->InlineQuery, $this->CurrentUser, $this->Telegram);       
                     }
-                    
-                }
-                break;
-            
-            case UpdateType::InlineQuery:
-                if(is_callable($this->InlineQueryAction))
-                { 
-                    call_user_func($this->InlineQueryAction, $this->Update->InlineQuery, $this);       
-                }
-                break;
+                    break;
 
-            case UpdateType::PreCheckoutQuery:
-                if(is_callable($this->PreCheckoutQueryAction))
-                { 
-                    call_user_func($this->PreCheckoutQueryAction, $this->Update->PreCheckoutQuery, $this);       
-                }
-                break;
-        }                
+                case UpdateType::PreCheckoutQuery:
+                    if(is_callable($this->PreCheckoutQueryAction))
+                    { 
+                        call_user_func($this->PreCheckoutQueryAction, $this->Update->PreCheckoutQuery, $this->CurrentUser, $this->Telegram);       
+                    }
+                    break;
+            }                
+        }
+        else
+        {
+            if($this->Update->Type == UpdateType::Message && !$this->Update->Message->IsChannelPost)
+                $this->Telegram->SendMessage($this->CurrentUser->ChatID, "*Меню не найдено. 😞*\nДля того, чтобы вернутся в главное меню введите " . BOT_COMMAND_START);
+        }
 
         $this->Log->RequestSuccess();
     }
 }
-?>

@@ -6,7 +6,7 @@
 */
 namespace WeRtOG\BottoGram\Telegram\Model;
 
-class EncryptedCredentials
+class EncryptedCredentials extends TelegramModel
 {
     public function __construct(
         public string $Data,
@@ -30,4 +30,3 @@ class EncryptedCredentials
     }
 }
 
-?>

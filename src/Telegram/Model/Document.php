@@ -6,7 +6,7 @@
 */
 namespace WeRtOG\BottoGram\Telegram\Model;
 
-class Document
+class Document extends TelegramModel
 {
     public function __construct(
         public string $FileID,
@@ -36,4 +36,3 @@ class Document
     }
 }
 
-?>

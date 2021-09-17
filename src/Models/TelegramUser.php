@@ -6,9 +6,10 @@
 */
 namespace WeRtOG\BottoGram\Models;
 
-use WeRtOG\FoxyMVC\Model;
+use WeRtOG\BottoGram\DatabaseManager\Models\ChangedProperty;
+use WeRtOG\BottoGram\DatabaseManager\Models\DatabaseTableItemModel;
 
-class TelegramUser extends Model
+class TelegramUser extends DatabaseTableItemModel
 {
     public int $ID = 1;
     public string $ChatID;
@@ -17,6 +18,8 @@ class TelegramUser extends Model
     public string $Nav;
     public ?array $Cache;
     public string $LastMediaGroup;
+
+    private $NavigationChangeAction;
 
     public function __construct(array $Parameters = [])
     {
@@ -31,11 +34,51 @@ class TelegramUser extends Model
         parent::__construct($Parameters);
     }
 
-    /**
-     * Метод для проверки того, является ли строка валидным JSON
-     * @param string|null $String Строка
-     * @return bool Результат проверки
-     */
+    public function NavigateTo(string $MenuName): void
+    {
+        $this->Nav = $MenuName;
+
+        if(is_callable($this->NavigationChangeAction))
+        {
+            call_user_func($this->NavigationChangeAction);
+        }
+
+        $this->TriggerOnPropertyChangeAction(new ChangedProperty('Nav', $MenuName));
+    }
+
+    public function ReloadMenu(): void
+    {
+        $this->NavigateTo($this->Nav);
+    }
+
+    public function OnNavigated(?callable $Action): void
+    {
+        $this->NavigationChangeAction = $Action;
+    }
+
+    public function SetCache(?array $Cache): void
+    {
+        $this->Cache = $Cache;
+        $this->TriggerOnPropertyChangeAction(new ChangedProperty('Cache', $Cache));
+    }
+
+    public function SetCacheItem(string $Name, mixed $Value): void
+    {
+        $this->Cache = is_array($this->Cache) ? $this->Cache : [];
+        $this->Cache[$Name] = $Value;
+        $this->TriggerOnPropertyChangeAction(new ChangedProperty('Cache', $this->Cache));
+    }
+
+    public function GetCache(): ?array
+    {
+        return $this->Cache;
+    }
+
+    public function GetCacheItem(string $Name): mixed
+    {
+        return $this->Cache[$Name] ?? null;
+    }
+
     public static function IsJSONString(?string $String): bool
     {
         json_decode($String);
@@ -43,5 +86,3 @@ class TelegramUser extends Model
     }
 
 }
-
-?>

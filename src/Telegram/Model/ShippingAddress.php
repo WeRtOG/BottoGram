@@ -6,7 +6,7 @@
 */
 namespace WeRtOG\BottoGram\Telegram\Model;
 
-class ShippingAddress
+class ShippingAddress extends TelegramModel
 {
     public function __construct(
         public string $CountryCode,
@@ -36,4 +36,3 @@ class ShippingAddress
     }
 }
 
-?>

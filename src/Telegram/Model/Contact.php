@@ -6,7 +6,7 @@
 */
 namespace WeRtOG\BottoGram\Telegram\Model;
 
-class Contact
+class Contact extends TelegramModel
 {
     public function __construct(
         public string $PhoneNumber,
@@ -34,4 +34,3 @@ class Contact
     }
 }
 
-?>

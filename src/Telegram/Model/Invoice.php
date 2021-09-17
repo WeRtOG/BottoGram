@@ -6,7 +6,7 @@
 */
 namespace WeRtOG\BottoGram\Telegram\Model;
 
-class Invoice
+class Invoice extends TelegramModel
 {
     public function __construct(
         public string $Title,
@@ -34,4 +34,3 @@ class Invoice
     }
 }
 
-?>

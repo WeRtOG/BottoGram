@@ -8,7 +8,7 @@ namespace WeRtOG\BottoGram\Telegram\Model;
 
 use ArrayIterator;
 
-class Photo extends ArrayIterator
+class Photo extends TelegramModelArray
 {
     public function __construct(PhotoSize ...$Sizes)
     {
@@ -52,4 +52,3 @@ class Photo extends ArrayIterator
     }
 }
 
-?>

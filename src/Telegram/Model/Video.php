@@ -42,4 +42,3 @@ class Video extends Document
     }
 }
 
-?>

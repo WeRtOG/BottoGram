@@ -20,5 +20,3 @@ class DatabaseConnection
         ModelHelper::SetParametersFromArray($this, $Parameters, false, true);
     }
 }
-
-?>

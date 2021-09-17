@@ -395,3 +395,36 @@ html.white-theme .apexcharts-xaxistooltip::after {
 html.white-theme .apexcharts-xaxistooltip::before {
     border-bottom-color: rgba(0,0,0,.1);
 }
+
+.bot-info-async {
+    width: calc(100% - 40px);
+    height: 200px;
+    margin: 20px;
+    box-sizing: border-box;
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+html.dark-theme .bot-info-async {
+    background-color: rgba(255,255,255,.02);
+}
+.bot-info-async::before {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    content: '';
+    background-image: url('../images/preloader.svg');
+    background-size: 46px;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: none;
+}
+html.dark-theme .bot-info-async::before {
+    background-color: #0d0d0d;
+}
+.bot-info-async.loading::before {
+    display: block;
+}

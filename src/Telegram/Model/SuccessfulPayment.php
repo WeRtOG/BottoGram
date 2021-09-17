@@ -6,7 +6,7 @@
 */
 namespace WeRtOG\BottoGram\Telegram\Model;
 
-class SuccessfulPayment
+class SuccessfulPayment extends TelegramModel
 {
     public function __construct(
         public string $Currency,
@@ -38,4 +38,3 @@ class SuccessfulPayment
     }
 }
 
-?>

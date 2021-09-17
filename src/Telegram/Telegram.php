@@ -1,4 +1,5 @@
 <?php
+
 /*
 	WeRtOG
 	BottoGram
@@ -8,58 +9,182 @@ namespace WeRtOG\BottoGram\Telegram;
 use DateTime;
 use GuzzleHttp\Client as HttpClient;
 use GuzzleHttp\Promise\Promise;
-use GuzzleHttp\Psr7\MultipartStream;
-use stdClass;
-use WeRtOG\BottoGram\Navigation\Button;
-use WeRtOG\BottoGram\Navigation\InlineButton;
-use WeRtOG\BottoGram\Navigation\KeyboardState;
-use WeRtOG\BottoGram\Telegram\Model\Audio;
-use WeRtOG\BottoGram\Telegram\Model\Contact;
-use WeRtOG\BottoGram\Telegram\Model\Document;
-use WeRtOG\BottoGram\Telegram\Model\InlineQuery;
-use WeRtOG\BottoGram\Telegram\Model\Location;
-use WeRtOG\BottoGram\Telegram\Model\MediaType;
+use WeRtOG\BottoGram\Telegram\Model\BotCommandArray;
+use WeRtOG\BottoGram\Telegram\Model\Chat;
+use WeRtOG\BottoGram\Telegram\Model\ChatInviteLink;
+use WeRtOG\BottoGram\Telegram\Model\ChatMember;
+use WeRtOG\BottoGram\Telegram\Model\ChatMemberArray;
+use WeRtOG\BottoGram\Telegram\Model\ChatPermissions;
+use WeRtOG\BottoGram\Telegram\Model\File;
+use WeRtOG\BottoGram\Telegram\Model\GameHighScoreArray;
+use WeRtOG\BottoGram\Telegram\Model\InlineKeyboardMarkup;
+use WeRtOG\BottoGram\Telegram\Model\InlineQueryResultArray;
+use WeRtOG\BottoGram\Telegram\Model\InputFile;
+use WeRtOG\BottoGram\Telegram\Model\InputMedia;
+use WeRtOG\BottoGram\Telegram\Model\InputMediaArray;
+use WeRtOG\BottoGram\Telegram\Model\LabeledPriceArray;
+use WeRtOG\BottoGram\Telegram\Model\MaskPosition;
+use WeRtOG\BottoGram\Telegram\Model\MessageEntities;
 use WeRtOG\BottoGram\Telegram\Model\Message;
+use WeRtOG\BottoGram\Telegram\Model\MessageArray;
+use WeRtOG\BottoGram\Telegram\Model\MessageID;
 use WeRtOG\BottoGram\Telegram\Model\ParseMode;
-use WeRtOG\BottoGram\Telegram\Model\Photo;
-use WeRtOG\BottoGram\Telegram\Model\PreCheckoutQuery;
+use WeRtOG\BottoGram\Telegram\Model\PassportElementErrorArray;
+use WeRtOG\BottoGram\Telegram\Model\Poll;
+use WeRtOG\BottoGram\Telegram\Model\ReplyMarkup;
 use WeRtOG\BottoGram\Telegram\Model\Request;
 use WeRtOG\BottoGram\Telegram\Model\Response;
-use WeRtOG\BottoGram\Telegram\Model\Sticker;
+use WeRtOG\BottoGram\Telegram\Model\ShippingOptionArray;
+use WeRtOG\BottoGram\Telegram\Model\StickerSetArray;
+use WeRtOG\BottoGram\Telegram\Model\TelegramModel;
+use WeRtOG\BottoGram\Telegram\Model\TelegramModelArray;
 use WeRtOG\BottoGram\Telegram\Model\Update;
-use WeRtOG\BottoGram\Telegram\Model\Video;
-use WeRtOG\BottoGram\Telegram\Model\VideoNote;
-use WeRtOG\BottoGram\Telegram\Model\Voice;
+use WeRtOG\BottoGram\Telegram\Model\UpdatesArray;
+use WeRtOG\BottoGram\Telegram\Model\User;
+use WeRtOG\BottoGram\Telegram\Model\WebhookInfo;
 
 class Telegram implements TelegramInterface
 {
-	public string $ApiURL;
-	public string $FileApiURL;
+	public string $ApiUrl;
+	public string $FileApiUrl;
 	public string $Token;
-	public bool $ButtonsAutoSize = true;
+
+	private $OnResponseAction = null;
+	private ?ReplyMarkup $DefaultReplyMarkup = null;
 
 	private HttpClient $HttpClient;
 
-	function __construct(string $Token, bool $ButtonsAutoSize = true)
+	function __construct(string $Token)
 	{
 		$this->Token = $Token;
-		$this->ApiURL = "https://api.telegram.org/bot" . $Token . "/";
-		$this->FileApiURL = "https://api.telegram.org/file/bot" . $Token;
-		$this->ButtonsAutoSize = $ButtonsAutoSize;
+		$this->ApiUrl = "https://api.telegram.org/bot" . $Token . "/";
+		$this->FileApiUrl = "https://api.telegram.org/file/bot" . $Token;
 
 		$this->HttpClient = new HttpClient([
-			'base_uri' => $this->ApiURL,
-			'timeout'  => 30,
+			'base_uri' => $this->ApiUrl,
+			'timeout'  => 100,
 			'http_errors' => false,
 			'verify' => false
 		]);
 	}
 
-	private function MakeRequest(string $URL, string $Method = 'GET', array $FormData = null, array $CustomOptions = []): Promise
+	private function MakeRequest(string $Url, string $Method = 'GET', array $FormData = null, array $CustomOptions = []): Promise
 	{
-		return $this->HttpClient->requestAsync($Method, $URL, array_merge([
+		return $this->HttpClient->requestAsync($Method, $Url, array_merge([
 			'form_params' => $FormData,
 		], $CustomOptions));
+	}
+
+	public function OnResponse(?callable $Action): void
+	{
+		$this->OnResponseAction = $Action;
+	}
+
+	public function SetDefaultReplyMarkup(?ReplyMarkup $ReplyMarkup): void
+	{
+		$this->DefaultReplyMarkup = $ReplyMarkup;
+	}
+
+	public static function Decamelize(string $Source): string
+    {
+        return strtolower(preg_replace(['/([a-z\d])([A-Z])/', '/([^_])([A-Z][a-z])/'], '$1_$2', $Source));
+    }
+
+	public static function ConvertToTelegramFormat(array $Data, ?array &$FilesOutput = null): array
+	{
+		$NewData = [];
+        foreach($Data as $Name => $Value)
+        {
+			if($Value == null) continue;
+
+            $Name = self::Decamelize($Name);
+
+            if($Value instanceof TelegramModel || $Value instanceof TelegramModelArray)
+            {
+				$ValueInTelegramFormat = $Value->ToTelegramFormat($FilesOutput);
+				
+				if($Value instanceof InputFile)
+				{
+					$Basename = $Value->GetBasename();
+
+					if(isset($FilesOutput))
+					{
+						$FilesOutput[$Basename] = $ValueInTelegramFormat;
+					}
+					$NewData[$Name] = 'attach://' . $Basename;
+				}
+				else
+				{
+					$NewData[$Name] = $ValueInTelegramFormat;
+				}
+            }
+            else
+            {
+				if(is_array($Value)) $Value = $Value;
+                $NewData[$Name] = $Value;
+            }
+        }
+
+		return $NewData;
+	}
+
+	private function FormDataToMultipart(array $FormData): array
+	{
+		$Multipart = [];
+		foreach($FormData as $Name => $Contents)
+		{
+			$Multipart[] = [
+				'name' => $Name,
+				'contents' => $Contents
+			];
+		}
+
+		return $Multipart;
+	}
+
+    private function TriggerGenericAPIMethod(string $MethodName, array $Data): Response
+    {
+        $FilesOutput = [];
+		$NewData = self::ConvertToTelegramFormat($Data, $FilesOutput);
+        //print_r($NewData);
+		//print_r($FilesOutput);
+
+		$Promise = null;
+		if(count($FilesOutput) > 0)
+		{
+			$Multipart = $this->FormDataToMultipart(array_merge($NewData, $FilesOutput));
+			$Promise = $this->MakeRequest($MethodName, 'POST', CustomOptions: [
+				'multipart' => $Multipart
+			]);
+
+			//print_r($Multipart);
+		}
+		else
+		{
+			$Promise = $this->MakeRequest($MethodName, 'POST', $NewData);
+		}
+		$Response = new Response($Promise);
+		if($this->OnResponseAction != null)
+		{
+			call_user_func($this->OnResponseAction, $Response);
+		}
+
+        return $Response;
+    }
+
+	private function GetModelObjectFromResponse(Response $Response, string $ClassName): mixed
+	{
+		$ResponseData = $Response->GetData();
+
+		if($ResponseData != null)
+		{
+			if($ResponseData->ok && $ResponseData->result != null)
+			{
+				return $ClassName::FromTelegramFormat($ResponseData->result);
+			}
+		}
+
+		return null;
 	}
 
 	private function GetInputRequest(): Request
@@ -73,487 +198,507 @@ class Telegram implements TelegramInterface
 		return new Request($JSONInput);
 	}
 
-
-	public function GetFilename(string $FileID): ?string
-	{
-		$Response = $this->MakeRequest('getFile?file_id='.$FileID)->wait();
-
-		if($Response != null)
-		{
-			$Array = json_decode((string)$Response->getBody(), true);
-			$Result = $Array['result'] ?? ['file_path' => null];
-			return $Result['file_path'] ?? null;
-		}
-
-		return null;
-	}
-
-	public function GetFile(string $FileName, string $Folder = 'uploads'): string
-	{
-		$Path = $Folder . '/' . str_replace("_", "", basename($FileName));
-		file_put_contents($Path, fopen($this->FileApiURL.'/'.$FileName, 'r'));
-
-		return $Path;
-	}
-
-	public function GetBlob(string $FileName): string
-	{
-		return addslashes(file_get_contents($this->FileApiURL.'/'.$FileName));
-	}
-	
-	private function GenerateReplyMarkup(array|string|null $MainKeyboard, array|string|null $InlineKeyboard): ?string
-	{	
-		$ReplyMarkup = [];
-
-		if($MainKeyboard != null || $InlineKeyboard != null)
-		{
-			if(!empty($MainKeyboard) )
-			{
-				if($MainKeyboard != KeyboardState::RemoveKeyboard)
-				{
-					if(is_array($MainKeyboard))
-					{
-						foreach($MainKeyboard as $Row)
-						{
-							$ReplyKeyboardRow = [];
-							
-							foreach($Row as $Button)
-							{
-								if($Button instanceof Button)
-								{
-									$ReplyKeyboardRow[] = [
-										'text' => urlencode($Button->Title),
-										'request_contact' => $Button->RequestContact,
-										'request_location' => $Button->RequestLocation
-									];
-								}
-							}
-	
-							$ReplyMarkup['resize_keyboard'] = $this->ButtonsAutoSize;
-							$ReplyMarkup['keyboard'][] = $ReplyKeyboardRow;
-						}
-					}
-				}
-				else
-				{
-					$ReplyMarkup = [
-						'remove_keyboard' => true
-					];
-				}
-			}
-			else
-			{
-				if(!empty($InlineKeyboard))
-				{	
-					foreach($InlineKeyboard as $Row)
-					{
-						$ReplyInlineKeyboardRow = [];
-						
-						foreach($Row as $Button)
-						{
-							if($Button instanceof InlineButton)
-							{
-								$ReplyInlineKeyboardRow[] = [
-									'text' => urlencode($Button->Title),
-									'callback_data' => urlencode($Button->CallbackData),
-									'switch_inline_query_current_chat' => urlencode($Button->SwitchInlineQueryCurrentChat)
-								];
-							}
-						}
-
-						$ReplyMarkup['inline_keyboard'][] = $ReplyInlineKeyboardRow;
-					}
-				}
-			}
-
-			return !empty($ReplyMarkup) ? json_encode($ReplyMarkup) : null;
-		}
-
-		return null;
-	}
-
-	public function SendMessage(string $Message, ?string $ChatID, string|array|null $MainKeyboard = [], array|null $InlineKeyboard = [], string $ParseMode = ParseMode::Markdown): Response
-	{
-		$ReplyMarkup = $this->GenerateReplyMarkup($MainKeyboard, $InlineKeyboard);
-		$Query = $this->MakeRequest('sendMessage?chat_id=' . $ChatID . '&text=' . urlencode($Message)  . '&reply_markup=' . $ReplyMarkup . "&parse_mode=" . $ParseMode);
-		return new Response($Query);
-	}
-
-	public function AnswerPreCheckoutQuery(string $QueryID, bool $Ok, string $ErrorMessage = ''): Response
-	{
-		$ParametersString = http_build_query([
-			'pre_checkout_query_id' => $QueryID,
-			'ok' => $Ok,
-			'error_message' => $ErrorMessage
-		]);
-		$Query = $this->MakeRequest('answerPreCheckoutQuery?' . $ParametersString);
-		return new Response($Query);
-	}
-
-	public function SendInvoice(?string $ChatID, string $Title, string $Description, string $Payload, string $Currency, array $Prices, string $PaymentToken): Response
-	{
-		$ParametersString = http_build_query([
-			'chat_id' => $ChatID,
-			'title' => $Title,
-			'description' => $Description,
-			'payload' => $Payload,
-			'provider_token' => $PaymentToken,
-			'start_parameter' => 'pb-classic',
-			'currency' => $Currency,
-			'prices' => json_encode($Prices)
-		]);
-		$Query = $this->MakeRequest('sendInvoice?' . $ParametersString);
-		return new Response($Query);
-	}
-
-	public function SendChatAction(string $Action, ?string $ChatID): Response
-	{
-		$Query = $this->MakeRequest('sendChatAction?chat_id='.$ChatID.'&action='.urlencode($Action));
-		return new Response($Query);
-	}
-
-	public function SendMediaGroup(array $Content, string $ChatID, string $Caption = "", string $ParseMode = ParseMode::Markdown): Response
-	{
-		// Строим ссылку
-		$URL = 'sendMediaGroup?chat_id=' . $ChatID;
-
-		// Подготавливаем массив для media и для файлов
-		$Media = [];
-		$Files = [];
-
-		// Проходимся по всем элементам
-		foreach ($Content as $Index => $Item)
-		{
-			// Если текущий элемент файловый - подготавливаем его к отправке
-			if(isset($Item['File']))
-			{
-				// Добавляем файл
-				$FileContent = fopen($Item['File'], 'r');
-				$Files[basename($Item['File'])] = $FileContent;
-
-				// Создаём массив элемента
-				$MediaElement = [
-					"type" => $Item['Type'],
-					"media" => "attach://" . basename($Item['File'])
-				];
-			// Если текущий элемент ID-шный, то просто добавляем его
-			}
-			else
-			{
-				// Создаём массив элемента
-				$MediaElement = [
-					"type" => $Item['Type'],
-					"media" => $Item['ID']
-				];
-			}
-			// Если это первая элемент, то добавляем нужное описание
-			if($Index == 0)
-			{
-				if(!empty($Caption))
-				{
-					$MediaElement["caption"] = $Caption;
-					$MediaElement["parse_mode"] = $ParseMode;
-				}
-			}
-
-			// Добавляем массив элемента в массив media
-			$Media[] = $MediaElement;
-		}
-
-		// Подготавливаем поля к отправке
-		$Fields = [
-			[
-				'name' => 'chat_id',
-				'contents' => $ChatID
-			],
-			[
-				'name' => 'media',
-				'contents' => json_encode($Media)
-			]
-		];
-
-		foreach($Files as $FileName => $FileContent)
-		{
-			$Fields[] = [
-				'name' => $FileName,
-				'contents' => $FileContent
-			];
-		}
-
-		// CURL
-		
-		$Boundary = uniqid();
-		$Promise = $this->MakeRequest($URL, 'POST', null, [
-			'headers' => [
-				'Connection' => 'close',
-				'Content-Type' => 'multipart/form-data; boundary='.$Boundary,
-			],
-			'body' => new MultipartStream($Fields, $Boundary)
-		]);
-		return new Response($Promise);
-	}
-
-	public function SendPhotoByURL(string $Photo, string $ChatID, string $Caption = "", $MainKeyboard = [], $InlineKeyboard = []): Response
-	{
-		$ReplyMarkup = $this->GenerateReplyMarkup($MainKeyboard, $InlineKeyboard);
-		$Query = $this->MakeRequest('sendPhoto?chat_id='.$ChatID.'&photo='.urlencode($Photo)."&caption=".urlencode($Caption) . '&reply_markup=' . $ReplyMarkup . "&parse_mode=markdown");
-		return new Response($Query);
-	}
-
-	public function SendMedia(string $ApiMethod, string $Path, string $MediaType, string $ChatID, string $Caption = '', string|array|null $MainKeyboard = [], array|null $InlineKeyboard = [], string $ParseMode = ParseMode::Markdown): Response
-	{
-		$ReplyMarkup = $this->GenerateReplyMarkup($MainKeyboard, $InlineKeyboard);
-		$URL = $ApiMethod . '?chat_id='. $ChatID . '&reply_markup=' . $ReplyMarkup . '&parse_mode=' . $ParseMode;
-		$FileContent = fopen($Path, 'r');
-
-		$Promise = $this->MakeRequest($URL, 'POST', null, [
-			'multipart' => [
-				[
-					'name' => 'chat_id',
-					'contents' => $ChatID
-				],
-				[
-					'name' => $MediaType,
-					'contents' => $FileContent
-				],
-				[
-					'name' => 'caption',
-					'contents' => $Caption
-				]
-			]
-		]);
-		return new Response($Promise);
-	}
-
-
-	public function SendPhoto(string $Photo, string $ChatID, string $Caption = "", string|array|null $MainKeyboard = [], array|null $InlineKeyboard = [], string $ParseMode = ParseMode::Markdown): Response
-	{
-		return $this->SendMedia(
-			ApiMethod: 'sendPhoto',
-			Path: $Photo,
-			MediaType: MediaType::Photo,
-			ChatID: $ChatID,
-			Caption: $Caption,
-			MainKeyboard: $MainKeyboard,
-			InlineKeyboard: $InlineKeyboard,
-			ParseMode: $ParseMode
-		);
-	}
-
-	public function SendVoice(string $Voice, string $ChatID, string $Caption = "", string|array|null $MainKeyboard = [], array|null $InlineKeyboard = [], string $ParseMode = ParseMode::Markdown): Response
-	{
-		return $this->SendMedia(
-			ApiMethod: 'sendVoice',
-			Path: $Voice,
-			MediaType: MediaType::Voice,
-			ChatID: $ChatID,
-			Caption: $Caption,
-			MainKeyboard: $MainKeyboard,
-			InlineKeyboard: $InlineKeyboard,
-			ParseMode: $ParseMode
-		);
-	}
-
-	public function SendDocument(string $Document, string $ChatID, string $Caption = "", string|array|null $MainKeyboard = [], array|null $InlineKeyboard = [], string $ParseMode = ParseMode::Markdown): Response
-	{
-		return $this->SendMedia(
-			ApiMethod: 'sendDocument',
-			Path: $Document,
-			MediaType: MediaType::Document,
-			ChatID: $ChatID,
-			Caption: $Caption,
-			MainKeyboard: $MainKeyboard,
-			InlineKeyboard: $InlineKeyboard,
-			ParseMode: $ParseMode
-		);
-	}
-
-	public function SendAudio(string $Audio, string $ChatID, string $Caption = "", string|array|null $MainKeyboard = [], array|null $InlineKeyboard = [], string $ParseMode = ParseMode::Markdown): Response
-	{
-		return $this->SendMedia(
-			ApiMethod: 'sendAudio',
-			Path: $Audio,
-			MediaType: MediaType::Audio,
-			ChatID: $ChatID,
-			Caption: $Caption,
-			MainKeyboard: $MainKeyboard,
-			InlineKeyboard: $InlineKeyboard,
-			ParseMode: $ParseMode
-		);
-	}
-
-	public function SendVideo(string $Video, string $ChatID, string $Caption = "", string|array|null $MainKeyboard = [], array|null $InlineKeyboard = [], string $ParseMode = ParseMode::Markdown): Response
-	{
-		return $this->SendMedia(
-			ApiMethod: 'sendVideo',
-			Path: $Video,
-			MediaType: MediaType::Video,
-			ChatID: $ChatID,
-			Caption: $Caption,
-			MainKeyboard: $MainKeyboard,
-			InlineKeyboard: $InlineKeyboard,
-			ParseMode: $ParseMode
-		);
-	}
-
-
-	public function SendLocation(string $Lat, string $Long, string $ChatID): Response
-	{
-		$query = $this->MakeRequest('sendLocation?chat_id='.$ChatID.'&latitude='.urlencode($Lat).'&longitude='.urlencode($Long));
-		return new Response($query);
-	}
-
-	
-	public function ForwardMessage(string $FromID, int $MessageID, string $ChatID): Response
-	{
-		$query = $this->MakeRequest('forwardMessage?chat_id='.$ChatID.'&from_chat_id='.$FromID.'&message_id='.$MessageID);
-		return new Response($query);
-	}
-
-	public function DeleteMessage(int $MessageID, string $ChatID): Response
-	{
-		$query = $this->MakeRequest('deleteMessage?chat_id='.$ChatID.'&message_id='.$MessageID);
-		return new Response($query);
-	}
-
-	public function EditMessage(string $MessageID, string $NewText, string $ChatID, string $ParseMode = ParseMode::Markdown): Response
-	{
-		$query = $this->MakeRequest('editMessageText?chat_id='.$ChatID.'&message_id='.$MessageID.'&text='.urlencode($NewText)."&parse_mode=" . $ParseMode);
-		return new Response($query);
-	}
-
-	public function EditMessageInlineButtons(int $MessageID, $InlineKeyboard, string $ChatID): Response
-	{
-		$ReplyMarkup = $this->GenerateReplyMarkup([], $InlineKeyboard);
-		$query = $this->MakeRequest('editMessageReplyMarkup?chat_id='.$ChatID.'&message_id='.$MessageID . '&reply_markup=' . $ReplyMarkup);
-		return new Response($query);
-	}
-
-	public function AnswerInlineQueryWithArticles(string $qID, array $Articles): Response
-	{
-		$Results = [];
-		foreach($Articles as $Key => $Article)
-		{
-			$New = [
-				'type' => 'article',
-				'id' => $Key,
-				'title' => $Article['title'],
-				'input_message_content' => [
-					'message_text' => $Article['command']
-				]
-			];
-			if(!empty($Article['description']))
-			{
-				$New['description'] = $Article['description'];
-			}
-			if(!empty($Article['thumb_url']))
-			{
-				$New['thumb_url'] = $Article['thumb_url'];
-			}
-			$Results[] = $New;
-		}
-
-		$Json = json_encode($Results);
-		$Query = $this->MakeRequest('answerInlineQuery?cache_time=1&inline_query_id='.$qID.'&results='.urlencode($Json));
-		return new Response($Query);
-	}
-
-	public function GetInlineQuery(Request $Request = null): ?InlineQuery
-	{
-		if($Request == null)
-			$Request = $this->GetInputRequest();
-		
-		if(property_exists($Request->Body, 'inline_query')) {
-			return new InlineQuery(
-				ID: $Request->Body->inline_query->id,
-				ChatID: $Request->Body->inline_query->from->id,
-				Query: $Request->Body->inline_query->query
-			);
-		} else{
-			return null;
-		}
-	}
-
-	public function GetPreCheckoutQuery(Request $Request = null): ?PreCheckoutQuery
-	{
-		if($Request == null)
-			$Request = $this->GetInputRequest();
-		
-		if(property_exists($Request->Body, 'pre_checkout_query')) {
-			return new PreCheckoutQuery(
-				ID: $Request->Body->pre_checkout_query->id,
-				ChatID: $Request->Body->pre_checkout_query->from->id
-			);
-		} else {
-			return null;
-		}
-	}
-
-	public function GetUserMessage(Request $Request = null): ?Message
-	{
-		if($Request == null)
-			$Request = $this->GetInputRequest();
-
-		$MessageObject = null;
-		$IsChannelPost = false;
-
-		// Если отправлено из канала - покидаем приложение
-		if(property_exists($Request->Body, 'channel_post'))
-		{
-			$MessageObject = $Request->Body->{'channel_post'} ?? null;
-			$IsChannelPost = true;
-		}
-		else
-		{
-			$MessageObject = $Request->Body->{'message'} ?? null;
-		}
-
-		if($MessageObject != null)
-		{
-			return Message::FromTelegramFormat(
-				Object: $MessageObject,
-				IsChannelPost: $IsChannelPost
-			);
-		}
-		else
-		{
-			if(isset($Request->Body->{'callback_query'}))
-			{
-				$CallbackQueryObject = $Request->Body->{'callback_query'};
-				return Message::FromTelegramCallbackQueryFormat(
-					Object: $CallbackQueryObject,
-					IsChannelPost: $IsChannelPost
-				);
-			}
-		}
-	}
-
-
-	public function GetUpdate(): ?Update
-	{
+	public function GetUpdateFromInput(): ?Update
+    {
 		$Request = $this->GetInputRequest();
 
 		if(isset($Request->Body->{'update_id'}))
 		{
-			return new Update(
-				ID: $Request->Body->{'update_id'},
-				Request: $Request,
-				Message: $this->GetUserMessage($Request),
-				InlineQuery: $this->GetInlineQuery($Request),
-				PreCheckoutQuery: $this->GetPreCheckoutQuery($Request)
-			);
+			return Update::FromTelegramFormat($Request->Body, $Request);
+		}
+		else
+		{
+			return null;
 		}
 	}
 
-	public function AnswerCallbackQuery(string $QueryID, string $NotificationText = null, bool $ShowAlert = false): Response
+	public function GetUpdates(?int $Offset = null, ?int $Limit = null, ?int $Timeout = null, ?array $AllowedUpdates = null): UpdatesArray|null
 	{
-		$ParametersString = http_build_query([
-			'callback_query_id' => $QueryID, 
-			'text' => $NotificationText,
-			'show_alert' => $ShowAlert
-		]);
-		$Query = $this->MakeRequest('answerCallbackQuery?' . $ParametersString);
-		return new Response($Query);
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, UpdatesArray::class);
+	}
+
+	public function SetWebhook(string $Url, ?InputFile $Certificate = null, ?string $IPAddress = null, ?int $MaxConnections = null, ?array $AllowedUpdates = null, bool $DropPendingUpdates = false): void
+	{
+		$this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+	}
+
+	public function DeleteWebhook(bool $DropPendingUpdates = false): void
+	{
+		$this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+	}
+
+	public function GetWebhookInfo(): WebhookInfo|null
+	{
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, WebhookInfo::class);
+	}
+
+	public function GetMe(): User|null
+	{
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, User::class);
+	}
+
+	public function LogOut(): void
+	{
+		$this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+	}
+
+	public function Close(): void
+	{
+		$this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+	}
+
+	public function SendMessage(int|string $ChatID, string $Text, string $ParseMode = ParseMode::Markdown, ?MessageEntities $Entities = null, bool $DisableWebPagePreview = false, bool $DisableNotification = false, ?int $ReplyToMessageID = null, bool $AllowSendingWithoutReply = false, ?ReplyMarkup $ReplyMarkup = null): Message|null
+	{
+		$ReplyMarkup = $ReplyMarkup ?? $this->DefaultReplyMarkup;
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, Message::class);
+	}
+
+	public function ForwardMessage(int|string $ChatID, int|string $FromChatID, int $MessageID, bool $DisableNotification = false): Message|null
+	{
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, Message::class);
+	}
+
+	public function CopyMessage(int|string $ChatID, int|string $FromChatID, int $MessageID, ?string $Caption = null, string $ParseMode = ParseMode::Markdown, ?MessageEntities $CaptionEntities = null, bool $DisableNotification = false, ?int $ReplyToMessageID = null, bool $AllowSendingWithoutReply = false, ?ReplyMarkup $ReplyMarkup = null): MessageID|null
+	{
+		$ReplyMarkup = $ReplyMarkup ?? $this->DefaultReplyMarkup;
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, MessageID::class);
+	}
+
+	public function SendPhoto(int|string $ChatID, InputFile|string $Photo, ?string $Caption = null, string $ParseMode = ParseMode::Markdown, ?MessageEntities $CaptionEntities = null, bool $DisableNotification = false, ?int $ReplyToMessageID = null, bool $AllowSendingWithoutReply = false, ?ReplyMarkup $ReplyMarkup = null): Message|null
+	{
+		$ReplyMarkup = $ReplyMarkup ?? $this->DefaultReplyMarkup;
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, Message::class);
+	}
+
+	public function SendAudio(int|string $ChatID, InputFile|string $Audio, ?string $Caption = null, string $ParseMode = ParseMode::Markdown, ?MessageEntities $CaptionEntities = null, ?int $Duration = null, ?string $Performer = null, ?string $Title = null, InputFile|string|null $Thumb = null, bool $DisableNotification = false, ?int $ReplyToMessageID = null, bool $AllowSendingWithoutReply = false, ?ReplyMarkup $ReplyMarkup = null): Message|null
+	{
+		$ReplyMarkup = $ReplyMarkup ?? $this->DefaultReplyMarkup;
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, Message::class);
+	}
+
+	public function SendDocument(int|string $ChatID, InputFile|string $Document, InputFile|string|null $Thumb, ?string $Caption = null, string $ParseMode = ParseMode::Markdown, ?MessageEntities $CaptionEntities = null, bool $DisableContentTypeDetection = false, bool $DisableNotification = false, ?int $ReplyToMessageID = null, bool $AllowSendingWithoutReply = false, ?ReplyMarkup $ReplyMarkup = null): Message|null
+	{
+		$ReplyMarkup = $ReplyMarkup ?? $this->DefaultReplyMarkup;
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, Message::class);
+	}
+
+	public function SendVideo(int|string $ChatID, InputFile|string $Video, ?int $Duration = null, ?int $Width = null, ?int $Height = null, InputFile|string|null $Thumb = null, ?string $Caption = null, string $ParseMode = ParseMode::Markdown, ?MessageEntities $CaptionEntities = null, bool $SupportsStreaming = false, bool $DisableNotification = false, ?int $ReplyToMessageID = null, bool $AllowSendingWithoutReply = false, ?ReplyMarkup $ReplyMarkup = null): ?Message
+	{
+		$ReplyMarkup = $ReplyMarkup ?? $this->DefaultReplyMarkup;
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, Message::class);
+	}
+
+	public function SendAnimation(int|string $ChatID, InputFile|string $Animation, ?int $Duration = null, ?int $Width = null, ?int $Height = null, InputFile|string|null $Thumb, ?string $Caption = null, string $ParseMode = ParseMode::Markdown, ?MessageEntities $CaptionEntities = null, bool $DisableNotification = false, ?int $ReplyToMessageID = null, bool $AllowSendingWithoutReply = false, ?ReplyMarkup $ReplyMarkup = null): Message|null
+	{
+		$ReplyMarkup = $ReplyMarkup ?? $this->DefaultReplyMarkup;
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, Message::class);
+	}
+
+	public function SendVoice(int|string $ChatID, InputFile|string $Voice, ?string $Caption = null, string $ParseMode = ParseMode::Markdown, ?MessageEntities $CaptionEntities = null, ?int $Duration = null, bool $DisableNotification = false, ?int $ReplyToMessageID = null, bool $AllowSendingWithoutReply = false, ?ReplyMarkup $ReplyMarkup = null): Message|null
+	{
+		$ReplyMarkup = $ReplyMarkup ?? $this->DefaultReplyMarkup;
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, Message::class);
+	}
+
+	public function SendVideoNote(int|string $ChatID, InputFile|string $VideoNote, ?int $Duration = null, ?int $Length = null, InputFile|string|null $Thumb = null, bool $DisableNotification = false, ?int $ReplyToMessageID = null, bool $AllowSendingWithoutReply = false, ?ReplyMarkup $ReplyMarkup = null): Message|null
+	{
+		$ReplyMarkup = $ReplyMarkup ?? $this->DefaultReplyMarkup;
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, Message::class);
+	}
+
+	public function SendMediaGroup(int|string $ChatID, InputMediaArray $Media, bool $DisableNotification = false, ?int $ReplyToMessageID = null, bool $AllowSendingWithoutReply = false): MessageArray|null
+	{
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, MessageArray::class);
+	}
+
+	public function SendLocation(int|string $ChatID, float $Latitude, float $Longitude, ?float $HorizontalAccuracy = null, ?int $LivePeriod = null, ?int $Heading = null, ?int $ProximityAlertRadius = null, bool $DisableNotification = false, ?int $ReplyToMessageID = null, bool $AllowSendingWithoutReply = false, ?ReplyMarkup $ReplyMarkup = null): Message|null
+	{
+		$ReplyMarkup = $ReplyMarkup ?? $this->DefaultReplyMarkup;
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, Message::class);
+	}
+
+	public function EditMessageLiveLocation(float $Latitude, float $Longitude, int|string|null $ChatID = null, ?int $MessageID = null, ?string $InlineMessageID = null, ?float $HorizontalAccuracy = null, ?int $Heading = null, ?int $ProximityAlertRadius = null, ?InlineKeyboardMarkup $ReplyMarkup = null): Message|null
+	{
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, Message::class);
+	}
+
+	public function StopMessageLiveLocation(int|string $ChatID, ?int $MessageID = null, ?string $InlineMessageID = null, ?InlineKeyboardMarkup $ReplyMarkup = null): Message|null
+	{
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, Message::class);
+	}
+
+	public function SendVenue(int|string $ChatID, float $Latitude, float $Longitude, string $Title, string $Address, ?string $FoursquareID = null, ?string $FoursquareType = null, ?string $GooglePlaceID = null, ?string $GooglePlaceType = null, bool $DisableNotification = false, ?int $ReplyToMessageID = null, bool $AllowSendingWithoutReply = false, ?ReplyMarkup $ReplyMarkup = null): Message|null
+	{
+		$ReplyMarkup = $ReplyMarkup ?? $this->DefaultReplyMarkup;
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, Message::class);
+	}
+
+	public function SendContact(int|string $ChatID, string $PhoneNumber, string $FirstName, ?string $LastName = null, ?string $Vcard = null, bool $DisableNotification = false, ?int $ReplyToMessageID = null, bool $AllowSendingWithoutReply = false, ?ReplyMarkup $ReplyMarkup = null): Message|null
+	{
+		$ReplyMarkup = $ReplyMarkup ?? $this->DefaultReplyMarkup;
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, Message::class);
+	}
+
+	public function SendPoll(int|string $ChatID, string $Question, array $Options, bool $IsAnonymous = true, ?string $Type = null, bool $AllowsMultipleAnswers = false, ?int $CorrectOptionID = null, ?string $Explanation = null, string $ExplanationParseMode = ParseMode::Markdown, ?MessageEntities $ExplanationEntities = null, ?int $OpenPeriod = null, ?DateTime $CloseDate = null, ?bool $IsClosed = null, bool $DisableNotification = false, ?int $ReplyToMessageID = null, bool $AllowSendingWithoutReply = false, ?ReplyMarkup $ReplyMarkup = null): Message|null
+	{
+		$ReplyMarkup = $ReplyMarkup ?? $this->DefaultReplyMarkup;
+		$Options = json_encode($Options);
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, Message::class);
+	}
+
+	public function SendDice(int|string $ChatID, ?string $Emoji = null, bool $DisableNotification = false, ?int $ReplyToMessageID = null, bool $AllowSendingWithoutReply = false, ?ReplyMarkup $ReplyMarkup = null): Message|null
+	{
+		$ReplyMarkup = $ReplyMarkup ?? $this->DefaultReplyMarkup;
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, Message::class);
+	}
+
+	public function SendChatAction(int|string $ChatID, string $Action): void
+	{
+		$this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+	}
+
+	public function GetUserProfilePhotos(int $UserID, ?int $Offset = null, ?int $Limit = null): array|null
+	{
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		$ResponseData = $Response->GetData();
+
+		if($ResponseData != null)
+		{
+			if($ResponseData->ok && $ResponseData->result != null)
+			{
+				return [];
+			}
+		}
+
+		return $Response;
+	}
+
+	public function GetFile(string $FileID): File|null
+	{
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, File::class);
+	}
+
+	public function DownloadFile(File $File, string $Folder): ?string
+	{
+		if($File->FilePath != null)
+		{
+			$Path = $Folder . '/' . str_replace("_", "", basename($File->FilePath));
+			file_put_contents($Path, fopen($this->FileApiUrl . '/' . $File->FilePath, 'r'));
+			
+			return $Path;
+		}
+		else
+		{
+			return null;
+		}
+	}
+
+	public function KickChatMember(int|string $ChatID, int $UserID, ?DateTime $UntilDate = null, ?bool $RevokeMessages = null): void
+	{
+		$this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+	}
+
+	public function UnbanChatMember(int|string $ChatID, int $UserID, bool $OnlyIfBanned = true): void
+	{
+		$this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+	}
+
+	public function RestrictChatMember(int|string $ChatID, int $UserID, ChatPermissions $Permissions, ?DateTime $UntilDate = null): void
+	{
+		$this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+	}
+
+	public function PromoteChatMember(int|string $ChatID, int $UserID, bool $IsAnonymous = false, ?bool $CanManageChat = null, ?bool $CanPostMessages = null, ?bool $CanEditMessages = null, ?bool $CanDeleteMessages = null, ?bool $CanManageVoiceChats = null, ?bool $CanRestrictMembers = null, ?bool $CanPromoteMembers = null, ?bool $CanChangeInfo = null, ?bool $CanInviteUsers = null, ?bool $CanPinMessages = null): void
+	{
+		$this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+	}
+
+	public function SetChatAdministratorCustomTitle(int|string $ChatID, int $UserID, string $CustomTitle): void
+	{
+		$this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+	}
+
+	public function SetChatPermissions(int|string $ChatID, ChatPermissions $Permissions): void
+	{
+		$this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+	}
+
+	public function ExportChatInviteLink(int|string $ChatID): string|null
+	{
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		$ResponseData = $Response->GetData();
+
+		if($ResponseData != null)
+		{
+			if($ResponseData->ok && $ResponseData->result != null)
+			{
+				return $ResponseData->result;
+			}
+		}
+
+		return null;
+	}
+
+	public function CreateChatInviteLink(int|string $ChatID, ?DateTime $ExpireDate = null, ?int $MemberLimit = null): ChatInviteLink|null
+	{
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, ChatInviteLink::class);
+	}
+
+	public function EditChatInviteLink(int|string $ChatID, string $InviteLink, ?DateTime $ExpireDate = null, ?int $MemberLimit = null): ChatInviteLink|null
+	{
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, ChatInviteLink::class);
+	}
+
+	public function RevokeChatInviteLink(int|string $ChatID, string $InviteLink): ChatInviteLink|null
+	{
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, ChatInviteLink::class);
+	}
+
+	public function SetChatPhoto(int|string $ChatID, InputFile $Photo): void
+	{
+		$this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+	}
+
+	public function DeleteChatPhoto(int|string $ChatID): void
+	{
+		$this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+	}
+
+	public function SetChatTitle(int|string $ChatID, string $Title): void
+	{
+		$this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+	}
+
+	public function SetChatDescription(int|string $ChatID, string $Description): void
+	{
+		$this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+	}
+
+	public function PinChatMessage(int|string $ChatID, int $MessageID, bool $DisableNotification = false): void
+	{
+		$this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+	}
+
+	public function UnpinChatMessage(int|string $ChatID, int $MessageID): void
+	{
+		$this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+	}
+
+	public function UnpinAllChatMessages(int|string $ChatID): void
+	{
+		$this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+	}
+
+	public function LeaveChat(int|string $ChatID): void
+	{
+		$this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+	}
+
+	public function GetChat(int|string $ChatID): Chat|null
+	{
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, Chat::class);
+	}
+
+	public function GetChatAdministrators(int|string $ChatID): ChatMemberArray|null
+	{
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, ChatMemberArray::class);
+	}
+
+	public function GetChatMembersCount(int|string $ChatID): int|null
+	{
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		$ResponseData = $Response->GetData();
+
+		if($ResponseData != null)
+		{
+			if($ResponseData->ok && $ResponseData->result != null)
+			{
+				return (int)$ResponseData->result;
+			}
+		}
+
+		return null;
+	}
+
+	public function GetChatMember(int|string $ChatID, int $UserID): ChatMember|null
+	{
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, ChatMember::class);
+	}
+
+	public function SetChatStickerSet(int|string $ChatID, string $StickerSetName): void
+	{
+		$this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+	}
+
+	public function DeleteChatStickerSet(int|string $ChatID): void
+	{
+		$this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+	}
+
+	public function AnswerCallbackQuery(string $CallbackQueryID, ?string $Text = null, bool $ShowAlert = false, ?string $Url = null, ?int $CacheTime = null): void
+	{
+		$this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+	}
+
+	public function SetMyCommands(BotCommandArray $Commands): void
+	{
+		$this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+	}
+
+	public function GetMyCommands(): BotCommandArray|null
+	{
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, BotCommandArray::class);
+	}
+
+	public function EditMessageText(string $Text, int|string|null $ChatID = null, ?int $MessageID = null, ?string $InlineMessageID = null, string $ParseMode = ParseMode::Markdown, ?MessageEntities $Entities = null, bool $DisableWebPagePreview = false, ?InlineKeyboardMarkup $ReplyMarkup = null): Message|null
+	{
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, Message::class);
+	}
+
+	public function EditMessageCaption(int|string|null $ChatID = null, ?int $MessageID = null, ?string $InlineMessageID = null, ?string $Caption = null, string $ParseMode = ParseMode::Markdown, ?MessageEntities $Entities = null, ?InlineKeyboardMarkup $ReplyMarkup = null): Message|null
+	{
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, Message::class);
+	}
+
+	public function EditMessageMedia(InputMedia $Media, int|string|null $ChatID = null, ?int $MessageID = null, ?string $InlineMessageID = null, ?InlineKeyboardMarkup $ReplyMarkup = null): Message|null
+	{
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, Message::class);
+	}
+
+	public function EditMessageReplyMarkup(int|string|null $ChatID = null, ?int $MessageID = null, ?string $InlineMessageID = null, ?InlineKeyboardMarkup $ReplyMarkup = null): Message|null
+	{
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, Message::class);
+	}
+
+	public function StopPoll(int|string $ChatID, int $MessageID, ?InlineKeyboardMarkup $ReplyMarkup = null): Poll|null
+	{
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, Poll::class);
+	}
+
+	public function DeleteMessage(int|string $ChatID, int $MessageID): void
+	{
+		$this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+	}
+
+	public function SendSticker(int|string $ChatID, InputFile|string $Sticker, bool $DisableNotification = false, ?int $ReplyToMessageID = null, bool $AllowSendingWithoutReply = false, ?ReplyMarkup $ReplyMarkup = null): Message|null
+	{
+		$ReplyMarkup = $ReplyMarkup ?? $this->DefaultReplyMarkup;
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, Message::class);
+	}
+
+	public function GetStickerSet(string $Name): StickerSetArray|null
+	{
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, StickerSetArray::class);
+	}
+
+	public function UploadStickerFile(int $UserID, InputFile $PNGSticker): File|null
+	{
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, File::class);
+	}
+
+	public function CreateNewStickerSet(int $UserID, string $Name, string $Title, string $Emojis, InputFile|string|null $PNGSticker = null, ?InputFile $TGSSticker = null, bool $ContainsMasks = false, ?MaskPosition $MaskPosition = null): void
+	{
+		$this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+	}
+
+	public function AddStickerToSet(int $UserID, string $Name, string $Emojis, InputFile|string|null $PNGSticker = null, ?InputFile $TGSSticker = null, ?MaskPosition $MaskPosition = null): void
+	{
+		$this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+	}
+
+	public function SetStickerPositionInSet(string $Sticker, int $Position): void
+	{
+		$this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+	}
+
+	public function DeleteStickerFromSet(string $Sticker): void
+	{
+		$this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+	}
+
+	public function SetStickerSetThumb(string $Name, int $UserID, ?InputFile $Thumb): void
+	{
+		$this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+	}
+
+	public function AnswerInlineQuery(string $InlineQueryID, InlineQueryResultArray $Results, ?int $CacheTime = null, bool $IsPersonal = false, ?string $NextOffset = null, ?string $SwitchPmText = null, ?string $SwitchPmParameter = null): void
+	{
+		$this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+	}
+
+	public function SendInvoice(int|string $ChatID, string $Title, string $Description, string $Payload, string $ProviderToken, string $Currency, LabeledPriceArray $Prices, ?int $MaxTipAmount = null, ?array $SuggestedTipAmounts = null, ?string $StartParameter = null, ?string $ProviderData = null, ?string $PhotoUrl = null, ?int $PhotoSize = null, ?int $PhotoWidth = null, ?int $PhotoHeight = null, ?bool $NeedName = null, ?bool $NeedPhoneNumber = null, ?bool $NeedEmail = null, ?bool $NeedShippingAddress = null, ?bool $SendPhoneNumberToProvider = null, ?bool $SendEmailToProvider = null, ?bool $IsFlexible = null, ?bool $DisableNotification = null, ?int $ReplyToMessageID = null, bool $AllowSendingWithoutReply = false, ?InlineKeyboardMarkup $ReplyMarkup = null): Message|null
+	{
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, Message::class);
+	}
+
+	public function AnswerShippingQuery(string $ShippingQueryID, bool $Ok, ?ShippingOptionArray $ShippingOptions = null, ?string $ErrorMessage = null): void
+	{
+		$this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+	}
+
+	public function AnswerPreCheckoutQuery(string $PreC1heckoutQueryID, bool $Ok, ?string $ErrorMessage = null): void
+	{
+		$this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+	}
+
+	public function SetPassportDataErrors(int $UserID, PassportElementErrorArray $Errors): void
+	{
+		$this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+	}
+
+	public function SendGame(int|string $ChatID, string $GameShortName, ?bool $DisableNotification = null, ?int $ReplyToMessageID = null, bool $AllowSendingWithoutReply = false, ?InlineKeyboardMarkup $ReplyMarkup = null): Message|null
+	{
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, Message::class);
+	}
+
+	public function SetGameScore(int $UserID, int $Score, bool $Force = false, bool $DisableEditMessage = false, ?int $ChatID = null, ?int $MessageID = null, ?int $InlineMessageID = null): Message|null
+	{
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, Message::class);
+	}
+
+	public function GetGameHighScores(int $UserID, ?int $ChatID = null, ?int $MessageID = null, ?int $InlineMessageID): GameHighScoreArray|null
+	{
+		$Response = $this->TriggerGenericAPIMethod(lcfirst(__FUNCTION__), get_defined_vars());
+		return $this->GetModelObjectFromResponse($Response, GameHighScoreArray::class);
 	}
 }
-?>

@@ -6,15 +6,15 @@
 */
 namespace WeRtOG\BottoGram\Telegram\Model;
 
-class MessageEntity
+class MessageEntity extends TelegramModel
 {
     public function __construct(
         public string $Type,
         public int $Offset,
         public int $Length,
-        public ?string $URL,
-        public ?User $User,
-        public ?string $Language
+        public ?string $Url = null,
+        public ?User $User = null,
+        public ?string $Language = null
     )
     { }
 
@@ -26,7 +26,7 @@ class MessageEntity
                 Type: $Object->{'type'},
                 Offset: $Object->{'offset'},
                 Length: $Object->{'length'},
-                URL: $Object->{'url'} ?? null,
+                Url: $Object->{'url'} ?? null,
                 User: User::FromTelegramFormat($Object->{'user'} ?? null),
                 Language: $Object->{'language'} ?? null
             );
@@ -36,4 +36,3 @@ class MessageEntity
     }
 }
 
-?>

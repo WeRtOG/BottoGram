@@ -41,5 +41,3 @@ class Animation extends Document
         return null;
     }
 }
-
-?>

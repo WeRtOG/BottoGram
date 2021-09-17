@@ -12,4 +12,3 @@ class ParseMode
     const Markdown = 'markdown';
 }
 
-?>

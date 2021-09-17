@@ -6,7 +6,7 @@
 */
 namespace WeRtOG\BottoGram\Telegram\Model;
 
-class MaskPosition
+class MaskPosition extends TelegramModel
 {
     public function __construct(
         public string $Point,
@@ -32,4 +32,3 @@ class MaskPosition
     }
 }
 
-?>

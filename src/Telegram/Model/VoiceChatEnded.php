@@ -6,7 +6,7 @@
 */
 namespace WeRtOG\BottoGram\Telegram\Model;
 
-class VoiceChatEnded
+class VoiceChatEnded extends TelegramModel
 {
     public function __construct(
         public int $Duration
@@ -26,4 +26,3 @@ class VoiceChatEnded
     }
 }
 
-?>

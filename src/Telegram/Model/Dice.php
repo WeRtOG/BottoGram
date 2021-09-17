@@ -6,7 +6,7 @@
 */
 namespace WeRtOG\BottoGram\Telegram\Model;
 
-class Dice
+class Dice extends TelegramModel
 {
     public function __construct(
         public string $Emoji,
@@ -28,4 +28,3 @@ class Dice
     }
 }
 
-?>

@@ -8,7 +8,7 @@ namespace WeRtOG\BottoGram\Telegram\Model;
 
 use DateTime;
 
-class PassportFile
+class PassportFile extends TelegramModel
 {
     public function __construct(
         public string $FileID,
@@ -34,4 +34,3 @@ class PassportFile
     }
 }
 
-?>

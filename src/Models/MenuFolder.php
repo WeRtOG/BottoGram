@@ -1,4 +1,5 @@
 <?php
+
 /*
     WeRtOG
     BottoGram
@@ -13,4 +14,3 @@ class MenuFolder
     )
     { }
 }
-?>

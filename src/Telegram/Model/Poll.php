@@ -8,7 +8,7 @@ namespace WeRtOG\BottoGram\Telegram\Model;
 
 use DateTime;
 
-class Poll
+class Poll extends TelegramModel
 {
     public function __construct(
         public string $ID,
@@ -52,4 +52,3 @@ class Poll
     }
 }
 
-?>

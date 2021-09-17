@@ -6,9 +6,7 @@
 */
 namespace WeRtOG\BottoGram\Telegram\Model;
 
-use DateTime;
-
-class VoiceChatParticipantsInvited
+class VoiceChatParticipantsInvited extends TelegramModel
 {
     public function __construct(
         public UsersArray $Users
@@ -28,4 +26,3 @@ class VoiceChatParticipantsInvited
     }
 }
 
-?>

@@ -1,4 +1,5 @@
 <?php
+
 /*
     WeRtOG
     BottoGram
@@ -7,10 +8,6 @@ namespace WeRtOG\BottoGram\AdminPanel;
 
 use WeRtOG\BottoGram\DatabaseManager\Database;
 
-/**
- * Модуль аналитики
- * @property Database $Database База данных
- */
 class Analytics
 {
     protected Database $Database;
@@ -18,10 +15,6 @@ class Analytics
     private string $BotUsersTable;
     private string $BotLogTable;
 
-    /**
-     * Конструктор модуля аналитики
-     * @param Database $Database База данных
-     */
     public function __construct(Database $Database)
     {
         $this->Database = $Database;
@@ -29,75 +22,42 @@ class Analytics
         $this->BotLogTable = BOTTOGRAM_DB_TABLE_BOTLOG;
     }
 
-    /**
-     * Метод для получения кол-ва из запроса
-     * @param string $Query Запрос
-     * @return int Кол-во
-     */
     private function SQLCount(string $Query): int
     {
         $Result = $this->Database->FetchQuery($Query);
         return $Result != null ? $Result['Count'] : 0;
     }
 
-    /**
-     * Метод для получения кол-ва пользователей
-     * @return int Кол-во пользователей
-     */
     public function GetUsersCount(): int
     {
         return $this->SQLCount("SELECT COUNT(*) AS Count FROM $this->BotUsersTable");
     }
 
-    /**
-     * Метод для получения кол-ва запросов
-     * @return int Кол-во запросов
-     */
     public function GetRequestsCount(): int
     {
         return $this->SQLCount("SELECT COUNT(*) AS Count FROM $this->BotLogTable");
     }
 
-    /**
-     * Метод для получения кол-ва активных пользователей за день
-     * @return int Кол-во пользователей
-     */
     public function GetDailyUsersCount(): int
     {
         return $this->SQLCount("SELECT COUNT(DISTINCT $this->BotLogTable.ChatID) AS Count FROM $this->BotLogTable WHERE DATE(Date) = CURDATE()");
     }
 
-    /**
-     * Метод для получения кол-ва запросов за день
-     * @return int Кол-во запросов
-     */
     public function GetDailyRequestsCount(): int
     {
         return $this->SQLCount("SELECT COUNT(*) AS Count FROM $this->BotLogTable WHERE DATE(Date) = CURDATE()");
     }
 
-    /**
-     * Метод для получения кол-ва активных пользователей за неделю
-     * @return int Кол-во пользователей
-     */
     public function GetWeeklyUsersCount(): int
     {
         return $this->SQLCount("SELECT COUNT(DISTINCT $this->BotLogTable.ChatID) AS Count FROM $this->BotLogTable WHERE YEARWEEK(DATE($this->BotLogTable.Date), 1) = YEARWEEK(CURDATE(), 1)");
     }
 
-    /**
-     * Метод для получения кол-ва запросов за неделю
-     * @return int Кол-во запросов
-     */
     public function GetWeeklyRequestsCount(): int
     {
         return $this->SQLCount("SELECT COUNT(*) AS Count FROM $this->BotLogTable WHERE YEARWEEK(DATE($this->BotLogTable.Date), 1) = YEARWEEK(CURDATE(), 1)");
     }
 
-    /**
-     * Метод для получения графика активности пользователей за неделю
-     * @return array График
-     */
     public function GetWeeklyUsersGraph(): array
     {
         $Graph = [
@@ -126,10 +86,6 @@ class Analytics
         return $Graph;
     }
 
-    /**
-     * Метод для получения графика активности пользователей за день
-     * @return array График
-     */
     public function GetDayUsersGraph(): array
     {
         $Graph = [
@@ -160,10 +116,6 @@ class Analytics
         return $Graph;
     }
 
-    /**
-     * Метод для получения графика новых пользователей за неделю
-     * @return array График
-     */
     public function GetNewUsersGraph(): array
     {
         $UsersCount = $this->GetUsersCount();
@@ -202,15 +154,9 @@ class Analytics
         return $Graph;
     }
 
-    /**
-     * Метод для получения часового пояса
-     * @return string Часовой пояс
-     */
     public function GetTimezone(): string
     {
         $Result = $this->Database->FetchQuery('SELECT EXTRACT(HOUR FROM (TIMEDIFF(NOW(), UTC_TIMESTAMP))) AS Timezone', false) ?? ['Timezone' => 0];
         return $Result >= 0 ? '+' . $Result['Timezone'] : $Result['Timezone'];
     }
 }
-
-?>

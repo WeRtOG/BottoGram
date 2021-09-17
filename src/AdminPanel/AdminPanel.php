@@ -19,6 +19,7 @@ use WeRtOG\BottoGram\AdminPanel\SidebarCustomItems;
 use WeRtOG\BottoGram\BottoConfig;
 use WeRtOG\BottoGram\DatabaseManager\Database;
 use WeRtOG\BottoGram\DatabaseManager\DatabaseManager;
+use WeRtOG\BottoGram\Telegram\Telegram;
 use WeRtOG\FoxyMVC\ControllerResponse\JsonView;
 use WeRtOG\FoxyMVC\ControllerResponse\Response;
 use WeRtOG\FoxyMVC\ControllerResponse\View;
@@ -32,13 +33,14 @@ class AdminPanel
     public Analytics $Analytics;
     public Log $Log;
     public AdminUsers $Users;
+    public Telegram $TelegramClient;
 
     public function __construct(BottoConfig $Config)
     {
-        define('BOTTOGRAM_MVC_ROOT', __DIR__ . '/App');
-        define('BOTTOGRAM_MVC_MODELS', BOTTOGRAM_MVC_ROOT . '/Models');
-        define('BOTTOGRAM_MVC_VIEWS', BOTTOGRAM_MVC_ROOT . '/Views');
-        define('BOTTOGRAM_MVC_CONTROLLERS', BOTTOGRAM_MVC_ROOT . '/Controllers');
+        define('BOTTOGRAM_MVC_ROOT', __DIR__ . '/app');
+        define('BOTTOGRAM_MVC_MODELS', BOTTOGRAM_MVC_ROOT . '/models');
+        define('BOTTOGRAM_MVC_VIEWS', BOTTOGRAM_MVC_ROOT . '/views');
+        define('BOTTOGRAM_MVC_CONTROLLERS', BOTTOGRAM_MVC_ROOT . '/controllers');
 
         self::HandleExceptions();
 
@@ -52,6 +54,7 @@ class AdminPanel
         $this->Analytics = new Analytics($this->Database);
         $this->Log = new Log($this->Database);
         $this->Users = new AdminUsers($this->Database);
+        $this->TelegramClient = new Telegram($this->Config->Token);
     }
 
     public static function OnError(Error $Error): void
@@ -98,7 +101,7 @@ class AdminPanel
     {
         ob_start();
 
-        $Handler = function($Exception) {
+        $Handler = function ($Exception) {
             ob_clean();
             ob_end_flush();
 
@@ -135,5 +138,3 @@ class AdminPanel
         );
     }
 }
-
-?>

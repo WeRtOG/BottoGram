@@ -6,7 +6,7 @@
 */
 namespace WeRtOG\BottoGram\Telegram\Model;
 
-class PollOption
+class PollOption extends TelegramModel
 {
     public function __construct(
         public string $Text,
@@ -28,4 +28,3 @@ class PollOption
     }
 }
 
-?>

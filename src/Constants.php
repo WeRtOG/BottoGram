@@ -1,4 +1,5 @@
 <?php
+
 /*
     WeRtOG
     BottoGram
@@ -19,5 +20,3 @@ define('BOTTOGRAM_DB_TABLE_BOTLOG', 'bottogram_log');
 define('BOTTOGRAM_DB_TABLE_ADMIN_USERS', 'bottogram_admin_users');
 
 define('BOTTOGRAM_RELATIVE_ROOT', str_replace(dirname($_SERVER['SCRIPT_NAME']), '', BOTTOGRAM_ROOT));
-
-?>

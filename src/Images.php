@@ -1,4 +1,5 @@
 <?php
+
 /*
     WeRtOG
     BottoGram
@@ -78,4 +79,3 @@ class Images
         imagedestroy($im1);
     }
 }
-?>

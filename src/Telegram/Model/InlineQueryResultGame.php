@@ -6,7 +6,7 @@
 */
 namespace WeRtOG\BottoGram\Telegram\Model;
 
-class InlineQueryResultGame extends TelegramModel
+class InlineQueryResultGame extends InlineQueryResult
 {
     public string $Type = MediaType::Game;
 

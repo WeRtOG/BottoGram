@@ -6,7 +6,7 @@
 */
 namespace WeRtOG\BottoGram\Telegram\Model;
 
-class InlineQueryResultContact extends TelegramModel
+class InlineQueryResultContact extends InlineQueryResult
 {
     public string $Type = MediaType::Contact;
 

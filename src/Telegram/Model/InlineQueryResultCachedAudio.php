@@ -6,7 +6,7 @@
 */
 namespace WeRtOG\BottoGram\Telegram\Model;
 
-class InlineQueryResultCachedAudio extends TelegramModel
+class InlineQueryResultCachedAudio extends InlineQueryResult
 {
     public string $Type = MediaType::Audio;
 

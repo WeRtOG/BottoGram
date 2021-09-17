@@ -6,7 +6,7 @@
 */
 namespace WeRtOG\BottoGram\Telegram\Model;
 
-class InlineQueryResultCachedVideo extends TelegramModel
+class InlineQueryResultCachedVideo extends InlineQueryResult
 {
     public string $Type = MediaType::Video;
 

@@ -6,7 +6,7 @@
 */
 namespace WeRtOG\BottoGram\Telegram\Model;
 
-class InlineQueryResultVenue extends TelegramModel
+class InlineQueryResultVenue extends InlineQueryResult
 {
     public string $Type = MediaType::Venue;
 

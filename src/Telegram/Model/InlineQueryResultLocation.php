@@ -6,7 +6,7 @@
 */
 namespace WeRtOG\BottoGram\Telegram\Model;
 
-class InlineQueryResultLocation extends TelegramModel
+class InlineQueryResultLocation extends InlineQueryResult
 {
     public string $Type = MediaType::Location;
 

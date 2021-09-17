@@ -6,7 +6,7 @@
 */
 namespace WeRtOG\BottoGram\Telegram\Model;
 
-class InlineQueryResultCachedGif extends TelegramModel
+class InlineQueryResultCachedGif extends InlineQueryResult
 {
     public string $Type = MediaType::Gif;
 

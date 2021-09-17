@@ -6,7 +6,7 @@
 */
 namespace WeRtOG\BottoGram\Telegram\Model;
 
-class InlineQueryResultCachedSticker extends TelegramModel
+class InlineQueryResultCachedSticker extends InlineQueryResult
 {
     public string $Type = MediaType::Sticker;
 

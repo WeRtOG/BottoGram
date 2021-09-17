@@ -6,7 +6,7 @@
 */
 namespace WeRtOG\BottoGram\Telegram\Model;
 
-class InlineQueryResultPhoto extends TelegramModel
+class InlineQueryResultPhoto extends InlineQueryResult
 {
     public string $Type = MediaType::Photo;
 

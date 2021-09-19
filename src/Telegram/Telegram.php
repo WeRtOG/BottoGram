@@ -146,7 +146,10 @@ class Telegram implements TelegramInterface
     {
         $FilesOutput = [];
 		$NewData = self::ConvertToTelegramFormat($Data, $FilesOutput);
-        //print_r($NewData);
+		if(isset($NewData['reply_markup']) && is_object($Data['ReplyMarkup']) && $Data['ReplyMarkup'] instanceof InlineKeyboardMarkup)
+			$NewData['reply_markup'] = json_encode($NewData['reply_markup']);
+		
+        print_r($NewData);
 		//print_r($FilesOutput);
 
 		$Promise = null;

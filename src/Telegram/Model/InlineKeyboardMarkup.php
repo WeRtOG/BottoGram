@@ -48,7 +48,7 @@ class InlineKeyboardMarkup extends ReplyMarkup
 
         $Result = Telegram::ConvertToTelegramFormat($PropsArray, $FilesOutput);
 
-        return json_encode($Result);
+        return $Result;
     }
 }
 

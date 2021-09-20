@@ -190,7 +190,7 @@ class Telegram implements TelegramInterface
 		return null;
 	}
 
-	private function GetInputRequest(): Request
+	private function GetInputRequest(): ?Request
 	{
 		$JSONInput = '';
 		if($Stream = fopen('php://input', 'r')) {
@@ -198,16 +198,23 @@ class Telegram implements TelegramInterface
 			fclose($Stream);
 		}
 		
-		return new Request($JSONInput);
+		return $JSONInput != null ? new Request($JSONInput) : null;
 	}
 
 	public function GetUpdateFromInput(): ?Update
     {
 		$Request = $this->GetInputRequest();
 
-		if(isset($Request->Body->{'update_id'}))
+		if($Request != null)
 		{
-			return Update::FromTelegramFormat($Request->Body, $Request);
+			if(isset($Request->Body->{'update_id'}))
+			{
+				return Update::FromTelegramFormat($Request->Body, $Request);
+			}
+			else
+			{
+				return null;
+			}
 		}
 		else
 		{

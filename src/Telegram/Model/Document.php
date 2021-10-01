@@ -25,7 +25,7 @@ class Document extends TelegramModel
             return new self(
                 FileID: $Object->{'file_id'},
                 FileUniqueID: $Object->{'file_unique_id'},
-                Thumb: PhotoSize::FromTelegramFormat($Object->{'thumb'}),
+                Thumb: PhotoSize::FromTelegramFormat($Object->{'thumb'} ?? null),
                 FileName: $Object->{'file_name'} ?? null,
                 MimeType: $Object->{'mime_type'} ?? null,
                 FileSize: $Object->{'file_size'} ?? null

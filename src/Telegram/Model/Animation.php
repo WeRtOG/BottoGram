@@ -31,7 +31,7 @@ class Animation extends Document
                 Width: $Object->{'width'},
                 Height: $Object->{'height'},
                 Duration: $Object->{'duration'},
-                Thumb: PhotoSize::FromTelegramFormat($Object->{'thumb'}),
+                Thumb: PhotoSize::FromTelegramFormat($Object->{'thumb'} ?? null),
                 FileName: $Object->{'file_name'} ?? null,
                 MimeType: $Object->{'mime_type'} ?? null,
                 FileSize: $Object->{'file_size'} ?? null

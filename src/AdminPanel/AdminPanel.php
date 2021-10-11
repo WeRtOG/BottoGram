@@ -118,15 +118,30 @@ class AdminPanel
         set_error_handler($Handler);
     }
 
-    public function Start(string $Namespace, string $AdminPanelPath, SidebarCustomItems $SidebarCustomItems = null, string $CustomControllersFolder = null, array $CustomModels = []): void
+    public static function GetBuiltInСomponentsPathIntOffset(): int
     {
+        if(defined('BOTTOGRAM_FR_ADMINPANEL_PATH') && defined('BOTTOGRAM_FR_PROJECTROOT_PATH'))
+        {
+            return Route::CalculatePathIntOffset(BOTTOGRAM_FR_ADMINPANEL_PATH, BOTTOGRAM_FR_PROJECTROOT_PATH);
+        }
+    }
+
+    public function Start(string $Namespace, string $AdminPanelPath, string $ProjectRootPath = '', SidebarCustomItems $SidebarCustomItems = null, string $CustomControllersFolder = null, array $CustomModels = []): void
+    {
+        if($ProjectRootPath == '')
+            $ProjectRootPath = $AdminPanelPath;
+
+        // Utility constants for calculating the path to embedded components
+        define('BOTTOGRAM_FR_ADMINPANEL_PATH', $AdminPanelPath);
+        define('BOTTOGRAM_FR_PROJECTROOT_PATH', $ProjectRootPath);
+
         $this->GlobalData['SidebarCustomItems'] = $SidebarCustomItems;
         
         if($CustomControllersFolder)
             Route::ConnectFolder($CustomControllersFolder);
         
         Route::Start(
-            ProjectNamespace: [dirname(IndexController::class), $Namespace],
+            ProjectNamespace: [dirname(IndexController::class), $Namespace, 'WeRtOG\BottoGram\AdminPanel'],
             ProjectPath: $AdminPanelPath,
             Models: array_merge([
                 'AdminPanel' => $this,

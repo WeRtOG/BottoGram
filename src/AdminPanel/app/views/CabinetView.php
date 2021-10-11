@@ -1,3 +1,6 @@
+<?php         
+	use WeRtOG\BottoGram\AdminPanel\AdminPanel;
+?>
 <!DOCTYPE html>
 <html lang="ru" class="<?=$this->GlobalData['BottoConfig']->DarkTheme ? 'dark' : 'white'?>-theme">
 	<head>
@@ -22,8 +25,8 @@
 
 		<!-- Место для CSS -->
 		<?php
-			$this->LoadCSS(BOTTOGRAM_ADMIN_ASSETS . '/css/main.css');
-			$this->LoadCSS(BOTTOGRAM_ADMIN_ASSETS . '/css/cabinet.css');
+			$this->LoadCSS(BOTTOGRAM_ADMIN_ASSETS . '/css/main.css', AdminPanel::GetBuiltInСomponentsPathIntOffset());
+			$this->LoadCSS(BOTTOGRAM_ADMIN_ASSETS . '/css/cabinet.css', AdminPanel::GetBuiltInСomponentsPathIntOffset());
 		?>
 	</head>
 	<body>
@@ -54,14 +57,14 @@
 
 		<!-- transition.js + AniX -->
 		<?php
-			$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/js/lib/transition.min.js');
-			$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/js/lib/anix.nova.js');
+			$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/js/lib/transition.min.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
+			$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/js/lib/anix.nova.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
 		?>
 
 		<!-- Место для скриптов -->
 		<?php
-			$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/js/main.js');
-			$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/js/cabinet.js');
+			$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/js/main.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
+			$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/js/cabinet.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
 		?>
 
 		<!-- Bootstrap JS + Jquery + Popper.js -->

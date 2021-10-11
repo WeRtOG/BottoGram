@@ -141,7 +141,7 @@ class AdminPanel
             Route::ConnectFolder($CustomControllersFolder);
         
         Route::Start(
-            ProjectNamespace: [dirname(IndexController::class), $Namespace, 'WeRtOG\BottoGram\AdminPanel'],
+            ProjectNamespace: ['WeRtOG\BottoGram\AdminPanel\MVC', dirname(IndexController::class), $Namespace],
             ProjectPath: $AdminPanelPath,
             Models: array_merge([
                 'AdminPanel' => $this,

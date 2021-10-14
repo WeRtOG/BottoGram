@@ -8,6 +8,8 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title><?=$this->PageTitle?></title>
+	
+		<link rel="icon" type="image/x-icon" href="<?=$this->GenerateFilePublicPath(BOTTOGRAM_ADMIN_ASSETS . '/images/logo/icon.ico', AdminPanel::GetBuiltInСomponentsPathIntOffset())?>"/>
 
 		<!-- Bootstrap CSS -->
 		<?php if($this->GlobalData['BottoConfig']->DarkTheme) { ?>
@@ -34,6 +36,7 @@
 			<!-- Sidebar-->
 			<div data-speed="300" class="anix bg-light border-right sidebar-wrapper">
 				<div class="sidebar-heading">
+					<img class="logo" src="<?=$this->GenerateFilePublicPath(BOTTOGRAM_ADMIN_ASSETS . '/images/logo/icon-' . ($this->GlobalData['BottoConfig']->DarkTheme ? 'white' : 'black') . '.svg', AdminPanel::GetBuiltInСomponentsPathIntOffset())?>" />
 					<h3><?=$this->GlobalData['BottoConfig']->Name?></h3>
 					<p class="powered-by">Powered by BottoGram</p>
 				</div>

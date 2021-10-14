@@ -30,7 +30,7 @@ if(UITheme == 'dark')
             width: 3
         },
         dataLabels: {
-            enabled: false
+            enabled: false,
         },
         tooltip: {
             theme: 'dark'

@@ -20,12 +20,16 @@ body, html {
     box-sizing: border-box;
 }
 html.dark-theme .cabinet .sidebar-wrapper {
-    background-color: rgba(255, 255, 255, 0.02) !important;
+    background-color: rgba(255, 255, 255, 0.01) !important;
 }
 .cabinet .sidebar-wrapper .sidebar-heading {
     text-align: center;
     padding: 20px;
     box-sizing: border-box;
+}
+.cabinet .sidebar-wrapper .sidebar-heading .logo {
+    width: 64px;
+    margin-bottom: 5px;
 }
 .cabinet .sidebar-wrapper .sidebar-heading h3 {
     font-size: 24px;
@@ -51,10 +55,10 @@ html.dark-theme .cabinet .sidebar-wrapper {
     width: calc(100% - 10px);
     transition: all 0.3s ease;
     background-color: transparent !important;
-    opacity: 1 !important;
+    opacity: 0.8;
 }
 html.dark-theme .sidebar-wrapper .list-group-item {
-    color: #888 !important;
+    color: #fff !important;
 }
 html.white-theme .sidebar-wrapper .list-group-item {
     color: #000 !important;
@@ -71,15 +75,16 @@ html.dark-theme .cabinet .sidebar-wrapper .list-group-item:hover {
 }
 html.white-theme .cabinet .sidebar-wrapper .list-group-item.active,
 html.white-theme .cabinet .sidebar-wrapper .list-group-item.active:hover {
-    background-color: var(--ui-main) !important;
-    color: white !important;
+    background: var(--ui-main) !important;
     box-shadow: 0 5px 15px -15px var(--ui-main);
+    color: white !important;
+    opacity: 1;
 }
 html.dark-theme .cabinet .sidebar-wrapper .list-group-item.active,
 html.dark-theme .cabinet .sidebar-wrapper .list-group-item.active:hover {
-    background-color: var(--ui-main) !important;
-    color: white !important;
+    background: var(--ui-main) !important;
     box-shadow: 0 5px 15px -15px var(--ui-main);
+    opacity: 1;
 }
 .cabinet .dashboard h3 {
     text-align: center;
@@ -136,55 +141,112 @@ html.white-theme .cabinet .logs .log {
     transition: all 0.3s ease;
     padding: 10px;
     border-radius: 10px;
-    border: 4px solid transparent;
+    border: 2px solid transparent;
     margin: 5px;
     box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    width: 250px;
 }
 html.dark-theme .cabinet .theme-switch .theme-wrapper:hover {
     background-color: rgba(255,255,255,.025);
     border-color: rgba(255,255,255,.05);
+    box-shadow: 0 5px 15px -15px var(--ui-main);
 }
 html.white-theme .cabinet .theme-switch .theme-wrapper:hover {
     background-color: rgba(0,0,0,.025);
     border-color: rgba(0,0,0,.05);
+    box-shadow: 0 5px 15px -15px var(--ui-main);
 }
 html.white-theme .cabinet .theme-switch .theme-wrapper.active {
-    background-color: rgba(0,0,0,.05);
+    background-color: rgba(0,0,0,.02);
     border-color: rgba(0,0,0,.1) !important;
+    box-shadow: 0 5px 15px -15px var(--ui-main);
 }
+
 html.dark-theme .cabinet .theme-switch .theme-wrapper.active {
     background-color: rgba(255,255,255,.03);
     border-color: rgba(255,255,255,.05) !important;
+    box-shadow: 0 5px 15px -15px var(--ui-main);
 }
-.cabinet .theme-switch .theme {
-    width: 150px;
-    height: 80px;
-    margin: 5px;
-    border-radius: 5px;
-}
-.cabinet .theme-switch .theme-wrapper.white .theme {
-    border: 4px solid rgb(214, 214, 214);
+
+html.white-theme .cabinet .theme-switch .theme-wrapper .theme {
     background: white;
+    color: #888;
+    border: 2px solid rgba(0,0,0,.1);
+    box-shadow: 0 5px 15px -15px var(--ui-main);
 }
-html.dark-theme .cabinet .theme-switch .theme-wrapper.dark .theme {
-    border: 4px solid rgb(31, 31, 31);
-    background: #111;
+html.dark-theme .cabinet .theme-switch .theme-wrapper .theme {
+    background: #151515;
+    color: #555;
+    border: 2px solid rgba(255,255,255,.05);
+    box-shadow: 0 5px 15px -15px var(--ui-main);
 }
-html.white-theme .cabinet .theme-switch .theme-wrapper.dark .theme {
-    border: 4px solid rgb(50, 50, 50);
-    background: #222;
+
+html.white-theme .cabinet .theme-switch .theme-wrapper.active {
+    border-color: rgba(0,0,0,.08) !important;
+    background-color: rgba(0,0,0,.02);
 }
+
+html.white-theme .cabinet .theme-switch .theme-wrapper.active,
+html.white-theme .cabinet .theme-switch .theme-wrapper.active .theme {
+    color: var(--ui-accent);
+}
+
+html.white-theme .cabinet .theme-switch .theme-wrapper.active .theme {
+    background: var(--ui-accent);
+    border-color: rgba(255,255,255,.0);
+    color: white;
+}
+
+html.dark-theme .cabinet .theme-switch .theme-wrapper.active .theme {
+    color: white;
+}
+
 .cabinet .theme-switch .theme {
+    min-width: 64px;
+    width: 64px;
+    height: 64px;
+    margin: 5px;
+    border-radius: 20px;
     padding: 10px;
     display: flex;
     box-sizing: border-box;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    transition: all 0.1s ease;
+    transform: scale(0.98);
 }
+
+.cabinet .theme-switch .theme i {
+    transition: all 0.3s ease;
+    transform-origin: center;
+    transform: rotate(1deg);
+}
+
+.cabinet .theme-switch .theme-wrapper.inactive:hover .theme {
+    opacity: 1;
+    transform: scale(1);
+}
+.cabinet .theme-switch .theme-wrapper.inactive.white:hover .theme i { 
+    transform: rotate(45deg);
+}
+.cabinet .theme-switch .theme-wrapper.inactive.dark:hover .theme i { 
+    transform: rotate(-5deg);
+}
+
+html.white-theme .cabinet .theme-switch .theme-wrapper.inactive.dark:hover .theme {
+    color: var(--ui-accent);
+}
+
 .cabinet .theme-switch .theme-wrapper p {
-    text-align: center;
     width: 100%;
+    margin: 0;
+    margin-left: 10px;
 }
 .cabinet .theme-switch .theme .particle {
-    border-radius: 4px;
+    border-radius: 7px;
 }
 .cabinet .theme-switch .theme-wrapper.dark .theme .particle {
     background-color: rgb(43, 43, 43);
@@ -255,7 +317,7 @@ html.white-theme .cabinet .theme-switch .theme-wrapper.dark .theme {
 html .cabinet .settings-page .nav {
     position: sticky;
     top: 0;
-    backdrop-filter: blur(15px);
+    backdrop-filter: blur(50px);
     padding: 15px;
     margin: 0;
     z-index: 2;
@@ -267,7 +329,7 @@ html.white-theme .cabinet .settings-page .nav {
     background: rgba(255, 255, 255, 0.3);
 }
 .modal-backdrop {
-    backdrop-filter: blur(15px);
+    backdrop-filter: blur(30px);
 }
 html.dark-theme .modal-backdrop {
     background-color: rgba(0, 0, 0, .2);
@@ -398,7 +460,6 @@ html.white-theme .apexcharts-xaxistooltip::before {
 
 .bot-info-async {
     width: calc(100% - 40px);
-    height: 200px;
     margin: 20px;
     box-sizing: border-box;
     border-radius: 10px;

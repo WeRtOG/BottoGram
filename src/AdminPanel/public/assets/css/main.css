@@ -65,7 +65,11 @@ html .nav-pills .nav-item {
 html.dark-theme .nav-pills .nav-link:hover {
     background-color: rgba(255, 255, 255, 0.05);
 }
-.nav-pills .nav-link.active, .nav-tabs .nav-link.active {
+html.white-theme .nav-pills .nav-link.active, .nav-tabs .nav-link.active {
+    background-color: rgba(0,0,0, .1) !important;
+    color: var(--bs-blue) !important;
+}
+html.dark-theme .nav-pills .nav-link.active, .nav-tabs .nav-link.active {
     background-color: var(--ui-main) !important;
     color: white !important;
 }

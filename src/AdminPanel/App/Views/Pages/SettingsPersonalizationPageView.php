@@ -1,27 +1,15 @@
 <div class="">
     <h4>Тема</h4>
     <div class="theme-switch">
-        <div class="theme-wrapper dark<?=$this->GlobalData['BottoConfig']->DarkTheme ? ' active' : ''?>">
+        <div class="theme-wrapper dark<?=$this->GlobalData['BottoConfig']->DarkTheme ? ' active' : ' inactive'?>">
             <div class="theme">
-                <div class="particle big">
-                </div>
-                <div class="particle-rows">
-                    <div class="particle row particle-1"></div>
-                    <div class="particle row particle-2"></div>
-                    <div class="particle row particle-3"></div>
-                </div>
+                <i class="bi bi-moon-stars"></i>
             </div>
             <p>Тёмная</p>
         </div>
-        <div class="theme-wrapper white<?=$this->GlobalData['BottoConfig']->DarkTheme ? '' : ' active'?>">
+        <div class="theme-wrapper white<?=$this->GlobalData['BottoConfig']->DarkTheme ? ' inactive' : ' active'?>">
             <div class="theme">
-                <div class="particle big">
-                </div>
-                <div class="particle-rows">
-                    <div class="particle row particle-1"></div>
-                    <div class="particle row particle-2"></div>
-                    <div class="particle row particle-3"></div>
-                </div>
+                <i class="bi bi-sun"></i>
             </div>
             <p>Светлая</p>
         </div>

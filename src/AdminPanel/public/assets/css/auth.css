@@ -45,6 +45,9 @@ body {
 .form-signin .form-control:focus {
     z-index: 2;
 }
+.form-signin input {
+    border-radius: 5px;
+}
 .form-signin input[type="login"] {
     margin-bottom: 10px;
 }
@@ -57,7 +60,7 @@ body {
     padding: 10px;
     font-size: 16px;
     transition: all 0.3s ease;
-    background-color: var(--ui-main);
+    background: var(--ui-main);
 }
 html .form-signin input[type="submit"] {
     box-shadow: 0 5px 15px -10px var(--ui-main);

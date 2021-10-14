@@ -1,17 +1,4 @@
 <div class="dashboard">
-    <section>
-        <h3>
-            Состояние бота
-        </h3>
-        <div class="bot-info-async">
-            <div class="">
-                <p>Режим работы</p>
-                <div class="mode-toggle">
-                    
-                </div>
-            </div>
-        </div>
-    </section>
     <section class="engine-analytics">
         <h3>
             Статистика использования

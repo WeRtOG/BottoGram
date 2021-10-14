@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 3000 3000" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g transform="matrix(3.27678,0,0,3.27678,-3345.37,-2612.3)">
+        <g transform="matrix(1.14634e-16,-0.731198,0.737485,2.30357e-16,599.208,1962.45)">
+            <path d="M877.968,671.401C934.385,643.854 1000.72,643.854 1057.14,671.4C1167.42,725.238 1275.33,787.638 1376.98,856.341C1427.27,890.343 1459.05,944.928 1463.33,1004.67C1472.23,1129.13 1472.23,1255.97 1463.33,1380.44C1459.05,1440.18 1427.27,1494.77 1376.98,1528.77C1275.33,1597.47 1167.42,1659.87 1057.14,1713.71C1000.72,1741.25 934.385,1741.25 877.968,1713.71C767.691,1659.87 659.774,1597.47 558.129,1528.77C507.834,1494.76 476.056,1440.18 471.777,1380.44C462.881,1255.97 462.881,1129.13 471.774,1004.67C476.053,944.927 507.832,890.341 558.127,856.339C659.774,787.638 767.691,725.238 877.968,671.401Z" style="fill:url(#_Linear2);"/>
+        </g>
+        <g transform="matrix(2.2682,0,0,2.2682,1197.76,976.136)">
+            <path d="M100.04,144.41L148.4,180.139C153.919,183.184 157.901,181.607 159.276,175.016L178.961,82.253C180.976,74.173 175.881,70.507 170.601,72.904L55.011,117.475C47.121,120.64 47.168,125.042 53.573,127.003L83.236,136.262L151.909,92.937C155.151,90.971 158.127,92.027 155.685,94.195" style="fill:rgba(255,255,255,.3)"/>
+        </g>
+    </g>
+    <defs>
+        <linearGradient id="_Linear2" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(-1872.33,4.04704e-13,-6.99478e-13,-1856.37,1867.63,1102.43)"><stop offset="0" style="stop-color:rgba(255,255,255,.08);stop-opacity:1"/><stop offset="1" style="stop-color:rgba(255,255,255,.03);stop-opacity:1"/><stop offset="1" style="stop-color:white;stop-opacity:1"/></linearGradient>
+    </defs>
+</svg>

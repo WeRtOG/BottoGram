@@ -443,12 +443,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/WeRtOG/FoxyMVC.git",
-                "reference": "42388c5448ce9afb439eb0b0fef5e804cf7c9d5e"
+                "reference": "5cdcab00df181a4d0030dccdcf4035614eefdcb2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WeRtOG/FoxyMVC/zipball/42388c5448ce9afb439eb0b0fef5e804cf7c9d5e",
-                "reference": "42388c5448ce9afb439eb0b0fef5e804cf7c9d5e",
+                "url": "https://api.github.com/repos/WeRtOG/FoxyMVC/zipball/5cdcab00df181a4d0030dccdcf4035614eefdcb2",
+                "reference": "5cdcab00df181a4d0030dccdcf4035614eefdcb2",
                 "shasum": ""
             },
             "default-branch": true,
@@ -467,7 +467,7 @@
                 "issues": "https://github.com/WeRtOG/FoxyMVC/issues",
                 "source": "https://github.com/WeRtOG/FoxyMVC/tree/main"
             },
-            "time": "2021-10-14T01:41:30+00:00"
+            "time": "2021-10-14T01:44:56+00:00"
         }
     ],
     "packages-dev": [],

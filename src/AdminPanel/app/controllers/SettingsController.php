@@ -101,7 +101,6 @@ class SettingsController extends CabinetPageController
             case 'POST':
                 $POSTParameters = [
                     'Name' => (string)$_POST['BottoConfig_Name'] ?? null,
-                    'Token' => (string)$_POST['BottoConfig_Token'] ?? null,
                     'AllowGroups' => isset($_POST['BottoConfig_AllowGroups']) ? $_POST['BottoConfig_AllowGroups'] == 'on' : false,
                     'EnableTextLog' => isset($_POST['BottoConfig_EnableTextLog']) ? $_POST['BottoConfig_EnableTextLog'] == 'on' : false,
                     'EnableExtendedLog' => isset($_POST['BottoConfig_EnableExtendedLog']) ? $_POST['BottoConfig_EnableExtendedLog'] == 'on' : false,

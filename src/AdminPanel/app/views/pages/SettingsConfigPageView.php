@@ -4,10 +4,6 @@
         <label for="BottoConfig_Name" class="form-label">Название бота</label>
         <input required type="text" class="form-control" name="BottoConfig_Name" id="BottoConfig_Name" value="<?=$this->GlobalData['BottoConfig']->Name?>">
     </div>
-    <div class="mb-3">
-        <label for="BottoConfig_Token" class="form-label">Токен</label>
-        <input type="password" autocomplete="off" class="form-control" name="BottoConfig_Token" id="BottoConfig_Token" placeholder="Здесь можно ввести новый токен.">
-    </div>
     <div class="mt-4">
         <div class="mb-3 form-check form-switch">
             <input class="form-check-input" type="checkbox"<?=$this->GlobalData['BottoConfig']->AllowGroups ? ' checked' : ''?> name="BottoConfig_AllowGroups" id="BottoConfig_AllowGroups">

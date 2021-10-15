@@ -64,9 +64,9 @@ function LoadPageAsync(URL, container)
 
             IsAsyncPageLoading = false;
         })
-        /*.catch(function(err) {  
+        .catch(function(err) {  
             alert('Failed to fetch page: ', err);  
-        });*/
+        });
     }, 100);
 }
 
@@ -96,7 +96,7 @@ function ValidateForm(form)
 {
     var isFormValid = true;
 
-    fields = form.querySelectorAll('.form-control');
+    fields = form.querySelectorAll('.form-control, .form-check-input');
 
     fields.forEach(field => {
         required = field.required;
@@ -108,6 +108,26 @@ function ValidateForm(form)
     });
 
     form.querySelector('[type=submit]').disabled = !isFormValid;
+}
+
+function ValidateBotModeForm(form)
+{
+    webhookEnabled = form.querySelector('#WebhookEnabled').checked ?? false;
+    webhookURLInput = form.querySelector('#WebhookURL');
+    webhookURLInputWrapper = form.querySelector('.webhook-input-wrapper');
+
+    if(webhookURLInput != null)
+    {
+        webhookURLInput.required = webhookEnabled;
+        webhookURLInput.disabled = !webhookEnabled;
+
+        if(webhookEnabled)
+            webhookURLInputWrapper.classList.remove('disabled');
+        else
+            webhookURLInputWrapper.classList.add('disabled');
+    }
+
+    ValidateForm(form);
 }
 
 document.addEventListener("DOMContentLoaded", function(event)
@@ -167,6 +187,50 @@ var lastLogsChecksum = '';
 
 document.addEventListener("DOMContentRebuilded", function(event) {
     pageHasLogs = document.querySelector('.logs') != null;
+
+    var botBindingObject = document.querySelector('.bot-binding');
+    if(botBindingObject)
+    {
+        fetch(MVCRoot + '/binding/getBotInfoFromTelegram')
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(result) {
+            if(result.ok)
+            {
+                botBindingObject.querySelector('.bot-info').classList.remove('disabled');
+                
+                botBindingObject.querySelector('.bot-info .bot-id').innerHTML = result.data.MainInfo.ID;
+                botBindingObject.querySelector('.bot-info .bot-username').innerHTML = '@' + result.data.MainInfo.UserName;
+                botBindingObject.querySelector('.bot-info .bot-username').href = 'https://t.me/' + result.data.MainInfo.UserName;
+                botBindingObject.querySelector('.bot-info .groups-flag').innerHTML = result.data.MainInfo.CanJoinGroups ? 'Да' : 'Нет';
+                botBindingObject.querySelector('.bot-info .read-group-messages-flag').innerHTML = result.data.MainInfo.CanReadAllGroupMessages ? 'Да' : 'Нет';
+                botBindingObject.querySelector('.bot-info .inline-flag').innerHTML = result.data.MainInfo.SupportsInlineQueries ? 'Да' : 'Нет';
+
+                var webhookURLNotEmpty = result.data.WebhookInfo.Url != '';
+
+                botBindingObject.querySelector('#WebhookEnabled').checked = webhookURLNotEmpty;
+
+                webhookURLInputWrapper = botBindingObject.querySelector('.webhook-input-wrapper');
+
+                if(webhookURLNotEmpty)
+                    webhookURLInputWrapper.classList.remove('disabled');
+                else
+                    webhookURLInputWrapper.classList.add('disabled');
+
+
+                botBindingObject.querySelector('#WebhookURL').value = result.data.WebhookInfo.Url;
+                botBindingObject.querySelector('#WebhookURL').disabled = !webhookURLNotEmpty;
+            }
+            else
+            {
+
+            }
+        })
+        .catch(function(err) {  
+            console.error('Failed to fetch telegram bot info: ', err);  
+        });
+    }
 });
 
 setInterval(function() {
@@ -216,9 +280,9 @@ setInterval(function() {
                 lastLogsChecksum = data.checksum;
             }
         })
-        /*.catch(function(err) {  
-            alert('Failed to fetch logs: ', err);  
-        });*/
+        .catch(function(err) {  
+            console.error('Failed to fetch logs: ', err);  
+        });
     }
     else
     {

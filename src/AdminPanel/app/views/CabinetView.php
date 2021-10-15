@@ -47,6 +47,7 @@
 					<?php foreach($this->GlobalData['SidebarCustomItems'] as $Item) { ?>
 						<a class="async list-group-item list-group-item-action bg-light<?=$this->Route == $Item->Link ? ' active' : ''?>" href="<?=$this->Root . $Item->Link?>"><i class="bi bi-<?=$Item->Icon?>"></i><?=$Item->Name?></a>
 					<?php } ?>
+					<a class="async list-group-item list-group-item-action bg-light<?=CurrentMVCController == 'binding' ? ' active' : ''?>" href="<?=$this->Root . '/binding'?>"><i class="bi bi-cloud"></i>Привязка к Telegram</a>
 					<a class="async list-group-item list-group-item-action bg-light<?=CurrentMVCController == 'settings' ? ' active' : ''?>" href="<?=$this->Root . '/settings'?>"><i class="bi bi-gear"></i>Настройки BottoGram</a>
 					<a class="list-group-item list-group-item-action bg-light" href="<?=$this->Root . '/auth/logout'?>"><i class="bi bi-arrow-left-square"></i>Выйти</a>
 				</div>

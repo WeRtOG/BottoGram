@@ -149,7 +149,7 @@ class Telegram implements TelegramInterface
 		if(isset($NewData['reply_markup']) && is_object($Data['ReplyMarkup']) && $Data['ReplyMarkup'] instanceof InlineKeyboardMarkup)
 			$NewData['reply_markup'] = json_encode($NewData['reply_markup']);
 		
-        print_r($NewData);
+        //print_r($NewData);
 		//print_r($FilesOutput);
 
 		$Promise = null;

@@ -55,6 +55,10 @@ class AdminPanel
         $this->Log = new Log($this->Database);
         $this->Users = new AdminUsers($this->Database);
         $this->TelegramClient = new Telegram($this->Config->Token);
+
+        $this->TelegramClient->OnResponse(function($Result) {
+            $Result->GetData();
+        });
     }
 
     public static function OnError(Error $Error): void

@@ -489,3 +489,36 @@ html.dark-theme .bot-info-async::before {
 .bot-info-async.loading::before {
     display: block;
 }
+
+.token-change-form .form-group {
+    display: flex;
+}
+.token-change-form .form-group [type=submit] {
+    width: 150px;
+    margin-left: 10px;
+}
+
+.bot-info {
+    transition: all 0.3s ease;
+}
+
+.bot-info.disabled {
+    opacity: .4;
+}
+
+.bot-info p {
+    margin: 0;
+}
+
+.bot-info a {
+    text-decoration: none;
+    color: var(--ui-accent);
+}
+
+.webhook-input-wrapper {
+    transition: all 0.3s ease;
+}
+
+.webhook-input-wrapper.disabled {
+    opacity: .3;
+}

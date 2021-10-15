@@ -4,7 +4,7 @@
             <a data-reload=".settings-page .sub-page" class="async nav-link<?=CurrentMVCAction == "main" ? ' active' : '' ?>" href="<?=$this->Root?>/settings/main">Основные настройки</a>
         </li>
         <li class="nav-item">
-            <a data-reload=".settings-page .sub-page" class="async nav-link<?=CurrentMVCAction == "config" ? ' active' : '' ?>" href="<?=$this->Root?>/settings/config">Конфигурация бота</a>
+            <a data-reload=".settings-page .sub-page" class="async nav-link<?=CurrentMVCAction == "config" ? ' active' : '' ?>" href="<?=$this->Root?>/settings/config">Конфигурация</a>
         </li>
         <li class="nav-item">
             <a data-reload=".settings-page .sub-page" class="async nav-link<?=CurrentMVCAction == "personalization" ? ' active' : '' ?>" href="<?=$this->Root?>/settings/personalization">Персонализация</a>

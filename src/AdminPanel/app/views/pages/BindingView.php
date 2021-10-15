@@ -26,10 +26,10 @@
         <div class="webhook-input-wrapper disabled">
             <label for="WebhookURL" class="form-label">Адрес Webhook</label>
             <input class="form-control" disabled name="WebhookURL" id="WebhookURL" placeholder="Введите адрес">
+            <?=isset($_GET['webhookError']) && !empty($_GET['webhookError']) ? '<p class="error mt-2 mb-3 text-danger">' . htmlspecialchars($_GET['webhookError']) . '</p>' : ''?>
         </div>
         <div class="mt-4 mb-3">
             <button type="submit" disabled class="btn btn-primary">Сохранить изменения</button>
-            <?=isset($_GET['webhookError']) && !empty($_GET['webhookError']) ? '<p class="error mt-3 text-danger">' . htmlspecialchars($_GET['webhookError']) . '</p>' : ''?>
         </div>
     </form>
 

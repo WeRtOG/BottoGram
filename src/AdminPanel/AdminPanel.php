@@ -33,6 +33,7 @@ class AdminPanel
     public Analytics $Analytics;
     public Log $Log;
     public AdminUsers $Users;
+    public ?AdminUser $CurrentUser;
     public Telegram $TelegramClient;
 
     public function __construct(BottoConfig $Config)
@@ -54,7 +55,12 @@ class AdminPanel
         $this->Analytics = new Analytics($this->Database);
         $this->Log = new Log($this->Database);
         $this->Users = new AdminUsers($this->Database);
+
+        $UserName = $this->AccessControl->GetUserName();
+
+        $this->CurrentUser = $this->Users->GetUserByLogin($UserName);
         $this->TelegramClient = new Telegram($this->Config->Token);
+        
 
         $this->TelegramClient->OnResponse(function($Result) {
             $Result->GetData();
@@ -106,9 +112,9 @@ class AdminPanel
         ob_start();
 
         $Handler = function ($Exception) {
-            ob_clean();
-            ob_end_flush();
-
+            @ob_clean();
+            @ob_end_flush();
+            
             if(!defined('ActionReturnType'))
                 define('ActionReturnType', 'HTML');
             
@@ -151,6 +157,8 @@ class AdminPanel
                 'AdminPanel' => $this,
             ], $CustomModels),
             GlobalData: [
+                'DarkTheme' => $_COOKIE['dark_theme'] ?? false,
+                'CurrentUser' => $this->CurrentUser,
                 'BottoConfig' => $this->Config,
                 'SidebarCustomItems' => $SidebarCustomItems
             ]

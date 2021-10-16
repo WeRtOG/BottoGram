@@ -21,16 +21,26 @@ class SettingsController extends CabinetPageController
     #[Action]
     public function Index(): Response
     {
-        Route::Navigate('settings/main');
+        if($this->AdminPanel->CurrentUser->CanChangeConfig)
+            Route::Navigate('settings/config');
+        else
+            Route::Navigate('settings/profile');
+
         return new Response('');
     }
 
-    #[Action]
-    public function Main(): View
+    #[Action(RequestMethod: ['GET', 'POST'])]
+    public function Config(): View
     {
+        if(!$this->AdminPanel->CurrentUser->CanChangeConfig)
+        {
+            Route::Navigate('settings');
+            exit();
+        }
+
         $DatabaseFormError = null;
         $AdminPanelFormError = null;
-
+        
         switch(ActionRequestMethod)
         {
             case 'POST':
@@ -55,7 +65,7 @@ class SettingsController extends CabinetPageController
                             DatabaseManager::Connect($DatabaseConnection);
     
                             BottoConfig::ChangeParameter('DatabaseConnection', $DatabaseConnection, $this->AdminPanel->Config->ConfigFile);
-                            Route::Navigate('settings/main');
+                            Route::Navigate('settings/config');
                         }
                         catch(Exception $Exception)
                         {
@@ -69,12 +79,35 @@ class SettingsController extends CabinetPageController
                         if($SessionUser != null)
                         {
                             BottoConfig::ChangeParameter('SessionUser', $SessionUser, $this->AdminPanel->Config->ConfigFile);
-                            Route::Navigate('settings/main');
+                            Route::Navigate('settings/config');
                         }
                         else
                         {
                             $AdminPanelFormError = 'Не все поля были заполнены.';
                         }
+                        break;
+
+                    case 'UpdateMainInfo':
+                        $POSTParameters = [
+                            'Name' => (string)$_POST['BottoConfig_Name'] ?? null,
+                            'AllowGroups' => isset($_POST['BottoConfig_AllowGroups']) ? $_POST['BottoConfig_AllowGroups'] == 'on' : false,
+                            'EnableTextLog' => isset($_POST['BottoConfig_EnableTextLog']) ? $_POST['BottoConfig_EnableTextLog'] == 'on' : false,
+                            'EnableExtendedLog' => isset($_POST['BottoConfig_EnableExtendedLog']) ? $_POST['BottoConfig_EnableExtendedLog'] == 'on' : false,
+                            'ButtonsAutoSize' => isset($_POST['BottoConfig_ButtonsAutoSize']) ? $_POST['BottoConfig_ButtonsAutoSize'] == 'on' : false
+                        ];
+                        
+                        if($POSTParameters['Name'] != null)
+                        {
+                            foreach($POSTParameters as $Parameter => $Value)
+                            {
+                                if($Value != null && $Value != "" || is_bool($Value))
+                                {
+                                    BottoConfig::ChangeParameter($Parameter, $Value, $this->AdminPanel->Config->ConfigFile);
+                                }
+                            }
+                        }
+        
+                        Route::Navigate('settings/config');
                         break;
                 }
 
@@ -88,46 +121,35 @@ class SettingsController extends CabinetPageController
             Data: [
                 'DatabaseFormError' => $DatabaseFormError,
                 'AdminPanelFormError' => $AdminPanelFormError,
-                'SubPage' => BOTTOGRAM_MVC_VIEWS . '/pages/SettingsMainPageView.php'
+                'SubPage' => BOTTOGRAM_MVC_VIEWS . '/pages/SettingsConfigPageView.php'
             ]
         );
     }
 
-    #[Action(RequestMethod: ['GET', 'POST'])]
-    public function Config(): View
+    #[Action]
+    public function Profile(): View
     {
-        switch(ActionRequestMethod)
+        $Notify = null;
+
+        if(ActionRequestMethod == 'POST')
         {
-            case 'POST':
-                $POSTParameters = [
-                    'Name' => (string)$_POST['BottoConfig_Name'] ?? null,
-                    'AllowGroups' => isset($_POST['BottoConfig_AllowGroups']) ? $_POST['BottoConfig_AllowGroups'] == 'on' : false,
-                    'EnableTextLog' => isset($_POST['BottoConfig_EnableTextLog']) ? $_POST['BottoConfig_EnableTextLog'] == 'on' : false,
-                    'EnableExtendedLog' => isset($_POST['BottoConfig_EnableExtendedLog']) ? $_POST['BottoConfig_EnableExtendedLog'] == 'on' : false,
-                    'ButtonsAutoSize' => isset($_POST['BottoConfig_ButtonsAutoSize']) ? $_POST['BottoConfig_ButtonsAutoSize'] == 'on' : false
-                ];
-                
-                if($POSTParameters['Name'] != null)
-                {
-                    foreach($POSTParameters as $Parameter => $Value)
-                    {
-                        if($Value != null && $Value != "" || is_bool($Value))
-                        {
-                            BottoConfig::ChangeParameter($Parameter, $Value, $this->AdminPanel->Config->ConfigFile);
-                        }
-                    }
-                }
+            $NewPassword = (string)$_POST['NewPassword'] ?? null;
 
-                Route::Navigate('settings/config');
-
-                break;
+            if($NewPassword != null)
+            {
+                $this->AdminPanel->Users->UpdateUserPassword($this->AdminPanel->CurrentUser->ID, $NewPassword);
+                $Notify = 'Пароль успешно изменён!';
+            }
         }
 
         return new View(
             ContentView: BOTTOGRAM_MVC_VIEWS . '/pages/SettingsView.php',
             PageTitle: 'Настройки BottoGram',
             TemplateView: BOTTOGRAM_MVC_VIEWS . '/CabinetView.php',
-            Data: ['SubPage' => BOTTOGRAM_MVC_VIEWS . '/pages/SettingsConfigPageView.php']
+            Data: [
+                'SubPage' => BOTTOGRAM_MVC_VIEWS . '/pages/SettingsProfilePageView.php',
+                'Notify' => $Notify
+            ]
         );
     }
 
@@ -145,6 +167,12 @@ class SettingsController extends CabinetPageController
     #[Action(RequestMethod: 'GET')]
     public function Users(): View
     {
+        if(!$this->AdminPanel->CurrentUser->CanManageUsers)
+        {
+            Route::Navigate('settings');
+            exit();
+        }
+
         $Users = $this->AdminPanel->Users->GetUsers();
 
         return new View(
@@ -158,6 +186,75 @@ class SettingsController extends CabinetPageController
         );
     }
 
+    #[Action(RequestMethod: 'POST')]
+    public function AddUser(): Response
+    {
+        if(!$this->AdminPanel->CurrentUser->CanManageUsers)
+        {
+            Route::Navigate('settings');
+            exit();
+        }
+
+        $Login = (string)$_POST['Login'] ?? null;
+        $Password = (string)$_POST['Password'] ?? null;
+
+        $CanManageUsers = isset($_POST['CanManageUsers']) ? $_POST['CanManageUsers'] == 'on' : false;
+        $CanChangeConfig = isset($_POST['CanChangeConfig']) ? $_POST['CanChangeConfig'] == 'on' : false;
+        $CanViewLogs = isset($_POST['CanViewLogs']) ? $_POST['CanViewLogs'] == 'on' : false;
+        
+        if($Login != null && $Password != null)
+            $this->AdminPanel->Users->AddUser($Login, $Password, $CanManageUsers, $CanChangeConfig, $CanViewLogs);
+
+        return Route::Navigate('settings/users');
+    }
+
+    #[Action(RequestMethod: 'POST')]
+    public function EditUser(): Response
+    {
+        if(!$this->AdminPanel->CurrentUser->CanManageUsers)
+        {
+            Route::Navigate('settings');
+            exit();
+        }
+
+        $EditUserID = (int)$_POST['EditUserID'] ?? null;
+
+        if($EditUserID != null)
+        {
+            $NewPassword = (string)$_POST['NewPassword'] ?? null;
+
+            $CanManageUsers = isset($_POST['CanManageUsers']) ? $_POST['CanManageUsers'] == 'on' : false;
+            $CanChangeConfig = isset($_POST['CanChangeConfig']) ? $_POST['CanChangeConfig'] == 'on' : false;
+            $CanViewLogs = isset($_POST['CanViewLogs']) ? $_POST['CanViewLogs'] == 'on' : false;
+    
+            if($NewPassword != null)
+            {
+                $this->AdminPanel->Users->UpdateUserPassword($EditUserID, $NewPassword);
+            }
+
+            $this->AdminPanel->Users->UpdateUserRights($EditUserID, $CanManageUsers, $CanChangeConfig, $CanViewLogs);
+        }
+
+        return Route::Navigate('settings/users');
+    }
+
+    #[Action(RequestMethod: 'POST')]
+    public function DeleteUser(): Response
+    {
+        if(!$this->AdminPanel->CurrentUser->CanManageUsers)
+        {
+            Route::Navigate('settings');
+            exit();
+        }
+
+        $DeleteUserID = (int)$_POST['DeleteUserID'] ?? null;
+        
+        if($DeleteUserID != null)
+            $this->AdminPanel->Users->DeleteUser($DeleteUserID);
+
+        return Route::Navigate('settings/users');
+    }
+
     #[Action(RequestMethod: 'GET')]
     public function SwitchTheme(): JsonView
     {
@@ -168,10 +265,10 @@ class SettingsController extends CabinetPageController
             switch($Theme)
             {
                 case 'dark':
-                    BottoConfig::ChangeParameter('DarkTheme', true, $this->AdminPanel->Config->ConfigFile);
+                    setcookie('dark_theme', true, strtotime('+2000 days'), '/');
                     return new JsonView(['ok' => true]);
                 case 'white':
-                    BottoConfig::ChangeParameter('DarkTheme', false, $this->AdminPanel->Config->ConfigFile);
+                    setcookie('dark_theme', false, strtotime('+2000 days'), '/');
                     return new JsonView(['ok' => true]);
                 default:
                 return new JsonView([

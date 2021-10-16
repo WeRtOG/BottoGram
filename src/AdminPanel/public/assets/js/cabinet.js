@@ -165,10 +165,45 @@ document.addEventListener("DOMContentLoaded", function(event)
 
         if(e.target.closest(".users-list .user .delete"))
         {
-            var myModal = new bootstrap.Modal(document.getElementById("deleteModal"), {})
+            var deleteButton = e.target.closest(".users-list .user .delete");
+
+            if(!deleteButton.disabled)
+            {
+                var modalObject = document.getElementById("deleteUserModal");
+                var myModal = new bootstrap.Modal(modalObject, {})
+                setTimeout(function() {
+                    modalObject.querySelector('#DeleteUserID').value = deleteButton.getAttribute('data-id');
+                    myModal.show();
+                }, 100);
+            }
+        }
+
+        if(e.target.closest(".users-list .add-user"))
+        {
+            var myModal = new bootstrap.Modal(document.getElementById("addUserModal"), {})
             setTimeout(function() {
                 myModal.show();
             }, 100);
+        }
+
+        if(e.target.closest(".users-list .user .edit"))
+        {
+            var editButton = e.target.closest(".users-list .user .edit");
+
+            if(!editButton.disabled)
+            {
+                var modalObject = document.getElementById("editUserModal");
+                var myModal = new bootstrap.Modal(modalObject, {})
+                setTimeout(function() {
+                    var flags = JSON.parse(editButton.getAttribute('data-flags'));
+                    modalObject.querySelector('#EditUserID').value = editButton.getAttribute('data-id');
+                    modalObject.querySelector('#EditUserLogin').innerHTML = editButton.getAttribute('data-login');
+                    modalObject.querySelector('[name=CanManageUsers]').checked = flags[0];
+                    modalObject.querySelector('[name=CanChangeConfig]').checked = flags[1];
+                    modalObject.querySelector('[name=CanViewLogs]').checked = flags[2];
+                    myModal.show();
+                }, 100);
+            }
         }
 
 	});
@@ -207,19 +242,20 @@ document.addEventListener("DOMContentRebuilded", function(event) {
                 botBindingObject.querySelector('.bot-info .read-group-messages-flag').innerHTML = result.data.MainInfo.CanReadAllGroupMessages ? 'Да' : 'Нет';
                 botBindingObject.querySelector('.bot-info .inline-flag').innerHTML = result.data.MainInfo.SupportsInlineQueries ? 'Да' : 'Нет';
 
-                var webhookURLNotEmpty = result.data.WebhookInfo.Url != '';
-
-                botBindingObject.querySelector('#WebhookEnabled').checked = webhookURLNotEmpty;
-
                 webhookURLInputWrapper = botBindingObject.querySelector('.webhook-input-wrapper');
+
+                var webhookURLNotEmpty = result.data.WebhookInfo.Url != '' || webhookURLInputWrapper.querySelector('.error') != null;
 
                 if(webhookURLNotEmpty)
                     webhookURLInputWrapper.classList.remove('disabled');
                 else
                     webhookURLInputWrapper.classList.add('disabled');
 
+                botBindingObject.querySelector('#WebhookEnabled').checked = webhookURLNotEmpty;
 
-                botBindingObject.querySelector('#WebhookURL').value = result.data.WebhookInfo.Url;
+                var autoURL =location.protocol + '//' + location.host + MVCRoot.replace(/\\/g, '/').replace(/\/[^/]*\/?$/, '') + '/hook.php';
+
+                botBindingObject.querySelector('#WebhookURL').value = result.data.WebhookInfo.Url != '' ? result.data.WebhookInfo.Url : autoURL;
                 botBindingObject.querySelector('#WebhookURL').disabled = !webhookURLNotEmpty;
             }
             else

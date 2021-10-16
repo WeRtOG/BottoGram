@@ -17,6 +17,17 @@ use WeRtOG\FoxyMVC\Route;
 
 class BindingController extends CabinetPageController
 {
+    public function __construct(array $Models = [])
+    {
+        parent::__construct($Models);
+
+        if(!$this->AdminPanel->CurrentUser->CanChangeConfig)
+        {
+            Route::Navigate('');
+            exit();
+        }
+    }
+
     #[Action]
     public function Index(): View
     {

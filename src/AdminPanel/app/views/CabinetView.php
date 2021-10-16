@@ -2,7 +2,7 @@
 	use WeRtOG\BottoGram\AdminPanel\AdminPanel;
 ?>
 <!DOCTYPE html>
-<html lang="ru" class="<?=$this->GlobalData['BottoConfig']->DarkTheme ? 'dark' : 'white'?>-theme">
+<html lang="ru" class="<?=$this->GlobalData['DarkTheme'] ? 'dark' : 'white'?>-theme">
 	<head>
 		<!-- Место для метаданных -->
 		<meta charset="UTF-8">
@@ -12,7 +12,7 @@
 		<link rel="icon" type="image/x-icon" href="<?=$this->GenerateFilePublicPath(BOTTOGRAM_ADMIN_ASSETS . '/images/logo/icon.ico', AdminPanel::GetBuiltInСomponentsPathIntOffset())?>"/>
 
 		<!-- Bootstrap CSS -->
-		<?php if($this->GlobalData['BottoConfig']->DarkTheme) { ?>
+		<?php if($this->GlobalData['DarkTheme']) { ?>
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.0.0/dist/cyborg/bootstrap.min.css">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism-tomorrow.min.css" integrity="sha512-vswe+cgvic/XBoF1OcM/TeJ2FW0OofqAVdCZiEYkd6dwGXthvkSFWOoGGJgS2CW70VK5dQM5Oh+7ne47s74VTg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 		<?php } else { ?>
@@ -22,7 +22,7 @@
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css">
 		<script>
 			const MVCRoot = "<?=$this->Root?>";
-			const UITheme = "<?=$this->GlobalData['BottoConfig']->DarkTheme ? 'dark' : 'white'?>";
+			const UITheme = "<?=$this->GlobalData['DarkTheme'] ? 'dark' : 'white'?>";
 		</script>
 
 		<!-- Место для CSS -->
@@ -36,18 +36,22 @@
 			<!-- Sidebar-->
 			<div data-speed="300" class="anix bg-light border-right sidebar-wrapper">
 				<div class="sidebar-heading">
-					<img class="logo" src="<?=$this->GenerateFilePublicPath(BOTTOGRAM_ADMIN_ASSETS . '/images/logo/icon-' . ($this->GlobalData['BottoConfig']->DarkTheme ? 'white' : 'black') . '.svg', AdminPanel::GetBuiltInСomponentsPathIntOffset())?>" />
+					<img class="logo" src="<?=$this->GenerateFilePublicPath(BOTTOGRAM_ADMIN_ASSETS . '/images/logo/icon-' . ($this->GlobalData['DarkTheme'] ? 'white' : 'black') . '.svg', AdminPanel::GetBuiltInСomponentsPathIntOffset())?>" />
 					<h3><?=$this->GlobalData['BottoConfig']->Name?></h3>
 					<p class="powered-by">Powered by BottoGram</p>
 				</div>
 				
 				<div class="list-group list-group-flush">
 					<a class="async list-group-item list-group-item-action bg-light<?=CurrentMVCController == 'dashboard' ? ' active' : ''?>" href="<?=$this->Root . '/dashboard'?>"><i class="bi bi-speedometer2"></i>Главная</a>
+					<?php if(isset($this->GlobalData['CurrentUser']) && $this->GlobalData['CurrentUser']->CanViewLogs) { ?>
 					<a class="async list-group-item list-group-item-action bg-light<?=CurrentMVCController == 'logs' ? ' active' : ''?>" href="<?=$this->Root . '/logs'?>"><i class="bi bi-clock"></i>История запросов</a>
+					<?php } ?>
 					<?php foreach($this->GlobalData['SidebarCustomItems'] as $Item) { ?>
 						<a class="async list-group-item list-group-item-action bg-light<?=$this->Route == $Item->Link ? ' active' : ''?>" href="<?=$this->Root . $Item->Link?>"><i class="bi bi-<?=$Item->Icon?>"></i><?=$Item->Name?></a>
 					<?php } ?>
+					<?php if(isset($this->GlobalData['CurrentUser']) && $this->GlobalData['CurrentUser']->CanChangeConfig) { ?>
 					<a class="async list-group-item list-group-item-action bg-light<?=CurrentMVCController == 'binding' ? ' active' : ''?>" href="<?=$this->Root . '/binding'?>"><i class="bi bi-cloud"></i>Привязка к Telegram</a>
+					<?php } ?>
 					<a class="async list-group-item list-group-item-action bg-light<?=CurrentMVCController == 'settings' ? ' active' : ''?>" href="<?=$this->Root . '/settings'?>"><i class="bi bi-gear"></i>Настройки BottoGram</a>
 					<a class="list-group-item list-group-item-action bg-light" href="<?=$this->Root . '/auth/logout'?>"><i class="bi bi-arrow-left-square"></i>Выйти</a>
 				</div>

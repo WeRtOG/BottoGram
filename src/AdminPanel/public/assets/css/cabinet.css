@@ -288,19 +288,63 @@ html.white-theme .cabinet .theme-switch .theme-wrapper.inactive.dark:hover .them
 }
 .cabinet .smart-list-group {
     padding: 10px;
+    padding-right: 90px;
     box-sizing: border-box;
 }
 .cabinet .smart-list-group .smart-list-item {
-    border-bottom: 2px solid rgba(255,255,255,.05);
     width: 100%;
     display: flex;
     align-items: center;
     margin: 5px;
+    padding: 5px;
     box-sizing: border-box;
+    border-radius: 10px;
+    transition: all 0.1s ease;
+    border: 2px solid transparent;
 }
+
+.cabinet .smart-list-group .smart-list-item :disabled {
+    opacity: .2;
+}
+
+html.white-theme .cabinet .smart-list-group .smart-list-item {
+    background-color: rgba(0,0,0,.08);
+}
+
+html.white-theme .cabinet .smart-list-group .smart-list-item:hover {
+    border-color: rgba(0,0,0,.05);
+}
+
+html.dark-theme .cabinet .smart-list-group .smart-list-item {
+    background-color: rgba(255,255,255,.02);
+}
+
+html.dark-theme .cabinet .smart-list-group .smart-list-item:hover {
+    border-color: rgba(255,255,255,.05);
+}
+
+.cabinet .smart-list-group .smart-list-fab {
+    position: fixed;
+    right: 40px;
+    bottom: 20px;
+    background-color: var(--ui-main);
+    width: 56px;
+    height: 56px;
+    border-radius: 100%;
+    border: none;
+    outline: none;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.cabinet .smart-list-group .smart-list-fab:hover {
+    transform: scale(1.1);
+}
+
 .cabinet .smart-list-group .smart-list-item .title {
     margin: 0;
     font-size: 18px;
+    width: 100%;
 }
 .cabinet .smart-list-group .smart-list-item .delete {
     background-color: transparent;
@@ -310,6 +354,17 @@ html.white-theme .cabinet .theme-switch .theme-wrapper.inactive.dark:hover .them
     font-size: 22px;
     outline: none;
     margin-right: 5px;
+}
+.cabinet .smart-list-group .smart-list-item .edit {
+    background-color: transparent;
+    appearance: none;
+    border: none;
+    font-size: 22px;
+    outline: none;
+    color: var(--ui-accent);
+}
+html.dark-theme .cabinet .smart-list-group .smart-list-item .edit {
+    color: rgba(255, 255, 255, 0.411);
 }
 .cabinet .settings-page {
     position: relative;
@@ -329,7 +384,7 @@ html.white-theme .cabinet .settings-page .nav {
     background: rgba(255, 255, 255, 0.3);
 }
 .modal-backdrop {
-    backdrop-filter: blur(30px);
+    backdrop-filter: blur(10px);
 }
 html.dark-theme .modal-backdrop {
     background-color: rgba(0, 0, 0, .2);
@@ -370,6 +425,10 @@ html.white-theme .modal-backdrop {
     padding: 30px;
     box-sizing: border-box;
 }
+html.dark-theme .modal-dialog .modal-content .modal-body input {
+    border: 1px solid rgba(255,255,255,.05);
+    overflow: hidden;
+}
 .modal-dialog .modal-content .modal-footer {
     justify-content: center;
     flex-wrap: nowrap;
@@ -393,6 +452,12 @@ html.dark-theme .modal-dialog .modal-content .modal-footer .modal-button {
 }
 html.white-theme .modal-dialog .modal-content .modal-footer .modal-button {
     border: 2px solid rgba(0, 0, 0, .05);
+}
+.modal-dialog .modal-content .modal-footer .modal-button span {
+    transition: all 0.3s ease;
+}
+.modal-dialog .modal-content .modal-footer .modal-button:disabled span {
+    opacity: .2;
 }
 .modal-dialog .modal-content .modal-footer .modal-button.cancel {
     border-left: none !important;
@@ -422,7 +487,6 @@ html .modal.delete-confirm .modal-dialog .modal-content .modal-footer .modal-but
     font-size: 24px !important;
 }
 html.dark-theme .modal-dialog .modal-content {
-    box-shadow: 0px 15px 50px 0px rgba(255, 255, 255, 0.01);
     background-color: rgba(19, 19, 19, .8);
 }
 html.white-theme .modal-dialog .modal-content {
@@ -521,4 +585,12 @@ html.dark-theme .bot-info-async::before {
 
 .webhook-input-wrapper.disabled {
     opacity: .3;
+}
+
+
+html.dark-theme input:-webkit-autofill, html.dark-theme input:-webkit-autofill:hover, html.dark-theme input:-webkit-autofill:focus, html.dark-theme textarea:-webkit-autofill, html.dark-theme textarea:-webkit-autofill:hover, html.dark-theme textarea:-webkit-autofill:focus, html.dark-theme select:-webkit-autofill, html.dark-theme select:-webkit-autofill:hover, html.dark-theme select:-webkit-autofill:focus {
+    -webkit-text-fill-color: white;
+    box-shadow: 0 0 0px 1000px #111 inset !important;
+    transition: background-color 5000s ease-in-out 0s;
+    border-color: #222 !important;
 }

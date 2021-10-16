@@ -2,7 +2,7 @@
 	use WeRtOG\BottoGram\AdminPanel\AdminPanel;
 ?>
 <!DOCTYPE html>
-<html lang="ru" class="<?=$this->GlobalData['BottoConfig']->DarkTheme ? 'dark' : 'white'?>-theme">
+<html lang="ru" class="<?=$this->GlobalData['DarkTheme'] ? 'dark' : 'white'?>-theme">
 <head>
 	<!-- Место для метаданных -->
 	<meta charset="UTF-8">
@@ -12,7 +12,7 @@
 	<link rel="icon" type="image/x-icon" href="<?=$this->GenerateFilePublicPath(BOTTOGRAM_ADMIN_ASSETS . '/images/logo/icon.ico', AdminPanel::GetBuiltInСomponentsPathIntOffset())?>"/>
 
 	<!-- Bootstrap CSS -->
-	<?php if($this->GlobalData['BottoConfig']->DarkTheme) { ?>
+	<?php if($this->GlobalData['DarkTheme']) { ?>
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.0.0/dist/cyborg/bootstrap.min.css">
 	<?php } else { ?>
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">

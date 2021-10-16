@@ -3,7 +3,7 @@
         <div class="mb-3">
             <label for="BotToken" class="form-label">Токен</label>
             <div class="form-group">
-                <input type="password" autocomplete="off" class="form-control" name="BotToken" id="BotToken" placeholder="Здесь можно ввести новый токен.">
+                <input type="password" minlength="8" autocomplete="off" class="form-control" name="BotToken" id="BotToken" placeholder="Здесь можно ввести новый токен.">
                 <button type="submit" disabled class="btn btn-primary">Сохранить</button>
             </div>
             <?=isset($_GET['tokenError']) && $_GET['tokenError'] == 1 ? '<p class="error mt-1 text-danger">Неверный токен</p>' : ''?>

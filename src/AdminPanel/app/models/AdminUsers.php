@@ -40,9 +40,14 @@ class AdminUsers
      * @param string $Login Логин
      * @return array|null Пользователь 
      */
-    public function GetUserByLogin(string $Login): ?AdminUser
+    public function GetUserByLogin(?string $Login): ?AdminUser
     {
         return $this->Database->FetchQuery("SELECT * FROM $this->Table WHERE Login='$Login'", false, AdminUser::class);
+    }
+
+    public function GetUserByID(int $ID): ?AdminUser
+    {
+        return $this->Database->FetchQuery("SELECT * FROM $this->Table WHERE ID='$ID'", false, AdminUser::class);
     }
 
     /**
@@ -64,19 +69,37 @@ class AdminUsers
         return $this->GetUserByLogin($Login) != null;
     }
 
+    public function CheckUserByID(string $ID): bool
+    {
+        return $this->GetUserByID($ID) != null;
+    }
+
     /**
      * Метод для обновления пароля пользователя
-     * @param string $Login Логин
+     * @param string $ID ID
      * @param string $Password Пароль
      * @return int Результат операции
      */
-    public function UpdatePassword(string $Login, string $Password): bool
+    public function UpdateUserPassword(string $ID, string $Password): bool
     {
         $Password = $this->MakeHash($Password);
         
-        if($this->CheckUserByLogin($Login))
+        if($this->CheckUserByID($ID))
         { 
-            $this->Database->FetchQuery("UPDATE $this->Table SET Password='$Password' WHERE Login='$Login'");
+            $this->Database->FetchQuery("UPDATE $this->Table SET Password='$Password' WHERE ID='$ID'");
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public function UpdateUserRights(string $ID, bool $CanManageUsers = false, bool $CanChangeConfig = false, bool $CanViewLogs = false): bool
+    {
+        if($this->CheckUserByID($ID))
+        { 
+            $this->Database->FetchQuery("UPDATE $this->Table SET CanManageUsers='" . (int)$CanManageUsers . "', CanChangeConfig='" . (int)$CanChangeConfig . "', CanViewLogs='" . (int)$CanViewLogs . "' WHERE ID='$ID'");
             return true;
         }
         else
@@ -89,14 +112,18 @@ class AdminUsers
      * Метод для добавления пользователя
      * @param string $Login Логин
      * @param string $Password Пароль
-     * @return int Резултат операции
+     * @param string $CanManageUsers Флаг возможности управления пользователями
+     * @param string $CanChangeConfig Флаг возможности редактирования конфигурации
+     * @param string $CanViewLogs Флаг возможности просмотра логов
+     * @return bool Резултат операции
      */
-    public function AddUser(string $Login, string $Password): int
+    public function AddUser(string $Login, string $Password, bool $CanManageUsers = false, bool $CanChangeConfig = false, bool $CanViewLogs = false): bool
     {
         if(!$this->CheckUserByLogin($Login))
         {
+            $Login = $this->Database->EscapeString($Login);
             $Password = $this->MakeHash($Password); 
-            $this->Database->FetchQuery("INSERT INTO $this->Table (Login, Password) VALUES ('$Login', '$Password')");
+            $this->Database->FetchQuery("INSERT INTO $this->Table (Login, Password, CanManageUsers, CanChangeConfig, CanViewLogs) VALUES ('$Login', '$Password', '" . (int)$CanManageUsers . "', '" . (int)$CanChangeConfig . "', '" . (int)$CanViewLogs . "')");
             return true;
         }
         else
@@ -107,14 +134,14 @@ class AdminUsers
 
     /**
      * Метод для удаления пользователя по логину
-     * @param string $Login Логин
+     * @param string $ID Логин
      * @return int Резултат операции
      */
-    public function DeleteUser(string $Login): bool
+    public function DeleteUser(int $ID): bool
     {
-        if($this->CheckUserByLogin($Login))
+        if($this->CheckUserByID($ID))
         {
-            $this->Database->FetchQuery("DELETE FROM $this->Table WHERE Login='$Login'");
+            $this->Database->FetchQuery("DELETE FROM $this->Table WHERE ID='$ID'");
             $this->Database->FetchQuery("ALTER TABLE $this->Table AUTO_INCREMENT = 1");
             return true;
         }

@@ -29,7 +29,7 @@ class AccessControl
         return !empty($_SESSION[$this->SessionKey]);
     }
 
-    public function GetUserName(): string
+    public function GetUserName(): ?string
     {
         return $_SESSION[$this->SessionKey];
     }

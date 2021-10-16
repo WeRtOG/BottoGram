@@ -23,7 +23,6 @@ class BottoConfig
     public string $Logo = '';
     public bool $Private = false;
     public array $PrivateAllow = [];
-    public bool $DarkTheme = false;
     public string $AdminContact = "@WeRtOG";
     public bool $ButtonsAutoSize = true;
     public bool $AllowGroups = true;

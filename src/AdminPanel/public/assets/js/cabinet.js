@@ -200,10 +200,28 @@ document.addEventListener("DOMContentLoaded", function(event)
                     modalObject.querySelector('#EditUserLogin').innerHTML = editButton.getAttribute('data-login');
                     modalObject.querySelector('[name=CanManageUsers]').checked = flags[0];
                     modalObject.querySelector('[name=CanChangeConfig]').checked = flags[1];
-                    modalObject.querySelector('[name=CanViewLogs]').checked = flags[2];
+                    modalObject.querySelector('[name=CanViewRequestLogs]').checked = flags[2];
                     myModal.show();
                 }, 100);
             }
+        }
+
+        if(e.target.closest(".app-logs .clear-logs"))
+        {
+            var fab = e.target.closest(".app-logs .clear-logs");
+
+            if(!fab.disabled)
+            {
+                var myModal = new bootstrap.Modal(document.getElementById("clearLogsModal"), {})
+                setTimeout(function() {
+                    myModal.show();
+                }, 100);
+            }
+        }
+
+        if(e.target.closest("clear-logs"))
+        {
+            
         }
 
 	});
@@ -217,11 +235,13 @@ document.addEventListener("DOMContentLoaded", function(event)
     };
 });
 
-var pageHasLogs = false;
+var pageHasRequestLogs = false;
 var lastLogsChecksum = '';
 
 document.addEventListener("DOMContentRebuilded", function(event) {
-    pageHasLogs = document.querySelector('.logs') != null;
+    Prism.highlightAll();
+
+    pageHasRequestLogs = document.querySelector('.request-logs') != null;
 
     var botBindingObject = document.querySelector('.bot-binding');
     if(botBindingObject)
@@ -253,7 +273,7 @@ document.addEventListener("DOMContentRebuilded", function(event) {
 
                 botBindingObject.querySelector('#WebhookEnabled').checked = webhookURLNotEmpty;
 
-                var autoURL =location.protocol + '//' + location.host + MVCRoot.replace(/\\/g, '/').replace(/\/[^/]*\/?$/, '') + '/hook.php';
+                var autoURL = location.protocol + '//' + location.host + MVCRoot.replace(/\\/g, '/').replace(/\/[^/]*\/?$/, '') + '/hook.php';
 
                 botBindingObject.querySelector('#WebhookURL').value = result.data.WebhookInfo.Url != '' ? result.data.WebhookInfo.Url : autoURL;
                 botBindingObject.querySelector('#WebhookURL').disabled = !webhookURLNotEmpty;
@@ -270,16 +290,16 @@ document.addEventListener("DOMContentRebuilded", function(event) {
 });
 
 setInterval(function() {
-    if(pageHasLogs)
+    if(pageHasRequestLogs)
     {
-        fetch(MVCRoot + '/logs/getData')
+        fetch(MVCRoot + '/requests/getData')
         .then(function(response) {
             return response.json();
         })
         .then(function(data) {
             if(data.checksum != lastLogsChecksum)
             {
-                var logs = document.querySelector('.logs');
+                var logs = document.querySelector('.request-logs');
                 
                 logs.innerHTML = "";
 

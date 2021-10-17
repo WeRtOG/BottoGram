@@ -16,6 +16,6 @@ class AdminUser extends Model
     public string $Password;
     public bool $CanManageUsers = false;
     public bool $CanChangeConfig = false;
-    public bool $CanViewLogs = false;
+    public bool $CanViewRequestLogs = false;
 
 }

@@ -100,39 +100,39 @@ html.dark-theme .cabinet .sidebar-wrapper .list-group-item.active:hover {
     display: flex;
     justify-content: center;
 }
-.cabinet .logs {
+.cabinet .request-logs {
     box-sizing: border-box;
     padding: 10px;
     transition: all 0.3s ease;
 }
-.cabinet .logs.empty {
+.cabinet .request-logs.empty {
     opacity: 0;
 }
-.cabinet .logs .log {
+.cabinet .request-logs .log {
     border-radius: 5px;
     padding: 25px;
     margin: 10px;
     box-sizing: border-box;
 }
-.cabinet .logs .log pre {
+.cabinet .request-logs .log pre {
     border-radius: 5px;
 }
-html.dark-theme .cabinet .logs .log pre {
+html.dark-theme .cabinet .request-logs .log pre {
     background-color: #111;
 }
-html.white-theme .cabinet .logs .log pre {
+html.white-theme .cabinet .request-logs .log pre {
     background-color: rgb(238, 238, 238);
 }
-.cabinet .logs .log pre code {
+.cabinet .request-logs .log pre code {
     white-space: pre-wrap;
 }
-html.dark-theme .cabinet .logs .log {
+html.dark-theme .cabinet .request-logs .log {
     background-color: rgba(255,255,255,.02);
 }
-html.white-theme .cabinet .logs .log {
+html.white-theme .cabinet .request-logs .log {
     background-color: rgba(0,0,0,.035);
 }
-.cabinet .logs .log p {
+.cabinet .request-logs .log p {
     margin: 0;
     padding: 0;
 }
@@ -323,7 +323,7 @@ html.dark-theme .cabinet .smart-list-group .smart-list-item:hover {
     border-color: rgba(255,255,255,.05);
 }
 
-.cabinet .smart-list-group .smart-list-fab {
+.cabinet .smart-list-fab {
     position: fixed;
     right: 40px;
     bottom: 20px;
@@ -337,7 +337,17 @@ html.dark-theme .cabinet .smart-list-group .smart-list-item:hover {
     transition: all 0.3s ease;
 }
 
-.cabinet .smart-list-group .smart-list-fab:hover {
+.cabinet .smart-list-fab.fab-danger {
+    background-color: var(--bs-danger);
+}
+
+.cabinet .smart-list-fab:disabled {
+    cursor: not-allowed;
+    opacity: .2;
+    filter: saturate(0);
+}
+
+.cabinet .smart-list-fab:hover {
     transform: scale(1.1);
 }
 
@@ -369,6 +379,12 @@ html.dark-theme .cabinet .smart-list-group .smart-list-item .edit {
 .cabinet .settings-page {
     position: relative;
 }
+.cabinet .settings-page .log-raw {
+    width: calc(100% - 90px);
+}
+html.dark-theme .cabinet .settings-page .log-raw {
+    color: white;
+}
 html .cabinet .settings-page .nav {
     position: sticky;
     top: 0;
@@ -382,6 +398,23 @@ html.dark-theme .cabinet .settings-page .nav {
 }
 html.white-theme .cabinet .settings-page .nav {
     background: rgba(255, 255, 255, 0.3);
+}
+html .cabinet .settings-page.fordevelopers-page {
+    min-height: 100%;
+}
+
+html .cabinet .settings-page .app-logs .empty {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: calc(100% - 20px);
+    text-align: center;
+    font-size: 32px;
+    opacity: .2;
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 .modal-backdrop {
     backdrop-filter: blur(10px);
@@ -408,7 +441,7 @@ html.white-theme .modal-backdrop {
     opacity: 1;
 }
 .modal-dialog .modal-content {
-    max-width: 400px;
+    max-width: 430px;
     border-radius: 10px;
     border: none;
     text-align: center;

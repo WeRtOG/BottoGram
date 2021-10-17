@@ -6,17 +6,24 @@
         ?>
             <div class="smart-list-group">
                 <?php
-                //$Users = [...$Users, ...$Users, ...$Users, ...$Users, ...$Users, ...$Users, ...$Users];
-                //$Users = [...$Users, ...$Users, ...$Users, ...$Users, ...$Users, ...$Users, ...$Users];
                 foreach($Users as $User)
                 {
+                    $UserManageNotAllowed = isset($this->GlobalData['CurrentUser']) && (
+                        $this->GlobalData['CurrentUser']->Login == $User->Login
+                        || $User->Login == 'admin' 
+                        || (
+                            $User->CanManageUsers 
+                            && $this->GlobalData['CurrentUser']->Login != 'admin'
+                        )
+                    );
+
                     ?>
                     <div class="user smart-list-item">
-                        <button <?=isset($this->GlobalData['CurrentUser']) && $this->GlobalData['CurrentUser']->Login == $User->Login ? ' disabled' : ' data-id="' . $User->ID . '"'?> class="delete">
+                        <button <?=$UserManageNotAllowed ? ' disabled' : ' data-id="' . $User->ID . '"'?> class="delete">
                             <i class="bi bi-dash-circle-fill"></i>
                         </button>
                         <p class="title"><?=$User->Login?></p>
-                        <button <?=isset($this->GlobalData['CurrentUser']) && $this->GlobalData['CurrentUser']->Login == $User->Login ? ' disabled' : ' data-id="' . $User->ID . '" data-login="' . $User->Login . '" data-flags="[' . implode(', ', [(int)$User->CanManageUsers, (int)$User->CanChangeConfig, (int)$User->CanViewLogs]) . ']"'?> class="edit">
+                        <button <?=$UserManageNotAllowed ? ' disabled' : ' data-id="' . $User->ID . '" data-login="' . $User->Login . '" data-flags="[' . implode(', ', [(int)$User->CanManageUsers, (int)$User->CanChangeConfig, (int)$User->CanViewRequestLogs]) . ']"'?> class="edit">
                             <i class="bi bi-pencil-square""></i>
                         </button>
                     </div>
@@ -72,8 +79,8 @@
                     <label class="form-check-label">Может изменять конфигурацию</label>
                 </div>
                 <div class="mb-3 form-check form-switch">
-                    <input class="form-check-input" type="checkbox" name="CanViewLogs">
-                    <label class="form-check-label">Может просматривать логи</label>
+                    <input class="form-check-input" type="checkbox" name="CanViewRequestLogs">
+                    <label class="form-check-label">Может просматривать историю запросов</label>
                 </div>
             </div>
             <div class="modal-footer">
@@ -102,8 +109,8 @@
                     <label class="form-check-label">Может изменять конфигурацию</label>
                 </div>
                 <div class="mb-3 form-check form-switch">
-                    <input class="form-check-input" type="checkbox" name="CanViewLogs">
-                    <label class="form-check-label">Может просматривать логи</label>
+                    <input class="form-check-input" type="checkbox" name="CanViewRequestLogs">
+                    <label class="form-check-label">Может просматривать историю запросов</label>
                 </div>
             </div>
             <div class="modal-footer">

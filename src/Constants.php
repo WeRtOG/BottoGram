@@ -6,6 +6,7 @@
 */
 namespace WeRtOG\BottoGram;
 
+define('BOTTOGRAM_REPO_ROOT', dirname(__DIR__));
 define('BOTTOGRAM_ROOT', __DIR__);
     
 define('BOT_COMMAND_START', '/start');

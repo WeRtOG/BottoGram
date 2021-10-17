@@ -200,10 +200,10 @@ class SettingsController extends CabinetPageController
 
         $CanManageUsers = isset($_POST['CanManageUsers']) ? $_POST['CanManageUsers'] == 'on' : false;
         $CanChangeConfig = isset($_POST['CanChangeConfig']) ? $_POST['CanChangeConfig'] == 'on' : false;
-        $CanViewLogs = isset($_POST['CanViewLogs']) ? $_POST['CanViewLogs'] == 'on' : false;
+        $CanViewRequestLogs = isset($_POST['CanViewRequestLogs']) ? $_POST['CanViewRequestLogs'] == 'on' : false;
         
         if($Login != null && $Password != null)
-            $this->AdminPanel->Users->AddUser($Login, $Password, $CanManageUsers, $CanChangeConfig, $CanViewLogs);
+            $this->AdminPanel->Users->AddUser($Login, $Password, $CanManageUsers, $CanChangeConfig, $CanViewRequestLogs);
 
         return Route::Navigate('settings/users');
     }
@@ -211,13 +211,23 @@ class SettingsController extends CabinetPageController
     #[Action(RequestMethod: 'POST')]
     public function EditUser(): Response
     {
-        if(!$this->AdminPanel->CurrentUser->CanManageUsers)
+        $EditUserID = (int)$_POST['EditUserID'] ?? null;
+        $EditUser = $this->AdminPanel->Users->GetUserByID($EditUserID);
+
+        $EditIsNotAllowed = isset($this->AdminPanel->CurrentUser) && (
+            $this->AdminPanel->CurrentUser->Login == $EditUser->Login
+            || $EditUser->Login == 'admin' 
+            || (
+                $EditUser->CanManageUsers 
+                && $this->AdminPanel->CurrentUser->Login != 'admin'
+            )
+        );
+
+        if(!$this->AdminPanel->CurrentUser->CanManageUsers || $EditIsNotAllowed)
         {
             Route::Navigate('settings');
             exit();
         }
-
-        $EditUserID = (int)$_POST['EditUserID'] ?? null;
 
         if($EditUserID != null)
         {
@@ -225,14 +235,14 @@ class SettingsController extends CabinetPageController
 
             $CanManageUsers = isset($_POST['CanManageUsers']) ? $_POST['CanManageUsers'] == 'on' : false;
             $CanChangeConfig = isset($_POST['CanChangeConfig']) ? $_POST['CanChangeConfig'] == 'on' : false;
-            $CanViewLogs = isset($_POST['CanViewLogs']) ? $_POST['CanViewLogs'] == 'on' : false;
+            $CanViewRequestLogs = isset($_POST['CanViewRequestLogs']) ? $_POST['CanViewRequestLogs'] == 'on' : false;
     
             if($NewPassword != null)
             {
                 $this->AdminPanel->Users->UpdateUserPassword($EditUserID, $NewPassword);
             }
 
-            $this->AdminPanel->Users->UpdateUserRights($EditUserID, $CanManageUsers, $CanChangeConfig, $CanViewLogs);
+            $this->AdminPanel->Users->UpdateUserRights($EditUserID, $CanManageUsers, $CanChangeConfig, $CanViewRequestLogs);
         }
 
         return Route::Navigate('settings/users');
@@ -241,13 +251,23 @@ class SettingsController extends CabinetPageController
     #[Action(RequestMethod: 'POST')]
     public function DeleteUser(): Response
     {
-        if(!$this->AdminPanel->CurrentUser->CanManageUsers)
+        $DeleteUserID = (int)$_POST['DeleteUserID'] ?? null;
+        $DeleteUser = $this->AdminPanel->Users->GetUserByID($DeleteUserID);
+
+        $DeleteIsNotAllowed = isset($this->AdminPanel->CurrentUser) && (
+            $this->AdminPanel->CurrentUser->Login == $DeleteUser->Login
+            || $DeleteUser->Login == 'admin' 
+            || (
+                $DeleteUser->CanManageUsers 
+                && $this->AdminPanel->CurrentUser->Login != 'admin'
+            )
+        );
+
+        if(!$this->AdminPanel->CurrentUser->CanManageUsers || $DeleteIsNotAllowed)
         {
             Route::Navigate('settings');
             exit();
         }
-
-        $DeleteUserID = (int)$_POST['DeleteUserID'] ?? null;
         
         if($DeleteUserID != null)
             $this->AdminPanel->Users->DeleteUser($DeleteUserID);

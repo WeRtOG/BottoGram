@@ -95,11 +95,11 @@ class AdminUsers
         }
     }
 
-    public function UpdateUserRights(string $ID, bool $CanManageUsers = false, bool $CanChangeConfig = false, bool $CanViewLogs = false): bool
+    public function UpdateUserRights(string $ID, bool $CanManageUsers = false, bool $CanChangeConfig = false, bool $CanViewRequestLogs = false): bool
     {
         if($this->CheckUserByID($ID))
         { 
-            $this->Database->FetchQuery("UPDATE $this->Table SET CanManageUsers='" . (int)$CanManageUsers . "', CanChangeConfig='" . (int)$CanChangeConfig . "', CanViewLogs='" . (int)$CanViewLogs . "' WHERE ID='$ID'");
+            $this->Database->FetchQuery("UPDATE $this->Table SET CanManageUsers='" . (int)$CanManageUsers . "', CanChangeConfig='" . (int)$CanChangeConfig . "', CanViewRequestLogs='" . (int)$CanViewRequestLogs . "' WHERE ID='$ID'");
             return true;
         }
         else
@@ -114,16 +114,16 @@ class AdminUsers
      * @param string $Password Пароль
      * @param string $CanManageUsers Флаг возможности управления пользователями
      * @param string $CanChangeConfig Флаг возможности редактирования конфигурации
-     * @param string $CanViewLogs Флаг возможности просмотра логов
+     * @param string $CanViewRequestLogs Флаг возможности просмотра логов
      * @return bool Резултат операции
      */
-    public function AddUser(string $Login, string $Password, bool $CanManageUsers = false, bool $CanChangeConfig = false, bool $CanViewLogs = false): bool
+    public function AddUser(string $Login, string $Password, bool $CanManageUsers = false, bool $CanChangeConfig = false, bool $CanViewRequestLogs = false): bool
     {
         if(!$this->CheckUserByLogin($Login))
         {
             $Login = $this->Database->EscapeString($Login);
             $Password = $this->MakeHash($Password); 
-            $this->Database->FetchQuery("INSERT INTO $this->Table (Login, Password, CanManageUsers, CanChangeConfig, CanViewLogs) VALUES ('$Login', '$Password', '" . (int)$CanManageUsers . "', '" . (int)$CanChangeConfig . "', '" . (int)$CanViewLogs . "')");
+            $this->Database->FetchQuery("INSERT INTO $this->Table (Login, Password, CanManageUsers, CanChangeConfig, CanViewRequestLogs) VALUES ('$Login', '$Password', '" . (int)$CanManageUsers . "', '" . (int)$CanChangeConfig . "', '" . (int)$CanViewRequestLogs . "')");
             return true;
         }
         else

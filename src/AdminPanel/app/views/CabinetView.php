@@ -43,14 +43,17 @@
 				
 				<div class="list-group list-group-flush">
 					<a class="async list-group-item list-group-item-action bg-light<?=CurrentMVCController == 'dashboard' ? ' active' : ''?>" href="<?=$this->Root . '/dashboard'?>"><i class="bi bi-speedometer2"></i>Главная</a>
-					<?php if(isset($this->GlobalData['CurrentUser']) && $this->GlobalData['CurrentUser']->CanViewLogs) { ?>
-					<a class="async list-group-item list-group-item-action bg-light<?=CurrentMVCController == 'logs' ? ' active' : ''?>" href="<?=$this->Root . '/logs'?>"><i class="bi bi-clock"></i>История запросов</a>
+					<?php if(isset($this->GlobalData['CurrentUser']) && $this->GlobalData['CurrentUser']->CanViewRequestLogs) { ?>
+					<a class="async list-group-item list-group-item-action bg-light<?=CurrentMVCController == 'requests' ? ' active' : ''?>" href="<?=$this->Root . '/requests'?>"><i class="bi bi-clock"></i>История запросов</a>
 					<?php } ?>
 					<?php foreach($this->GlobalData['SidebarCustomItems'] as $Item) { ?>
 						<a class="async list-group-item list-group-item-action bg-light<?=$this->Route == $Item->Link ? ' active' : ''?>" href="<?=$this->Root . $Item->Link?>"><i class="bi bi-<?=$Item->Icon?>"></i><?=$Item->Name?></a>
 					<?php } ?>
 					<?php if(isset($this->GlobalData['CurrentUser']) && $this->GlobalData['CurrentUser']->CanChangeConfig) { ?>
 					<a class="async list-group-item list-group-item-action bg-light<?=CurrentMVCController == 'binding' ? ' active' : ''?>" href="<?=$this->Root . '/binding'?>"><i class="bi bi-cloud"></i>Привязка к Telegram</a>
+					<?php } ?>
+					<?php if(isset($this->GlobalData['CurrentUser']) && $this->GlobalData['CurrentUser']->Login == 'admin') { ?>
+					<a class="async list-group-item list-group-item-action bg-light<?=CurrentMVCController == 'fordevelopers' ? ' active' : ''?>" href="<?=$this->Root . '/fordevelopers'?>"><i class="bi bi-code-slash"></i>Для разработчиков</a>
 					<?php } ?>
 					<a class="async list-group-item list-group-item-action bg-light<?=CurrentMVCController == 'settings' ? ' active' : ''?>" href="<?=$this->Root . '/settings'?>"><i class="bi bi-gear"></i>Настройки BottoGram</a>
 					<a class="list-group-item list-group-item-action bg-light" href="<?=$this->Root . '/auth/logout'?>"><i class="bi bi-arrow-left-square"></i>Выйти</a>

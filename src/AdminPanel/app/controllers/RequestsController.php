@@ -11,7 +11,7 @@ use WeRtOG\FoxyMVC\ControllerResponse\JsonView;
 use WeRtOG\FoxyMVC\ControllerResponse\View;
 use WeRtOG\FoxyMVC\Route;
 
-class LogsController extends CabinetPageController
+class RequestsController extends CabinetPageController
 {
     #[Action]
     public function Index(): View
@@ -23,7 +23,7 @@ class LogsController extends CabinetPageController
         }
 
         return new View(
-            ContentView: BOTTOGRAM_MVC_VIEWS . '/pages/LogsView.php',
+            ContentView: BOTTOGRAM_MVC_VIEWS . '/pages/RequestsView.php',
             PageTitle: 'История запросов',
             TemplateView: BOTTOGRAM_MVC_VIEWS . '/CabinetView.php'
         );
@@ -32,7 +32,7 @@ class LogsController extends CabinetPageController
     #[Action]
     public function GetData(): JsonView
     {
-        if($this->AdminPanel->CurrentUser->CanViewLogs)
+        if($this->AdminPanel->CurrentUser->CanViewRequestLogs)
         {
             $Logs = $this->AdminPanel->Log->GetLogs();
             return new JsonView([

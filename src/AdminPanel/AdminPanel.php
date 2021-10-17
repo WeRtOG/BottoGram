@@ -19,6 +19,7 @@ use WeRtOG\BottoGram\AdminPanel\SidebarCustomItems;
 use WeRtOG\BottoGram\BottoConfig;
 use WeRtOG\BottoGram\DatabaseManager\Database;
 use WeRtOG\BottoGram\DatabaseManager\DatabaseManager;
+use WeRtOG\BottoGram\Models\TelegramUsers;
 use WeRtOG\BottoGram\Telegram\Telegram;
 use WeRtOG\FoxyMVC\ControllerResponse\JsonView;
 use WeRtOG\FoxyMVC\ControllerResponse\Response;
@@ -33,6 +34,7 @@ class AdminPanel
     public Analytics $Analytics;
     public Log $Log;
     public AdminUsers $Users;
+    public TelegramUsers $TelegramUsers;
     public ?AdminUser $CurrentUser;
     public Telegram $TelegramClient;
 
@@ -55,6 +57,7 @@ class AdminPanel
         $this->Analytics = new Analytics($this->Database);
         $this->Log = new Log($this->Database);
         $this->Users = new AdminUsers($this->Database);
+        $this->TelegramUsers = new TelegramUsers($this->Database);
 
         $UserName = $this->AccessControl->GetUserName();
 

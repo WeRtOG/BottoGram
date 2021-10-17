@@ -296,6 +296,11 @@ class BottoGram
                         FullName: $this->Update->Message->Chat->GetFullName()
                     );
 
+                    if($this->Update->Message->MediaGroupID != null && $this->Update->Message->MediaGroupID != $this->CurrentUser->LastMediaGroup)
+                    {
+                        $this->CurrentUser->SetNewMediaGroup($this->Update->Message->MediaGroupID);
+                    }
+
                     $this->CurrentUser->OnNavigated(function () {
                         $this->OnNavigated();
                     });

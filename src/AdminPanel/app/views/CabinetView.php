@@ -34,7 +34,7 @@
 	<body>
 		<div class="d-flex cabinet">
 			<!-- Sidebar-->
-			<div data-speed="300" class="anix bg-light border-right sidebar-wrapper">
+			<div data-speed="100" class="anix bg-light border-right sidebar-wrapper">
 				<div class="sidebar-heading">
 					<img class="logo" src="<?=$this->GenerateFilePublicPath(BOTTOGRAM_ADMIN_ASSETS . '/images/logo/icon-' . ($this->GlobalData['DarkTheme'] ? 'white' : 'black') . '.svg', AdminPanel::GetBuiltInСomponentsPathIntOffset())?>" />
 					<h3><?=$this->GlobalData['BottoConfig']->Name?></h3>
@@ -61,7 +61,7 @@
 			</div>
 			<!--<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>-->
 			<!-- Page Content-->
-			<div class="page-content-wrapper anix">
+			<div class="page-content-wrapper anix" data-speed="300">
 				<?php include $this->ContentView; ?>
 			</div>
 		</div>

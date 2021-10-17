@@ -31,15 +31,31 @@ class RequestsController extends CabinetPageController
 
     #[Action]
     public function GetData(): JsonView
-    {
+    {   
         if($this->AdminPanel->CurrentUser->CanViewRequestLogs)
         {
+            $LastChecksum = $_GET['checksum'] ?? null;
+
             $Logs = $this->AdminPanel->Log->GetLogs();
-            return new JsonView([
-                'ok' => true,
-                'checksum' => md5(json_encode($Logs)),
-                'logs' => $Logs
-            ]);
+            $NewChecksum = md5(json_encode($Logs));
+
+            if($NewChecksum != $LastChecksum)
+            {
+                return new JsonView([
+                    'ok' => true,
+                    'checksum' => $NewChecksum,
+                    'hasNewData' => true,
+                    'logs' => $Logs
+                ]);
+            }
+            else
+            {
+                return new JsonView([
+                    'ok' => true,
+                    'hasNewData' => false,
+                    'checksum' => $NewChecksum
+                ]);
+            }
         }
         else
         {

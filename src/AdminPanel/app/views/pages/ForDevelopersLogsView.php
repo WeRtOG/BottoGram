@@ -1,13 +1,14 @@
 <div class="app-logs">
-    <?php if(!empty($this->Data['LogsList'])) { ?>
-    <pre class="log-raw">
-    <?=$this->Data['LogsList']?>
-    </pre>
-    <?php } else { ?>
-    <p class="empty">Здесь пока ничего нет...</p>
-    <?php } ?>
-    
-    <button class="smart-list-fab fab-danger clear-logs"<?=empty($this->Data['LogsList']) ? ' disabled' : ''?>>
+    <div class="loading">
+        <?php 
+            $PreloaderPath = BOTTOGRAM_ADMIN_ASSETS . '/images/preloader.svg';
+            if(file_exists($PreloaderPath))
+                include $PreloaderPath;
+        ?>
+    </div>
+    <pre class="log-raw faded"></pre>
+    <p class="empty hidden">Здесь пока ничего нет...</p>
+    <button class="smart-list-fab fab-danger clear-logs" disabled>
         <i class="bi bi-trash"></i>
     </button>
 </div>

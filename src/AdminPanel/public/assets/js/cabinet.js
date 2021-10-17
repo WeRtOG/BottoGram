@@ -13,7 +13,7 @@ function LoadPageAsync(URL, container)
         item.classList.remove("active"); 
     });
 
-    container.object.parentNode.querySelectorAll('a[href="' + URL + '"]').forEach(item => {
+    container.object.parentNode.querySelectorAll('a[href="' + URL + '"], a[href="' + URL.substring(0, URL.lastIndexOf('/')) + '"]').forEach(item => {
         item.classList.add("active");
     });
 
@@ -21,7 +21,7 @@ function LoadPageAsync(URL, container)
 	//$(container).transition({opacity: 0}, 50, 'snap');
 	//$(container).css("pointer-events", "none");
     transition.begin(container.object, [
-        'opacity 1 0 300ms'
+        'opacity 1 0 100ms'
     ]);
 
     setTimeout(function() {
@@ -57,7 +57,7 @@ function LoadPageAsync(URL, container)
                 }));
     
                 transition.begin(container.object, [
-                    'opacity 0 1 300ms'
+                    'opacity 0 1 100ms'
                 ]);
                 anix.Init(container.object.querySelectorAll('.anix'));
             }
@@ -149,6 +149,8 @@ document.addEventListener("DOMContentLoaded", function(event)
 
             if(URL != currentURL)
             {
+                lastLogsChecksum = '';
+                lastRequestLogsChecksum = '';
                 LoadPageAsync(URL, container);
             }
         }
@@ -254,12 +256,16 @@ document.addEventListener("DOMContentLoaded", function(event)
 });
 
 var pageHasRequestLogs = false;
+var lastRequestLogsChecksum = '';
+
+var pageHasLogs = false;
 var lastLogsChecksum = '';
 
 document.addEventListener("DOMContentRebuilded", function(event) {
     Prism.highlightAll();
 
     pageHasRequestLogs = document.querySelector('.request-logs') != null;
+    pageHasLogs = document.querySelector('.log-raw') != null;
 
     var botBindingObject = document.querySelector('.bot-binding');
     if(botBindingObject)
@@ -310,48 +316,108 @@ document.addEventListener("DOMContentRebuilded", function(event) {
 setInterval(function() {
     if(pageHasRequestLogs)
     {
-        fetch(MVCRoot + '/requests/getData')
+        fetch(MVCRoot + '/requests/getData' + (lastRequestLogsChecksum != '' ? '/?checksum=' + lastRequestLogsChecksum : ''))
         .then(function(response) {
             return response.json();
         })
-        .then(function(data) {
-            if(data.checksum != lastLogsChecksum)
+        .then(function(response) {
+            if(response.ok)
             {
-                var logs = document.querySelector('.request-logs');
-                
-                logs.innerHTML = "";
+                if(response.checksum != lastRequestLogsChecksum)
+                {
+                    var requestLogs = document.querySelector('.request-logs');
+                    var requestLogsItems = requestLogs.querySelector('.items');
 
-                data.logs.forEach(log => {
-                    var logDiv = document.createElement("div");
-                    logDiv.className = 'log';
-                    logDiv.innerHTML = '<p><b>ID: </b>' + log.ID;
-                    logDiv.innerHTML += '<p><b>ID пользователя (Telegram): </b>' + log.ChatID;
-                    logDiv.innerHTML += '<p><b>Дата: </b>' + log.Date;
-                    logDiv.innerHTML += '<p><b>Код запроса: </b><span class="code">' + log.RequestCode + '</span>';
-                    logDiv.innerHTML += '<p><b>Код ответа: </b><span class="code">' + log.ResponseCode + '</span>';
+                    requestLogs.querySelector('.loading').classList.add('hidden');
+                    
+                    setTimeout(function() {
+                        requestLogsItems.innerHTML = "";
 
-                    if(log.RequestError != null)
-                        logDiv.innerHTML += '<p><b>Ошибка запроса: </b>' + log.RequestError;
+                        response.logs.forEach(log => {
+                            var logDiv = document.createElement("div");
+                            logDiv.className = 'log';
+                            logDiv.innerHTML = '<p><b>ID: </b>' + log.ID;
+                            logDiv.innerHTML += '<p><b>ID пользователя (Telegram): </b>' + log.ChatID;
+                            logDiv.innerHTML += '<p><b>Дата: </b>' + log.Date;
+                            logDiv.innerHTML += '<p><b>Код запроса: </b><span class="code">' + log.RequestCode + '</span>';
+                            logDiv.innerHTML += '<p><b>Код ответа: </b><span class="code">' + log.ResponseCode + '</span>';
     
-                    if(log.ResponseError != null)
-                        logDiv.innerHTML += '<p><b>Ошибка ответа: </b>' + log.ResponseError;
-        
-                    if(log.Request != null)
-                        logDiv.innerHTML += '<p><b>Запрос: </b><pre><code class="language-javascript">' + log.Request + '</code></pre>';
+                            if(log.RequestError != null)
+                                logDiv.innerHTML += '<p><b>Ошибка запроса: </b>' + log.RequestError;
+            
+                            if(log.ResponseError != null)
+                                logDiv.innerHTML += '<p><b>Ошибка ответа: </b>' + log.ResponseError;
+                
+                            if(log.Request != null)
+                                logDiv.innerHTML += '<p><b>Запрос: </b><pre><code class="language-javascript">' + log.Request + '</code></pre>';
+    
+                            if(log.Response != null)
+                                logDiv.innerHTML += '<p><b>Ответ: </b><pre><code class="language-javascript">' + log.Response + '</code></pre>';
+    
+                            requestLogsItems.appendChild(logDiv);
+    
+                            Prism.highlightAll();
+                        });
+    
+                        setTimeout(function() {
+                            requestLogsItems.classList.remove('faded');
+                        }, 10);
+    
+                        lastRequestLogsChecksum = response.checksum;
+                    }, 10);
+                }
+            }
+        })
+        .catch(function(err) {  
+            console.error('Failed to fetch request logs: ', err);  
+        });
+    }
+    else
+    {
+        lastRequestLogsChecksum = '';
+    }
 
-                    if(log.Response != null)
-                        logDiv.innerHTML += '<p><b>Ответ: </b><pre><code class="language-javascript">' + log.Response + '</code></pre>';
+    if(pageHasLogs)
+    {
+        fetch(MVCRoot + '/fordevelopers/getLogsRAW' + (lastLogsChecksum != '' ? '/?checksum=' + lastLogsChecksum : ''))
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(response) {
+            if(response.ok)
+            {
+                if(response.checksum != lastLogsChecksum)
+                {
+                    var logsWrapper = document.querySelector('.app-logs');
+                    var logs = logsWrapper.querySelector('.log-raw');
+                    var logsFab = logsWrapper.querySelector('.clear-logs');
+                    
+                    logs.innerHTML = response.raw;
+                    
+                    if(response.raw == '')
+                    {
+                        logsWrapper.querySelector('.empty').classList.remove('hidden');
+                        logsFab.disabled = true;
+                    }
+                    else
+                    {
+                        logsWrapper.querySelector('.empty').classList.add('hidden');
+                        logsFab.disabled = false;
+                    }
 
-                    logs.appendChild(logDiv);
+                    setTimeout(function()
+                    {
+                        if(logs.classList.contains('faded'))
+                        {
+                            logs.classList.remove('faded');
+                            logsWrapper.querySelector('.loading').classList.add('hidden');
+                        }
+                        var objDiv = document.querySelector('.page-content-wrapper');
+                        objDiv.scrollTo(0, objDiv.scrollHeight);
+                    }, 10);
 
-                    Prism.highlightAll();
-                });
-
-                setTimeout(function() {
-                    logs.classList.remove('empty');
-                }, 10);
-
-                lastLogsChecksum = data.checksum;
+                    lastLogsChecksum = response.checksum;
+                }
             }
         })
         .catch(function(err) {  

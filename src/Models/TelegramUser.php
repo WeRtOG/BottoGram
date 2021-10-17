@@ -18,6 +18,7 @@ class TelegramUser extends DatabaseTableItemModel
     public string $Nav;
     public ?array $Cache;
     public string $LastMediaGroup;
+    public bool $HasNewMediaGroup = false;
 
     private $NavigationChangeAction;
 
@@ -77,6 +78,13 @@ class TelegramUser extends DatabaseTableItemModel
     public function GetCacheItem(string $Name): mixed
     {
         return $this->Cache[$Name] ?? null;
+    }
+
+    public function SetNewMediaGroup(string $MediaGroup): void
+    {
+        $this->LastMediaGroup = $MediaGroup;
+        $this->HasNewMediaGroup = true;
+        $this->TriggerOnPropertyChangeAction(new ChangedProperty('LastMediaGroup', $this->LastMediaGroup));
     }
 
     public static function IsJSONString(?string $String): bool

@@ -12,6 +12,7 @@ body, html {
     overflow-x: hidden;
     height: 100%;
     width: 100%;
+    position: relative;
 }
 .cabinet .sidebar-wrapper {
     width: 250px;
@@ -105,7 +106,13 @@ html.dark-theme .cabinet .sidebar-wrapper .list-group-item.active:hover {
     padding: 10px;
     transition: all 0.3s ease;
 }
-.cabinet .request-logs.empty {
+.cabinet .request-logs .items {
+    transition: all 0.3s ease;
+}
+.cabinet .request-logs .hidden {
+    display: none !important;
+}
+.cabinet .request-logs .items.faded {
     opacity: 0;
 }
 .cabinet .request-logs .log {
@@ -381,6 +388,15 @@ html.dark-theme .cabinet .smart-list-group .smart-list-item .edit {
 }
 .cabinet .settings-page .log-raw {
     width: calc(100% - 90px);
+    white-space: pre-wrap;       /* css-3 */
+    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+    transition: all 0.3s ease;
+}
+.cabinet .settings-page .log-raw.faded {
+    opacity: 0;
 }
 html.dark-theme .cabinet .settings-page .log-raw {
     color: white;
@@ -403,19 +419,44 @@ html .cabinet .settings-page.fordevelopers-page {
     min-height: 100%;
 }
 
-html .cabinet .settings-page .app-logs .empty {
+html .cabinet .settings-page .app-logs .empty, html .cabinet .settings-page .app-logs .loading, .cabinet .request-logs .loading  {
     position: absolute;
     top: 0;
     width: 100%;
     height: calc(100% - 20px);
     text-align: center;
-    font-size: 32px;
-    opacity: .2;
+    font-size: 24px;
     margin-top: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
 }
+
+html .cabinet .bot-users table thead {
+    border-bottom-width: 2px;
+}
+
+html .cabinet .bot-users table th, html .cabinet .bot-users table td {
+    text-align: center;
+}
+
+html .cabinet .bot-users pre {
+    border-radius: 5px;
+    margin: 0;
+}
+
+html.dark-theme .cabinet .bot-users pre {
+    background-color: rgba(255,255,255,.05);
+}
+
+html .cabinet .settings-page .app-logs .empty {
+    opacity: .3;
+}
+
+html .cabinet .settings-page .app-logs .hidden {
+    display: none;
+}
+
 .modal-backdrop {
     backdrop-filter: blur(10px);
 }
@@ -633,4 +674,55 @@ html.dark-theme input:-webkit-autofill, html.dark-theme input:-webkit-autofill:h
     box-shadow: 0 0 0px 1000px #111 inset !important;
     transition: background-color 5000s ease-in-out 0s;
     border-color: #222 !important;
+}
+
+.pagination {
+    width: fit-content;
+    margin: auto;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+html.white-theme .pagination {
+    background-color: white;
+    box-shadow: 0px 4px 10px 0px rgb(0 0 0 / 10%);
+}
+
+html.dark-theme .pagination {
+    background-color: rgba(255,255,255,.05);
+}
+
+.page-item .page-link {
+    border: none;
+    border-radius: 5px;
+    margin: 2px;
+    box-sizing: border-box;
+    box-shadow: none !important;
+}
+
+html.white-theme .page-item .page-link {
+    color: var(--bs-blue);
+}
+
+html.dark-theme .page-item .page-link {
+    background-color: rgba(255,255,255,.05);
+    color: rgba(255, 255, 255, .5);
+}
+
+html.dark-theme .page-item .page-link:hover {
+    background-color: rgba(255,255,255,.1);
+}
+
+html.dark-theme .page-item .page-link:active {
+    background-color: rgba(255,255,255,.07);
+}
+
+.page-item.disabled .page-link {
+    color: #333 !important;
+}
+
+.page-item.active .page-link {
+    color: white !important;
+    background-color: var(--ui-accent) !important;
+    border-color: var(--ui-accent) !important;
 }

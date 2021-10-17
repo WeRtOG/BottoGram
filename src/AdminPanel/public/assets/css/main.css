@@ -38,9 +38,11 @@ html.white-theme pre .language-css .token.string, .style .token.string, .token.e
 }
 html.dark-theme {
     --ui-main: rgba(255,255,255,.1);
+    --ui-preloader-color: rgba(255,255,255,1);
 }
 html.white-theme {
     --ui-main: var(--ui-accent);
+    --ui-preloader-color: var(--ui-accent);
 }
 .btn-primary {
     background-color: var(--ui-main) !important;

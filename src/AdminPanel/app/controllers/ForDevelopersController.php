@@ -6,6 +6,7 @@
 */
 namespace WeRtOG\BottoGram\AdminPanel\MVC;
 
+use WeRtOG\BottoGram\AdminPanel\SystemInfo;
 use WeRtOG\FoxyMVC\Attributes\Action;
 use WeRtOG\FoxyMVC\ControllerResponse\JsonView;
 use WeRtOG\FoxyMVC\ControllerResponse\Response;
@@ -50,23 +51,16 @@ class ForDevelopersController extends CabinetPageController
             exit();
         }
 
-        $BottoGramVersion = 'не известно';
-        $RepositoryDir = BOTTOGRAM_REPO_ROOT . '/.git';
-
-        if(file_exists($RepositoryDir))
-        {
-            $HeadHash = @file_get_contents($RepositoryDir . '/refs/heads/main');
-            $BottoGramVersion = substr($HeadHash, 0, 7);
-        }
-
         return new View(
             ContentView: BOTTOGRAM_MVC_VIEWS . '/pages/ForDevelopersView.php',
             PageTitle: 'Для разработчиков',
             TemplateView: BOTTOGRAM_MVC_VIEWS . '/CabinetView.php',
             Data: [
                 'SystemInfo' => [
+                    'OS' => php_uname(),
                     'PHPVersion' => phpversion(),
-                    'BottoGramVersion' => $BottoGramVersion
+                    'MySQLVersion' => $this->AdminPanel->Database->GetServerVersion() ?? 'неизвестно',
+                    'BottoGramVersion' => SystemInfo::GetBottoGramVersion()
                 ],
                 'SubPage' => BOTTOGRAM_MVC_VIEWS . '/pages/ForDevelopersSystemInfoView.php'
             ]

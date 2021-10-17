@@ -620,6 +620,13 @@ html.dark-theme .bot-info-async::before {
     opacity: .3;
 }
 
+.copy-to-buffer {
+    box-shadow: none !important;
+}
+.copy-to-buffer i {
+    margin-right: 5px;
+}
+
 
 html.dark-theme input:-webkit-autofill, html.dark-theme input:-webkit-autofill:hover, html.dark-theme input:-webkit-autofill:focus, html.dark-theme textarea:-webkit-autofill, html.dark-theme textarea:-webkit-autofill:hover, html.dark-theme textarea:-webkit-autofill:focus, html.dark-theme select:-webkit-autofill, html.dark-theme select:-webkit-autofill:hover, html.dark-theme select:-webkit-autofill:focus {
     -webkit-text-fill-color: white;

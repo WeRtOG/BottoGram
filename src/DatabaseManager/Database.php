@@ -53,6 +53,11 @@ class Database
         $this->DB->close();
     }
 
+    public function GetServerVersion(): ?string
+    {
+        return $this->DB->server_info ?? null;
+    }
+
     public function FetchQuery(string $Query, bool $ReturnArray = false, string $ClassName = null)
     {
         if(!$this->DB->ping()) $this->Reconnect();

@@ -6,6 +6,8 @@
 */
 namespace WeRtOG\BottoGram;
 
+define('BOTTOGRAM_PACKAGE_NAME', 'wertog/bottogram');
+
 define('BOTTOGRAM_REPO_ROOT', dirname(__DIR__));
 define('BOTTOGRAM_ROOT', __DIR__);
     

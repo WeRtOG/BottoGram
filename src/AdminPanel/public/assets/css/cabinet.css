@@ -457,6 +457,10 @@ html .cabinet .settings-page .app-logs .hidden {
     display: none;
 }
 
+html .cabinet .version-info p {
+    margin: 0px;
+}
+
 .modal-backdrop {
     backdrop-filter: blur(10px);
 }

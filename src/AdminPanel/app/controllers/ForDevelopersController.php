@@ -160,7 +160,10 @@ class ForDevelopersController extends CabinetPageController
                     'OS' => php_uname(),
                     'PHPVersion' => phpversion(),
                     'MySQLVersion' => $this->AdminPanel->Database->GetServerVersion() ?? 'неизвестно',
-                    'BottoGramVersion' => SystemInfo::GetBottoGramVersion()
+                    'BottoGramVersion' => SystemInfo::GetBottoGramVersion(),
+                    'BottoGramPath' => BOTTOGRAM_ROOT,
+                    'ProjectPath' => BOTTOGRAM_FR_PROJECTROOT_PATH,
+                    'AdminPanelPath' => BOTTOGRAM_FR_ADMINPANEL_PATH
                 ],
                 'SubPage' => BOTTOGRAM_MVC_VIEWS . '/pages/ForDevelopersSystemInfoView.php'
             ]

@@ -19,6 +19,7 @@ class TelegramUser extends DatabaseTableItemModel
     public ?array $Cache;
     public string $LastMediaGroup;
     public bool $HasNewMediaGroup = false;
+    public string $RegistrationDate;
 
     private $NavigationChangeAction;
 

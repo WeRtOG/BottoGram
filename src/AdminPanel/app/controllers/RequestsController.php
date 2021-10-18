@@ -16,9 +16,9 @@ class RequestsController extends CabinetPageController
     #[Action]
     public function Index(): View
     {
-        if(!$this->AdminPanel->CurrentUser->CanChangeConfig)
+        if(!$this->AdminPanel->CurrentUser->CanViewRequestLogs)
         {
-            Route::Navigate('settings');
+            Route::Navigate('');
             exit();
         }
 

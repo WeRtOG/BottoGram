@@ -36,8 +36,18 @@ class RequestsController extends CabinetPageController
         {
             $LastChecksum = $_GET['checksum'] ?? null;
 
-            $Logs = $this->AdminPanel->Log->GetLogs();
-            $NewChecksum = md5(json_encode($Logs));
+            $RequestLogs = $this->AdminPanel->RequestLogs->GetLogs();
+
+            if($this->AdminPanel->CurrentUser->Login == 'admin')
+            {
+                foreach($RequestLogs as &$RequestLog)
+                {
+                    $UserPage = ceil($RequestLog->UserID / 30);
+                    $RequestLog->UserURL = Route::GetRoot() . '/fordevelopers/botusers/?page=' . $UserPage. '&highlight=' . $RequestLog->UserID;
+                }
+            }
+
+            $NewChecksum = md5(json_encode($RequestLogs));
 
             if($NewChecksum != $LastChecksum)
             {
@@ -45,7 +55,7 @@ class RequestsController extends CabinetPageController
                     'ok' => true,
                     'checksum' => $NewChecksum,
                     'hasNewData' => true,
-                    'logs' => $Logs
+                    'logs' => $RequestLogs
                 ]);
             }
             else

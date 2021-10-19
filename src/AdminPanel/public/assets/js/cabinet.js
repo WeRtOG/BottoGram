@@ -1,10 +1,15 @@
-var IsAsyncPageLoading = false;
+var isAsyncPageLoading = false;
+
+function GetParentURL(URL)
+{
+    return URL.substring(0, URL.lastIndexOf('/'));
+}
 
 function LoadPageAsync(URL, container)
 {
-    if(IsAsyncPageLoading) return;
+    if(isAsyncPageLoading) return;
 
-    IsAsyncPageLoading = true;
+    isAsyncPageLoading = true;
 
     if(URL.includes(MVCRoot + "/auth"))
         window.location = URL;
@@ -13,7 +18,10 @@ function LoadPageAsync(URL, container)
         item.classList.remove("active"); 
     });
 
-    container.object.parentNode.querySelectorAll('a[href="' + URL + '"], a[href="' + URL.substring(0, URL.lastIndexOf('/')) + '"]').forEach(item => {
+    var activeLinksURL = URL.replace(/(\/|)(\&|\?)(.*?)[=](.*)/g, '');
+    var activeLinksParentURL = GetParentURL(activeLinksURL);
+
+    container.object.parentNode.querySelectorAll('a[href="' + URL + '"], a[href="' + activeLinksURL + '"], a[href="' + activeLinksParentURL + '"]').forEach(item => {
         item.classList.add("active");
     });
 
@@ -59,7 +67,7 @@ function LoadPageAsync(URL, container)
                 anix.Init(container.object.querySelectorAll('.anix'));
             }
 
-            IsAsyncPageLoading = false;
+            isAsyncPageLoading = false;
         })
         .catch(function(err) {  
             alert('Failed to fetch page: ', err);  
@@ -266,20 +274,22 @@ document.addEventListener("DOMContentLoaded", function(event)
     document.addEventListener('input', function (e) {
         if(e.target.closest('.bot-users .search-bar input')) {
             var searchInput = document.querySelector('.bot-users .search-bar input');
+
+            var searchTrimValue = searchInput.value.trim();
             
             if(searchInput.value.length > 40)
             {
                 searchInput.value = searchInput.value.slice(0, 40);
             }
 
-            if(searchInput.value != botUsersSearchQuery)
+            if(searchTrimValue != botUsersSearchQuery)
             {
-                botUsersSearchQuery = searchInput.value;
+                botUsersSearchQuery = searchTrimValue;
                 botUsersSearchQueryIsNew = true;
             }
 
-            document.querySelector('.bot-users .search-bar .cancel-search').disabled = searchInput.value == '';
-            document.querySelector('.bot-users .search-bar .search').disabled =  searchInput.value != '';
+            document.querySelector('.bot-users .search-bar .cancel-search').disabled = searchTrimValue == '';
+            document.querySelector('.bot-users .search-bar .search').disabled =  searchTrimValue != '';
         }
     });
 
@@ -485,7 +495,16 @@ setInterval(function() {
                             var logDiv = document.createElement("div");
                             logDiv.className = 'log';
                             logDiv.innerHTML = '<p><b>ID: </b>' + log.ID;
-                            logDiv.innerHTML += '<p><b>ID пользователя (Telegram): </b>' + log.ChatID;
+
+                            if(log.UserURL != null)
+                            {
+                                logDiv.innerHTML += '<p><b>ID пользователя (Telegram): </b><a href="' + log.UserURL + '" class="async">' + log.ChatID + '</a>';
+                            }
+                            else
+                            {
+                                logDiv.innerHTML += '<p><b>ID пользователя (Telegram): </b>' + log.ChatID;
+                            }
+                            
                             logDiv.innerHTML += '<p><b>Дата: </b>' + log.Date;
                             logDiv.innerHTML += '<p><b>Код запроса: </b><span class="code">' + log.RequestCode + '</span>';
                             logDiv.innerHTML += '<p><b>Код ответа: </b><span class="code">' + log.ResponseCode + '</span>';
@@ -537,34 +556,38 @@ setInterval(function() {
                 if(response.checksum != lastLogsChecksum)
                 {
                     var logsWrapper = document.querySelector('.app-logs');
-                    var logs = logsWrapper.querySelector('.log-raw');
-                    var logsFab = logsWrapper.querySelector('.clear-logs');
-                    
-                    logs.innerHTML = response.raw;
-                    
-                    if(response.raw == '')
-                    {
-                        logsWrapper.querySelector('.empty').classList.remove('hidden');
-                        logsFab.disabled = true;
-                    }
-                    else
-                    {
-                        logsWrapper.querySelector('.empty').classList.add('hidden');
-                        logsFab.disabled = false;
-                    }
 
-                    setTimeout(function()
+                    if(logsWrapper != null)
                     {
-                        if(logs.classList.contains('faded'))
+                        var logs = logsWrapper.querySelector('.log-raw');
+                        var logsFab = logsWrapper.querySelector('.clear-logs');
+                        
+                        logs.innerHTML = response.raw;
+                        
+                        if(response.raw == '')
                         {
-                            logs.classList.remove('faded');
-                            logsWrapper.querySelector('.loading').classList.add('hidden');
+                            logsWrapper.querySelector('.empty').classList.remove('hidden');
+                            logsFab.disabled = true;
                         }
-                        var objDiv = document.querySelector('.page-content-wrapper');
-                        objDiv.scrollTo(0, objDiv.scrollHeight);
-                    }, 10);
+                        else
+                        {
+                            logsWrapper.querySelector('.empty').classList.add('hidden');
+                            logsFab.disabled = false;
+                        }
+    
+                        setTimeout(function()
+                        {
+                            if(logs.classList.contains('faded'))
+                            {
+                                logs.classList.remove('faded');
+                                logsWrapper.querySelector('.loading').classList.add('hidden');
+                            }
+                            var objDiv = document.querySelector('.page-content-wrapper');
+                            objDiv.scrollTo(0, objDiv.scrollHeight);
+                        }, 10);
 
-                    lastLogsChecksum = response.checksum;
+                        lastLogsChecksum = response.checksum;
+                    }
                 }
             }
         })

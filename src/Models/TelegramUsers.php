@@ -58,8 +58,9 @@ class TelegramUsers
     public function SearchUsers(string $Query, int $Limit = 100, int $PageLimit = 30): array
     {
         $Query = $this->Database->EscapeString($Query);
+        $QueryAlt = str_replace('@', '', $Query);
 
-        $SearchResults = $this->Database->FetchQuery("SELECT * FROM $this->Table WHERE ID = '$Query' OR ChatID LIKE '%$Query%' OR UserName LIKE '%$Query%' OR FullName LIKE '%$Query%' OR Nav = '$Query' OR LastMediaGroup = '$Query' ORDER BY ID ASC LIMIT 100", true, TelegramUser::class);
+        $SearchResults = $this->Database->FetchQuery("SELECT * FROM $this->Table WHERE ID = '$Query' OR ChatID LIKE '%$Query%' OR UserName LIKE '%$QueryAlt%' OR FullName LIKE '%$Query%' OR Nav = '$Query' OR LastMediaGroup = '$Query' ORDER BY ID ASC LIMIT 100", true, TelegramUser::class);
         foreach($SearchResults as &$SearchResult)
         {
             if($SearchResult instanceof TelegramUser)

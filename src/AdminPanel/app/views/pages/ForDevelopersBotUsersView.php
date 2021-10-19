@@ -31,7 +31,12 @@
         <tr <?=$User->ID == $this->Data['Highlight'] ? 'class="highlight"' : ''?>>
             <th scope="row"><?=$User->ID ?? 'null'?></th>
             <td><?=$User->ChatID ?? 'null'?></td>
-            <td><?=$User->UserName ?? 'null'?></td>
+            <?php if($User->UserName != $User->ChatID) { ?>
+            <td><a href="https://t.me/<?=$User->UserName?>" target="_blank">@<?=$User->UserName ?? 'null'?></a></td>
+            <?php } else { ?>
+            <td class="no-username"><?=$User->UserName ?? 'null'?></td>
+            <?php } ?>
+            
             <td><?=$User->FullName ?? 'null'?></td>
             <td><?=$User->Nav ?? 'null'?></td>
             <td><pre><code class="language-javascript"><?=$User->Cache ? json_encode($User->Cache, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE) : 'null'?></code></pre></td>

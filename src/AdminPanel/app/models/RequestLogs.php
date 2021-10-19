@@ -8,7 +8,7 @@ namespace WeRtOG\BottoGram\AdminPanel;
 
 use WeRtOG\BottoGram\DatabaseManager\Database;
 
-class Log
+class RequestLogs
 {
     protected Database $Database;
 
@@ -22,17 +22,6 @@ class Log
 
     public function GetLogs(): array
     {
-        $Result = [];
-        $QueryResult = $this->Database->FetchQuery("SELECT * FROM $this->Table ORDER BY ID DESC LIMIT 20", true);
-
-        if($QueryResult != null)
-        {
-            foreach($QueryResult as $Item)
-            {
-                $Result[] = $Item;
-            }
-        }
-
-        return $Result;
+        return $this->Database->FetchQuery("SELECT bottogram_log.*, bottogram_users.ID as UserID FROM bottogram_log JOIN bottogram_users ON bottogram_log.ChatID = bottogram_users.ChatID ORDER BY ID DESC LIMIT 20", true, RequestLog::class) ?? [];
     }
 }

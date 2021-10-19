@@ -121,6 +121,15 @@ html.dark-theme .cabinet .sidebar-wrapper .list-group-item.active:hover {
     margin: 10px;
     box-sizing: border-box;
 }
+.cabinet .request-logs .log a {
+    text-decoration: none;
+}
+html.white-theme .cabinet .request-logs .log a {
+    color: var(--ui-accent);
+}
+html.dark-theme .cabinet .request-logs .log a {
+    color: white;
+}
 .cabinet .request-logs .log pre {
     border-radius: 5px;
 }
@@ -209,7 +218,6 @@ html.white-theme .cabinet .theme-switch .theme-wrapper.active .theme {
 html.dark-theme .cabinet .theme-switch .theme-wrapper.active .theme {
     color: white;
 }
-
 .cabinet .theme-switch .theme {
     min-width: 64px;
     width: 64px;
@@ -225,13 +233,11 @@ html.dark-theme .cabinet .theme-switch .theme-wrapper.active .theme {
     transition: all 0.1s ease;
     transform: scale(0.98);
 }
-
 .cabinet .theme-switch .theme i {
     transition: all 0.3s ease;
     transform-origin: center;
     transform: rotate(1deg);
 }
-
 .cabinet .theme-switch .theme-wrapper.inactive:hover .theme {
     opacity: 1;
     transform: scale(1);
@@ -242,11 +248,9 @@ html.dark-theme .cabinet .theme-switch .theme-wrapper.active .theme {
 .cabinet .theme-switch .theme-wrapper.inactive.dark:hover .theme i { 
     transform: rotate(-5deg);
 }
-
 html.white-theme .cabinet .theme-switch .theme-wrapper.inactive.dark:hover .theme {
     color: var(--ui-accent);
 }
-
 .cabinet .theme-switch .theme-wrapper p {
     width: 100%;
     margin: 0;
@@ -309,11 +313,9 @@ html.white-theme .cabinet .theme-switch .theme-wrapper.inactive.dark:hover .them
     transition: all 0.1s ease;
     border: 2px solid transparent;
 }
-
 .cabinet .smart-list-group .smart-list-item :disabled {
     opacity: .2;
 }
-
 html.white-theme .cabinet .smart-list-group .smart-list-item {
     background-color: rgba(0,0,0,.08);
 }
@@ -321,15 +323,12 @@ html.white-theme .cabinet .smart-list-group .smart-list-item {
 html.white-theme .cabinet .smart-list-group .smart-list-item:hover {
     border-color: rgba(0,0,0,.05);
 }
-
 html.dark-theme .cabinet .smart-list-group .smart-list-item {
     background-color: rgba(255,255,255,.02);
 }
-
 html.dark-theme .cabinet .smart-list-group .smart-list-item:hover {
     border-color: rgba(255,255,255,.05);
 }
-
 .cabinet .smart-list-fab {
     position: fixed;
     right: 40px;
@@ -343,21 +342,17 @@ html.dark-theme .cabinet .smart-list-group .smart-list-item:hover {
     color: white;
     transition: all 0.3s ease;
 }
-
 .cabinet .smart-list-fab.fab-danger {
     background-color: var(--bs-danger);
 }
-
 .cabinet .smart-list-fab:disabled {
     cursor: not-allowed;
     opacity: .2;
     filter: saturate(0);
 }
-
 .cabinet .smart-list-fab:hover {
     transform: scale(1.1);
 }
-
 .cabinet .smart-list-group .smart-list-item .title {
     margin: 0;
     font-size: 18px;
@@ -587,6 +582,18 @@ html .cabinet .settings-page .table thead {
     margin: 0;
     z-index: 2;
 }
+html .cabinet .settings-page .table a {
+    text-decoration: none;
+}
+html.dark-theme .cabinet .settings-page .table a {
+    color: rgba(255, 255, 255, 1);
+}
+html.white-theme .cabinet .settings-page .table a {
+    color: var(--ui-accent);
+}
+html .cabinet .settings-page .table td.no-username {
+    opacity: .5;
+}
 html.dark-theme .cabinet .settings-page .table thead {
     background-color: #111;
 }
@@ -594,10 +601,10 @@ html.white-theme .cabinet .settings-page .table thead {
     background-color: rgb(235, 235, 235);
 }
 html.white-theme .cabinet .settings-page .table tr.highlight {
-    animation: highlight-white-theme 800ms 0.5s 2 both;
+    animation: highlight-white-theme 2000ms 0.5s 1 both;
 }
 html.dark-theme .cabinet .settings-page .table tr.highlight {
-    animation: highlight-dark-theme 800ms 0.5s 2 both;
+    animation: highlight-dark-theme 2000ms 0.5s 1 both;
 }
 html.dark-theme .cabinet .settings-page .nav {
     background: rgba(0, 0, 0, 0.3);
@@ -608,14 +615,12 @@ html.white-theme .cabinet .settings-page .nav {
 html .cabinet .settings-page.fordevelopers-page {
     min-height: 100%;
 }
-
 html .cabinet .settings-page .nav {
     flex-wrap: nowrap;
 }
 html .cabinet .settings-page .nav .nav-item {
     width: 100%;
 }
-
 html .cabinet .settings-page .app-logs .empty, html .cabinet .settings-page .app-logs .loading, .cabinet .request-logs .loading  {
     position: absolute;
     top: 0;
@@ -628,36 +633,28 @@ html .cabinet .settings-page .app-logs .empty, html .cabinet .settings-page .app
     justify-content: center;
     align-items: center;
 }
-
 html .cabinet .bot-users table thead tr, html .cabinet .bot-users table thead th {
     border: none;
 }
-
 html .cabinet .bot-users table th, html .cabinet .bot-users table td {
     text-align: center;
 }
-
 html .cabinet .bot-users pre {
     border-radius: 5px;
     margin: 0;
 }
-
 html.dark-theme .cabinet .bot-users pre {
     background-color: rgba(255,255,255,.05);
 }
-
 html .cabinet .settings-page .app-logs .empty {
     opacity: .3;
 }
-
 html .cabinet .settings-page .app-logs .hidden {
     display: none;
 }
-
 html .cabinet .version-info p {
     margin: 0px;
 }
-
 .modal-backdrop {
     backdrop-filter: blur(10px);
 }
@@ -796,7 +793,6 @@ html.white-theme .apexcharts-xaxistooltip::after {
 html.white-theme .apexcharts-xaxistooltip::before {
     border-bottom-color: rgba(0,0,0,.1);
 }
-
 .bot-info-async {
     width: calc(100% - 40px);
     margin: 20px;
@@ -805,7 +801,6 @@ html.white-theme .apexcharts-xaxistooltip::before {
     position: relative;
     overflow: hidden;
 }
-
 html.dark-theme .bot-info-async {
     background-color: rgba(255,255,255,.02);
 }
@@ -828,7 +823,6 @@ html.dark-theme .bot-info-async::before {
 .bot-info-async.loading::before {
     display: block;
 }
-
 .token-change-form .form-group {
     display: flex;
 }
@@ -836,24 +830,24 @@ html.dark-theme .bot-info-async::before {
     width: 150px;
     margin-left: 10px;
 }
-
 .bot-info {
     transition: all 0.3s ease;
 }
-
 .bot-info.disabled {
     opacity: .4;
 }
-
 .bot-info p {
     margin: 0;
 }
-
 .bot-info a {
     text-decoration: none;
+}
+html.white-theme .bot-info a {
     color: var(--ui-accent);
 }
-
+html.dark-theme .bot-info a {
+    color: white;
+}
 .webhook-input-wrapper {
     transition: all 0.3s ease;
 }
@@ -861,38 +855,31 @@ html.dark-theme .bot-info-async::before {
 .webhook-input-wrapper.disabled {
     opacity: .3;
 }
-
 .copy-to-buffer {
     box-shadow: none !important;
 }
 .copy-to-buffer i {
     margin-right: 5px;
 }
-
-
 html.dark-theme input:-webkit-autofill, html.dark-theme input:-webkit-autofill:hover, html.dark-theme input:-webkit-autofill:focus, html.dark-theme textarea:-webkit-autofill, html.dark-theme textarea:-webkit-autofill:hover, html.dark-theme textarea:-webkit-autofill:focus, html.dark-theme select:-webkit-autofill, html.dark-theme select:-webkit-autofill:hover, html.dark-theme select:-webkit-autofill:focus {
     -webkit-text-fill-color: white;
     box-shadow: 0 0 0px 1000px #111 inset !important;
     transition: background-color 5000s ease-in-out 0s;
     border-color: #222 !important;
 }
-
 .pagination {
     width: fit-content;
     margin: auto;
     border-radius: 10px;
     padding: 10px;
 }
-
 html.white-theme .pagination {
     background-color: white;
     box-shadow: 0px 4px 10px 0px rgb(0 0 0 / 10%);
 }
-
 html.dark-theme .pagination {
     background-color: rgba(255,255,255,.03);
 }
-
 .page-item .page-link {
     border: none;
     border-radius: 5px;
@@ -900,34 +887,27 @@ html.dark-theme .pagination {
     box-sizing: border-box;
     box-shadow: none !important;
 }
-
 html.white-theme .page-item .page-link {
     color: var(--bs-blue);
 }
-
 html.dark-theme .page-item .page-link {
     background-color: rgba(255,255,255,.05);
     color: rgba(255, 255, 255, .5);
 }
-
 html.dark-theme .page-item .page-link:hover {
     background-color: rgba(255,255,255,.1);
 }
-
 html.dark-theme .page-item .page-link:active {
     background-color: rgba(255,255,255,.07);
 }
-
 .page-item.disabled .page-link {
     color: #333 !important;
 }
-
 html.white-theme .page-item.active .page-link {
     color: white !important;
     background-color: var(--ui-accent) !important;
     border-color: var(--ui-accent) !important;
 }
-
 html.dark-theme .page-item.active .page-link {
     color: white !important;
     background-color: rgba(255,255,255,.2) !important;
@@ -956,4 +936,3 @@ html.dark-theme .page-item.active .page-link {
         background-color: rgba(255,255,255,.0);
     }
 }
-  

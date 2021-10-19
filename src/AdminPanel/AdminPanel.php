@@ -13,7 +13,7 @@ use Exception;
 use WeRtOG\BottoGram\AdminPanel\AccessControl;
 use WeRtOG\BottoGram\AdminPanel\AdminUsers;
 use WeRtOG\BottoGram\AdminPanel\Analytics;
-use WeRtOG\BottoGram\AdminPanel\Log;
+use WeRtOG\BottoGram\AdminPanel\RequestLogs;
 use WeRtOG\BottoGram\AdminPanel\MVC\IndexController;
 use WeRtOG\BottoGram\AdminPanel\SidebarCustomItems;
 use WeRtOG\BottoGram\BottoConfig;
@@ -32,7 +32,7 @@ class AdminPanel
     public Database $Database;
     public AccessControl $AccessControl;
     public Analytics $Analytics;
-    public Log $Log;
+    public RequestLogs $RequestLogs;
     public AdminUsers $Users;
     public TelegramUsers $TelegramUsers;
     public ?AdminUser $CurrentUser;
@@ -55,7 +55,7 @@ class AdminPanel
         $this->Database = DatabaseManager::Connect($Config->DatabaseConnection);
         $this->AccessControl = new AccessControl($this->Database, $Config->SessionUser);
         $this->Analytics = new Analytics($this->Database);
-        $this->Log = new Log($this->Database);
+        $this->RequestLogs = new RequestLogs($this->Database);
         $this->Users = new AdminUsers($this->Database);
         $this->TelegramUsers = new TelegramUsers($this->Database);
 

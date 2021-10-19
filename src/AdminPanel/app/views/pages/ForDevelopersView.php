@@ -11,7 +11,7 @@
         </li>
     </ul>
     
-    <div class="sub-page p-4 container">
+    <div class="sub-page">
         <?php 
             $SubPage = $this->Data['SubPage'] ?? null;
 

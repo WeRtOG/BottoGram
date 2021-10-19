@@ -55,6 +55,22 @@ class TelegramUsers
         return $DatabaseResult['Count'] ?? 0;
     }
 
+    public function SearchUsers(string $Query, int $Limit = 100, int $PageLimit = 30): array
+    {
+        $Query = $this->Database->EscapeString($Query);
+
+        $SearchResults = $this->Database->FetchQuery("SELECT * FROM $this->Table WHERE ID = '$Query' OR ChatID LIKE '%$Query%' OR UserName LIKE '%$Query%' OR FullName LIKE '%$Query%' OR Nav = '$Query' OR LastMediaGroup = '$Query' ORDER BY ID ASC LIMIT 100", true, TelegramUser::class);
+        foreach($SearchResults as &$SearchResult)
+        {
+            if($SearchResult instanceof TelegramUser)
+            {
+                $SearchResult->SearchResultPage = ceil($SearchResult->ID / $PageLimit);
+            }
+        }
+
+        return $SearchResults ?? [];
+    }
+
     public function RegisterUserIfNotExists(string $ChatID, ?string $UserName, ?string $FullName): TelegramUser
     {
         $User = $this->GetUser($ChatID);

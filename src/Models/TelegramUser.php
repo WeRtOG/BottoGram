@@ -21,6 +21,8 @@ class TelegramUser extends DatabaseTableItemModel
     public bool $HasNewMediaGroup = false;
     public string $RegistrationDate;
 
+    public ?int $SearchResultPage = null;
+
     private $NavigationChangeAction;
 
     public function __construct(array $Parameters = [])

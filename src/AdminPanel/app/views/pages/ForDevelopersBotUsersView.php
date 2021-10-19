@@ -1,6 +1,20 @@
 <section class="bot-users">
+    <div class="search-bar">
+        <div class="input-wrapper">
+            <input type="text" placeholder="Поиск" />
+            <button class="search">
+                <i class="bi bi-search"></i>
+            </button>
+            <button class="cancel-search" disabled>
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+    </div>
+    <div class="search-results faded hidden">
+        <div class="items"></div>
+    </div>
     <?php if(count($this->Data['Users']) > 0) { ?>
-    <table class="table">
+    <table class="table search">
         <thead>
             <tr>
                 <th scope="col">ID</th>
@@ -14,7 +28,7 @@
             </tr>
         </thead>
         <?php foreach($this->Data['Users'] as $User) { ?>
-        <tr>
+        <tr <?=$User->ID == $this->Data['Highlight'] ? 'class="highlight"' : ''?>>
             <th scope="row"><?=$User->ID ?? 'null'?></th>
             <td><?=$User->ChatID ?? 'null'?></td>
             <td><?=$User->UserName ?? 'null'?></td>
@@ -27,7 +41,7 @@
         <?php } ?>
     </table>
     <?php } else { ?>
-    <p>Нет данных.</p>
+    <p class="p-4">Нет данных.</p>
     <?php } ?>
 </section>
 <?php if($this->Data['PageCount'] > 1) { ?>

@@ -409,6 +409,196 @@ html .cabinet .settings-page .nav {
     margin: 0;
     z-index: 2;
 }
+html .cabinet .settings-page .search-bar {
+    width: 100%;
+    position: sticky;
+    top: 80px;
+    padding: 30px;
+    margin: 0;
+    z-index: 2;
+    height: 80px;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 3;
+    backdrop-filter: blur(50px);
+}
+html.dark-theme .cabinet .settings-page .search-bar {
+    background: rgba(0, 0, 0, 0.2);
+}
+html.white-theme .cabinet .settings-page .search-bar {
+    background: rgba(245,245,245, 0.7);
+}
+html .cabinet .settings-page .search-bar .input-wrapper {
+    width: 100%;
+    max-width: 500px;
+    position: relative;
+    border-radius: 5px;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+html .cabinet .settings-page .search-bar .input-wrapper input {
+    width: 100%;
+    text-align: center;
+    border-radius: 5px;
+    border: none;
+    padding: 7px;
+    box-sizing: border-box;
+    outline: none;
+}
+html.dark-theme .cabinet .settings-page .search-bar .input-wrapper input {
+    background-color: rgba(255,255,255,.05);
+    color: rgba(255, 255, 255, .7);
+}
+html.white-theme .cabinet .settings-page .search-bar .input-wrapper input {
+    background-color: rgba(0,0,0,.05);
+    color: black;
+}
+html .cabinet .settings-page .search-bar .input-wrapper input::-webkit-input-placeholder {
+    text-align: center;
+    opacity: .5;
+}
+html .cabinet .settings-page .search-bar .input-wrapper button {
+    position: absolute;
+    right: 0;
+    top: 0;
+    border: none;
+    height: 100%;
+    width: 50px;
+    background-color: transparent;
+    z-index: 3;
+    outline: none;
+    transition: all 0.2s ease;
+    cursor: text;
+}
+html.dark-theme .cabinet .settings-page .search-bar .input-wrapper button.search {
+    color: rgba(255, 255, 255, 0.1);
+}
+html.white-theme .cabinet .settings-page .search-bar .input-wrapper button.search {
+    color: rgba(0,0,0, 0.2);
+}
+html.dark-theme .cabinet .settings-page .search-bar .input-wrapper button.cancel-search {
+    color: rgba(255, 255, 255, 0.4);
+}
+html.white-theme .cabinet .settings-page .search-bar .input-wrapper button.cancel-search {
+    color: rgba(0,0,0, 0.5);
+}
+html .cabinet .settings-page .search-bar .input-wrapper button.cancel-search {
+    cursor: pointer;
+    font-size: 24px;
+}
+html .cabinet .settings-page .search-bar .input-wrapper button.cancel-search:hover {
+    color: var(--bs-danger);
+}
+html .cabinet .settings-page .search-bar .input-wrapper button:disabled {
+    transform: translateX(50px);
+    opacity: 0;
+}
+html .cabinet .settings-page .search-results {
+    position: fixed;
+    left: 235px;
+    right: 0;
+    margin: auto;
+    top: 160px;
+    z-index: 10;
+    width: 100%;
+    min-height: 80px;
+    max-width: 500px;
+    max-height: 500px;
+    border-radius: 5px;
+    backdrop-filter: blur(30px);
+    box-shadow: 0px 10px 20px 0px rgb(0 0 0 / 20%);
+    padding: 20px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    overflow-x: hidden;
+    transition: all 0.2s ease;
+}
+html .cabinet .settings-page .search-results.faded {
+    transform: translateY(-10px);
+    opacity: 0;
+}
+html .cabinet .settings-page .search-results.hidden {
+    display: none;
+}
+html.dark-theme .cabinet .settings-page .search-results {
+    background-color: rgba(24,24,24,.5);
+}
+html.white-theme .cabinet .settings-page .search-results {
+    background-color: rgba(250,250,250,.5);
+}
+html .cabinet .settings-page .search-results .items {
+    width: 100%;
+    box-sizing: border-box;
+}
+html .cabinet .settings-page .search-results .search-result {
+    width: calc(100% - 10px);
+    margin: 5px;
+    border-radius: 5px;
+    box-sizing: border-box;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+html.dark-theme .cabinet .settings-page .search-results .search-result {
+    background-color: rgba(255,255,255,.05);
+}
+html.white-theme .cabinet .settings-page .search-results .search-result {
+    background-color: rgba(0,0,0,.05);
+}
+html.dark-theme .cabinet .settings-page .search-results .search-result:hover {
+    background-color: rgba(255,255,255,.08)
+}
+html.white-theme .cabinet .settings-page .search-results .search-result:hover {
+    background-color: rgba(0,0,0,.08)
+}
+html .cabinet .settings-page .search-results a {
+    text-decoration: none;
+    color: inherit;
+}
+html .cabinet .settings-page .search-results .search-result h3 {
+    font-size: 18px;
+    margin: auto;
+}
+html .cabinet .settings-page .search-results .search-result p {
+    margin: auto;
+    font-size: 15px;
+}
+html .cabinet .settings-page .search-results.no-data::after {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    content: 'По Вашему запросу ничего не найдено.';
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: .5;
+}
+html .cabinet .settings-page .table.search {
+    opacity: 1;
+}
+html .cabinet .settings-page .table thead {
+    width: 100%;
+    position: sticky;
+    top: 160px;
+    padding: 15px;
+    margin: 0;
+    z-index: 2;
+}
+html.dark-theme .cabinet .settings-page .table thead {
+    background-color: #111;
+}
+html.white-theme .cabinet .settings-page .table thead {
+    background-color: rgb(235, 235, 235);
+}
+html.white-theme .cabinet .settings-page .table tr.highlight {
+    animation: highlight-white-theme 800ms 0.5s 2 both;
+}
+html.dark-theme .cabinet .settings-page .table tr.highlight {
+    animation: highlight-dark-theme 800ms 0.5s 2 both;
+}
 html.dark-theme .cabinet .settings-page .nav {
     background: rgba(0, 0, 0, 0.3);
 }
@@ -417,6 +607,13 @@ html.white-theme .cabinet .settings-page .nav {
 }
 html .cabinet .settings-page.fordevelopers-page {
     min-height: 100%;
+}
+
+html .cabinet .settings-page .nav {
+    flex-wrap: nowrap;
+}
+html .cabinet .settings-page .nav .nav-item {
+    width: 100%;
 }
 
 html .cabinet .settings-page .app-logs .empty, html .cabinet .settings-page .app-logs .loading, .cabinet .request-logs .loading  {
@@ -432,8 +629,8 @@ html .cabinet .settings-page .app-logs .empty, html .cabinet .settings-page .app
     align-items: center;
 }
 
-html .cabinet .bot-users table thead {
-    border-bottom-width: 2px;
+html .cabinet .bot-users table thead tr, html .cabinet .bot-users table thead th {
+    border: none;
 }
 
 html .cabinet .bot-users table th, html .cabinet .bot-users table td {
@@ -693,13 +890,13 @@ html.white-theme .pagination {
 }
 
 html.dark-theme .pagination {
-    background-color: rgba(255,255,255,.05);
+    background-color: rgba(255,255,255,.03);
 }
 
 .page-item .page-link {
     border: none;
     border-radius: 5px;
-    margin: 2px;
+    margin: 5px;
     box-sizing: border-box;
     box-shadow: none !important;
 }
@@ -725,8 +922,38 @@ html.dark-theme .page-item .page-link:active {
     color: #333 !important;
 }
 
-.page-item.active .page-link {
+html.white-theme .page-item.active .page-link {
     color: white !important;
     background-color: var(--ui-accent) !important;
     border-color: var(--ui-accent) !important;
 }
+
+html.dark-theme .page-item.active .page-link {
+    color: white !important;
+    background-color: rgba(255,255,255,.2) !important;
+    border-color: var(--ui-accent) !important;
+}
+
+@keyframes highlight-white-theme {
+    0% {
+        background-color: rgba(0,0,0,0);
+    }
+    50% {
+        background-color: rgba(0,0,0,.1);
+    }
+    100% {
+        background-color: rgba(0,0,0,.0);
+    }
+}
+@keyframes highlight-dark-theme {
+    0% {
+        background-color: rgba(255,255,255,0);
+    }
+    50% {
+        background-color: rgba(255,255,255,.05);
+    }
+    100% {
+        background-color: rgba(255,255,255,.0);
+    }
+}
+  

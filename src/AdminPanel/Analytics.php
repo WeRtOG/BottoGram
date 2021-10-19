@@ -126,10 +126,10 @@ class Analytics
         ];
 
         $Result = $this->Database->FetchQuery(
-            "SELECT bu.RegistrationDate, COUNT(DISTINCT (bu.ChatID)) AS Count
+            "SELECT bu.RegistrationDate, COUNT(DISTINCT(bu.ChatID)) AS Count
             FROM $this->BotUsersTable AS bu
-            GROUP BY bu.RegistrationDate
-            ORDER BY bu.RegistrationDate DESC LIMIT 7"
+            GROUP BY DATE(bu.RegistrationDate)
+            ORDER BY DATE(bu.RegistrationDate) DESC LIMIT 7"
             , true
         );
         if($Result != null)

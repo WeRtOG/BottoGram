@@ -111,6 +111,8 @@ class ForDevelopersController extends CabinetPageController
         $Page = (int)($_GET['page'] ?? 1);
         if($Page <= 0) $Page = 1;
 
+        $Highlight = (int)($_GET['highlight'] ?? 0);
+
         $PageCount = $this->AdminPanel->TelegramUsers->GetAllUsersPagesCount(30);
         $Users = $this->AdminPanel->TelegramUsers->GetAllUsers($Page, 30);
 
@@ -135,10 +137,38 @@ class ForDevelopersController extends CabinetPageController
                 'PageCount' => $PageCount,
                 'PaginationLeft' => $PaginationLeft,
                 'PaginationRight' => $PaginationRight,
+                'Highlight' => $Highlight,
                 'Users' => $Users,
                 'SubPage' => BOTTOGRAM_MVC_VIEWS . '/pages/ForDevelopersBotUsersView.php'
             ]
         );
+    }
+
+    #[Action]
+    public function SearchBotUsers(): JsonView
+    {
+        $Query = (string)($_GET['query'] ?? null);
+        
+        if(!empty($Query))
+        {
+            $Results = $this->AdminPanel->TelegramUsers->SearchUsers($Query, 100, 30);
+        
+            return new JsonView([
+                'ok' => true,
+                'code' => 200,
+                'checksum' => md5(json_encode($Results)),
+                'results' => $Results
+            ]);
+        }
+        else
+        {
+            return new JsonView([
+                'ok' => true,
+                'code' => 400,
+                'error' => 'Bad request: query field is empty.',
+                'error_ru' => 'Неверный запрос: поле query пустое.'
+            ], 400);
+        }
     }
 
     

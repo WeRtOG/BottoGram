@@ -18,6 +18,11 @@
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
 	<?php } ?>
 
+	<script>
+		const MVCRoot = "<?=$this->Root?>";
+		const UITheme = "<?=$this->GlobalData['DarkTheme'] ? 'dark' : 'white'?>";
+	</script>
+
 	<!-- Место для CSS -->
 	<?php
 		$this->LoadCSS(BOTTOGRAM_ADMIN_ASSETS . '/css/main.css', AdminPanel::GetBuiltInСomponentsPathIntOffset());
@@ -40,7 +45,6 @@
 	<!-- Место для скриптов -->
 	<?php
 		$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/js/main.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
-		$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/js/auth.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
 	?>
 
 	<!-- Bootstrap JS -->

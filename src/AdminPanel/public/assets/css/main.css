@@ -25,10 +25,10 @@
     --ui-accent: var(--bs-blue);
 }
 pre .token.attr-value, .token.char, .token.regex, .token.string, .token.variable {
-    color: var(--bs-teal);
+    color: var(--ui-accent-alt);
 }
 pre .token.boolean, .token.function, .token.number {
-    color: var(--bs-blue);
+    color: var(--ui-accent);
 }
 pre .token.entity, .token.operator, .token.url {
     color: var(--bs-dark);

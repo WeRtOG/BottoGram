@@ -98,42 +98,6 @@ function ChangeUITheme(theme) {
     });
 }
 
-function ChangeUIAccentColor(color) {
-    Cookies.set('ui-accent', color);
-    document.querySelector('html').style.setProperty('--ui-accent', color);
-
-    document.querySelectorAll('.cabinet .personalization .color-select .color').forEach(colorButton => {
-        var currentColor = window.getComputedStyle(colorButton).backgroundColor;
-
-        if(currentColor == color)
-        {
-            colorButton.classList.add('active');
-        }
-        else
-        {
-            colorButton.classList.remove('active');
-        }
-    });
-}
-
-var UIAccent = null;
-
-function LoadUIAccentColor() {
-    UIAccent = Cookies.get('ui-accent');
-
-    if(UIAccent == undefined || UIAccent == null)
-    {
-        UIAccent = getComputedStyle(document.querySelector('html'))?.getPropertyValue('--ui-accent');
-    }
-
-    document.querySelector('html').style.setProperty('--ui-accent', UIAccent);
-
-    if(document.querySelector('.cabinet .personalization .color-select'))
-    {
-        ShowActiveUIAccentColorInPersonalization();
-    }
-}
-
 function ShowActiveUIAccentColorInPersonalization() {
     document.querySelectorAll('.cabinet .personalization .color-select .color').forEach(colorButton => {
         var currentColor = window.getComputedStyle(colorButton).backgroundColor;
@@ -200,9 +164,7 @@ var botUsersSearchChecksum = '';
 var mousePressed = false;
 
 document.addEventListener("DOMContentLoaded", function(event)
-{
-    LoadUIAccentColor();
-    
+{    
     const defaultContainer = GenerateContainerObject('.cabinet .page-content-wrapper');
 
 	document.addEventListener('click', function (e)

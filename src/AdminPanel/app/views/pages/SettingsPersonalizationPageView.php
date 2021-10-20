@@ -22,8 +22,6 @@
         <div class="color pink"></div>
         <div class="color red"></div>
         <div class="color orange"></div>
-        <div class="color yellow"></div>
-        <div class="color green"></div>
         <div class="color teal"></div>
         <div class="color cyan"></div>
         <div class="color gray"></div>

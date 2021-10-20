@@ -35,7 +35,7 @@ class Update extends TelegramModel
         if($CallbackQuery != null)
             $this->Type = UpdateType::CallbackQuery;
 
-        if($this->Type == null)
+        if(!isset($this->Type))
             $this->Type = UpdateType::Unknown;
 
         

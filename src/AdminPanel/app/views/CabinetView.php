@@ -70,6 +70,7 @@
 		<?php
 			$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/js/lib/transition.min.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
 			$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/js/lib/anix.nova.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
+			$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/js/lib/tinycolor.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
 		?>
 
 		<!-- Место для скриптов -->

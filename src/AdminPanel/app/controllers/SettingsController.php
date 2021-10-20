@@ -285,10 +285,10 @@ class SettingsController extends CabinetPageController
             switch($Theme)
             {
                 case 'dark':
-                    setcookie('dark_theme', true, strtotime('+2000 days'), '/');
+                    setcookie('dark-theme', 1, strtotime('+2000 days'), '/');
                     return new JsonView(['ok' => true]);
                 case 'white':
-                    setcookie('dark_theme', false, strtotime('+2000 days'), '/');
+                    setcookie('dark-theme', 0, strtotime('+2000 days'), '/');
                     return new JsonView(['ok' => true]);
                 default:
                 return new JsonView([

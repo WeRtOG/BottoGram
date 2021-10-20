@@ -89,7 +89,7 @@ html.dark-theme .cabinet .sidebar-wrapper .list-group-item.active:hover {
 }
 .cabinet .dashboard h3 {
     text-align: center;
-    font-size: 32px;
+    font-size: 28px;
     margin-top: 40px;
     margin-bottom: 20px;
 }
@@ -100,6 +100,24 @@ html.dark-theme .cabinet .sidebar-wrapper .list-group-item.active:hover {
 .cabinet .dashboard .double-group {
     display: flex;
     justify-content: center;
+}
+.cabinet .dashboard .double-group .double-group-block {
+    width: 100%;
+    text-align: center;
+}
+.cabinet .dashboard .double-group .double-group-block.info {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 50px;
+    box-sizing: border-box;
+}
+.cabinet .dashboard .double-group .double-group-block.info p {
+    margin: 0;
+    font-size: 18px;
+}
+html.dark-theme .cabinet .dashboard .double-group .double-group-block.info p b {
+    color: white;
 }
 .cabinet .request-logs {
     box-sizing: border-box;
@@ -296,6 +314,42 @@ html.white-theme .cabinet .theme-switch .theme-wrapper.inactive.dark:hover .them
 .cabinet .theme-switch {
     display: flex;
     box-sizing: border-box;
+}
+.cabinet .personalization .color-select {
+    display: flex;
+    margin-top: 20px;
+    border-radius: 10px;
+    width: fit-content;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+.cabinet .personalization .color-select .color {
+    width: 40px;
+    height: 40px;
+    opacity: 1;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    opacity: .2;
+}
+
+.cabinet .personalization .color-select .color.blue { background: var(--bs-blue); }
+.cabinet .personalization .color-select .color.indigo { background: var(--bs-indigo); }
+.cabinet .personalization .color-select .color.purple { background: var(--bs-purple); }
+.cabinet .personalization .color-select .color.pink { background: var(--bs-pink); }
+.cabinet .personalization .color-select .color.red { background: var(--bs-red); }
+.cabinet .personalization .color-select .color.orange { background: var(--bs-orange); }
+.cabinet .personalization .color-select .color.yellow { background: var(--bs-yellow); }
+.cabinet .personalization .color-select .color.green { background: var(--bs-green); }
+.cabinet .personalization .color-select .color.teal { background: var(--bs-teal); }
+.cabinet .personalization .color-select .color.cyan { background: var(--bs-cyan); }
+.cabinet .personalization .color-select .color.gray { background: var(--bs-gray); }
+.cabinet .personalization .color-select .color.gray-dark { background: var(--bs-gray-dark); }
+
+.cabinet .personalization .color-select .color:hover {
+    opacity: 0.8;
+}
+.cabinet .personalization .color-select .color.active {
+    opacity: 1;
 }
 .cabinet .smart-list-group {
     padding: 10px;
@@ -652,9 +706,36 @@ html .cabinet .settings-page .app-logs .empty {
 html .cabinet .settings-page .app-logs .hidden {
     display: none;
 }
-html .cabinet .version-info p {
+html .cabinet .system-info p {
     margin: 0px;
 }
+html .cabinet .system-info-wrapper {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    position: absolute;
+    box-sizing: border-box;
+    left: 0;
+    top: 0;
+}
+
+html .cabinet .system-info-wrapper .system-info-icon {
+    font-size: 200px;
+    padding: 50px;
+    margin-right: 40px;
+    margin-left: 40px;
+    box-sizing: border-box;
+    opacity: .2;
+}
+
+html .cabinet .system-info-wrapper .system-info-icon img {
+    width: 100%;
+}
+
+html.dark-theme .cabinet .system-info-wrapper .system-info p b {
+    color: white;
+}
+
 .modal-backdrop {
     backdrop-filter: blur(10px);
 }
@@ -672,6 +753,11 @@ html.white-theme .modal-backdrop {
     transform: scale(0.8) translate(0, 10px) !important;
     transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
     opacity: 0;
+}
+html.dark-theme .modal .form-switch .form-check-input::after {
+    left: -1px;
+    top: -1px;
+    width: calc(100% + 2px);
 }
 .modal.show .modal-dialog {
     -webkit-transform: none !important;
@@ -699,7 +785,6 @@ html.white-theme .modal-backdrop {
 }
 html.dark-theme .modal-dialog .modal-content .modal-body input {
     border: 1px solid rgba(255,255,255,.05);
-    overflow: hidden;
 }
 .modal-dialog .modal-content .modal-footer {
     justify-content: center;

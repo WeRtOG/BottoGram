@@ -36,13 +36,13 @@ class RequestsController extends CabinetPageController
         {
             $LastChecksum = $_GET['checksum'] ?? null;
 
-            $RequestLogs = $this->AdminPanel->RequestLogs->GetLogs();
+            $RequestLogs = $this->AdminPanel->RequestLogs->GetLogs(BOTTOGRAM_ADMIN_PAGELIMIT);
 
             if($this->AdminPanel->CurrentUser->Login == 'admin')
             {
                 foreach($RequestLogs as &$RequestLog)
                 {
-                    $UserPage = ceil($RequestLog->UserID / 30);
+                    $UserPage = ceil($RequestLog->UserID / BOTTOGRAM_ADMIN_PAGELIMIT);
                     $RequestLog->UserURL = Route::GetRoot() . '/fordevelopers/botusers/?page=' . $UserPage. '&highlight=' . $RequestLog->UserID;
                 }
             }

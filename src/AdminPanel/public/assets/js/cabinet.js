@@ -84,6 +84,7 @@ function GenerateContainerObject(containerName) {
 
 function ChangeUITheme(theme) {
     if(UITheme == theme) return;
+
     fetch(MVCRoot + '/settings/switchTheme/?theme=' + theme)
     .then(async function(response) {
         await response.text();
@@ -95,6 +96,62 @@ function ChangeUITheme(theme) {
     .catch(function(err) {  
         alert('Failed to fetch page: ', err);  
     });
+}
+
+function ChangeUIAccentColor(color) {
+    Cookies.set('ui-accent', color);
+    document.querySelector('html').style.setProperty('--ui-accent', color);
+
+    document.querySelectorAll('.cabinet .personalization .color-select .color').forEach(colorButton => {
+        var currentColor = window.getComputedStyle(colorButton).backgroundColor;
+
+        if(currentColor == color)
+        {
+            colorButton.classList.add('active');
+        }
+        else
+        {
+            colorButton.classList.remove('active');
+        }
+    });
+}
+
+var UIAccent = null;
+
+function LoadUIAccentColor() {
+    UIAccent = Cookies.get('ui-accent');
+
+    if(UIAccent == undefined || UIAccent == null)
+    {
+        UIAccent = getComputedStyle(document.querySelector('html'))?.getPropertyValue('--ui-accent');
+    }
+
+    document.querySelector('html').style.setProperty('--ui-accent', UIAccent);
+
+    if(document.querySelector('.cabinet .personalization .color-select'))
+    {
+        ShowActiveUIAccentColorInPersonalization();
+    }
+}
+
+function ShowActiveUIAccentColorInPersonalization() {
+    document.querySelectorAll('.cabinet .personalization .color-select .color').forEach(colorButton => {
+        var currentColor = window.getComputedStyle(colorButton).backgroundColor;
+
+        if(currentColor == UIAccent)
+        {
+            colorButton.classList.add('active');
+        }
+        else
+        {
+            colorButton.classList.remove('active');
+        }
+    });
+
+    if(document.querySelector('.cabinet .personalization .color-select .color.active') == null)
+    {
+        document.querySelector('.cabinet .personalization .color-select .color:first-child').classList.add('active');
+    }
 }
 
 function ValidateForm(form)
@@ -140,8 +197,12 @@ var botUsersSearchQueryIsNew = false;
 var botUsersSearchBusy = false;
 var botUsersSearchChecksum = '';
 
+var mousePressed = false;
+
 document.addEventListener("DOMContentLoaded", function(event)
 {
+    LoadUIAccentColor();
+    
     const defaultContainer = GenerateContainerObject('.cabinet .page-content-wrapper');
 
 	document.addEventListener('click', function (e)
@@ -246,6 +307,14 @@ document.addEventListener("DOMContentLoaded", function(event)
             document.querySelector('.bot-users .search-bar input').focus();
         }
 
+        if(e.target.closest(".cabinet .personalization .color-select .color"))
+        {
+            var colorButton = e.target.closest(".cabinet .personalization .color-select .color");
+            var color = window.getComputedStyle(colorButton).backgroundColor;
+            
+            ChangeUIAccentColor(color);
+        }
+
         if(e.target.closest(".copy-to-buffer"))
         {
             var copyButton = e.target.closest(".copy-to-buffer");
@@ -270,6 +339,23 @@ document.addEventListener("DOMContentLoaded", function(event)
         }
 
 	});
+
+    document.addEventListener('mousedown', function(e) {
+        mousePressed = true;
+    });
+    document.addEventListener('mouseup', function(e) {
+        mousePressed = false;
+    });
+
+    document.addEventListener('mousemove', function(e) {
+        if(e.target.closest(".cabinet .personalization .color-select .color") && mousePressed)
+        {
+            var colorButton = e.target.closest(".cabinet .personalization .color-select .color");
+            var color = window.getComputedStyle(colorButton).backgroundColor;
+
+            ChangeUIAccentColor(color);
+        }
+    });
 
     document.addEventListener('input', function (e) {
         if(e.target.closest('.bot-users .search-bar input')) {
@@ -373,6 +459,11 @@ document.addEventListener("DOMContentRebuilded", function(event) {
         history.replaceState && history.replaceState(
             null, '', location.pathname + location.search.replace(/[\?&]highlight=[^&]+/, '').replace(/^&/, '?') + location.hash
         );
+    }
+
+    if(document.querySelector('.cabinet .personalization .color-select'))
+    {
+        ShowActiveUIAccentColorInPersonalization();
     }
 });
 

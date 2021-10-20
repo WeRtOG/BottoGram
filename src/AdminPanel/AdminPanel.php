@@ -10,12 +10,10 @@ require_once 'Constants.php';
 
 use Error;
 use Exception;
-use WeRtOG\BottoGram\AdminPanel\AccessControl;
-use WeRtOG\BottoGram\AdminPanel\AdminUsers;
-use WeRtOG\BottoGram\AdminPanel\Analytics;
-use WeRtOG\BottoGram\AdminPanel\RequestLogs;
-use WeRtOG\BottoGram\AdminPanel\MVC\IndexController;
-use WeRtOG\BottoGram\AdminPanel\SidebarCustomItems;
+use WeRtOG\BottoGram\AdminPanel\Models\AdminUser;
+use WeRtOG\BottoGram\AdminPanel\Models\AdminUsers;
+use WeRtOG\BottoGram\AdminPanel\Models\RequestLogs;
+use WeRtOG\BottoGram\AdminPanel\Models\SidebarCustomItems;
 use WeRtOG\BottoGram\BottoConfig;
 use WeRtOG\BottoGram\DatabaseManager\Database;
 use WeRtOG\BottoGram\DatabaseManager\DatabaseManager;
@@ -160,7 +158,7 @@ class AdminPanel
                 'AdminPanel' => $this,
             ], $CustomModels),
             GlobalData: [
-                'DarkTheme' => $_COOKIE['dark_theme'] ?? false,
+                'DarkTheme' => $_COOKIE['dark-theme'] ?? false,
                 'CurrentUser' => $this->CurrentUser,
                 'BottoConfig' => $this->Config,
                 'SidebarCustomItems' => $SidebarCustomItems

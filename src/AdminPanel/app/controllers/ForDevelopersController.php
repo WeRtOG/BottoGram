@@ -6,7 +6,7 @@
 */
 namespace WeRtOG\BottoGram\AdminPanel\MVC;
 
-use WeRtOG\BottoGram\AdminPanel\SystemInfo;
+use WeRtOG\BottoGram\AdminPanel\Models\SystemInfo;
 use WeRtOG\FoxyMVC\Attributes\Action;
 use WeRtOG\FoxyMVC\ControllerResponse\JsonView;
 use WeRtOG\FoxyMVC\ControllerResponse\Response;
@@ -113,8 +113,8 @@ class ForDevelopersController extends CabinetPageController
 
         $Highlight = (int)($_GET['highlight'] ?? 0);
 
-        $PageCount = $this->AdminPanel->TelegramUsers->GetAllUsersPagesCount(30);
-        $Users = $this->AdminPanel->TelegramUsers->GetAllUsers($Page, 30);
+        $PageCount = $this->AdminPanel->TelegramUsers->GetAllUsersPagesCount(BOTTOGRAM_ADMIN_PAGELIMIT);
+        $Users = $this->AdminPanel->TelegramUsers->GetAllUsers($Page, BOTTOGRAM_ADMIN_PAGELIMIT);
 
         $PaginationLeft = $Page - 5;
         if($PaginationLeft < 1) $PaginationLeft = 1;
@@ -151,7 +151,7 @@ class ForDevelopersController extends CabinetPageController
         
         if(!empty($Query))
         {
-            $Results = $this->AdminPanel->TelegramUsers->SearchUsers($Query, 100, 30);
+            $Results = $this->AdminPanel->TelegramUsers->SearchUsers($Query, BOTTOGRAM_ADMIN_SEARCHLIMIT, BOTTOGRAM_ADMIN_PAGELIMIT);
         
             return new JsonView([
                 'ok' => true,

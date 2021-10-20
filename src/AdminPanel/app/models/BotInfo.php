@@ -4,7 +4,7 @@
     WeRtOG
     BottoGram
 */
-namespace WeRtOG\BottoGram\AdminPanel;
+namespace WeRtOG\BottoGram\AdminPanel\Models;
 
 use WeRtOG\BottoGram\Telegram\Model\User;
 use WeRtOG\BottoGram\Telegram\Model\WebhookInfo;

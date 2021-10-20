@@ -1,5 +1,6 @@
-<div class="p-4 container">
-    <div class="version-info p-3">
+<div class="system-info-wrapper p-4 container">
+    <div class="system-info-icon"><i class="bi bi-activity"></i></div>
+    <div class="system-info p-3">
         <p><b>Операционная система: </b><?=$this->Data['SystemInfo']['OS']?></p>
         <br>
         <p><b>Версия PHP: </b><?=$this->Data['SystemInfo']['PHPVersion']?></p>

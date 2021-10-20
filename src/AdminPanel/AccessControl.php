@@ -6,6 +6,7 @@
 */
 namespace WeRtOG\BottoGram\AdminPanel;
 
+use WeRtOG\BottoGram\AdminPanel\Models\AdminUsers;
 use WeRtOG\BottoGram\DatabaseManager\Database;
 
 class AccessControl

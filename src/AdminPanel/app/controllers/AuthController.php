@@ -8,7 +8,6 @@ namespace WeRtOG\BottoGram\AdminPanel\MVC;
 
 use WeRtOG\FoxyMVC\Attributes\Action;
 use WeRtOG\FoxyMVC\Controller;
-use WeRtOG\FoxyMVC\ControllerResponse\Response;
 use WeRtOG\FoxyMVC\ControllerResponse\View;
 use WeRtOG\FoxyMVC\Route;
 
@@ -60,16 +59,5 @@ class AuthController extends Controller
     {
         $this->AdminPanel->AccessControl->DoLogout();
         Route::Navigate('auth');
-    }
-
-    #[Action(RequestMethod: ['GET'])]
-    public function GenerateToken(): Response
-    {
-        $Password = $_GET['password'] ?? null;
-
-        if($Password != null)
-            return new Response($this->AdminPanel->AccessControl->Users->MakeHash($Password));
-        else
-            return new Response('');
     }
 }

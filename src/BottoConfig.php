@@ -28,6 +28,7 @@ class BottoConfig
     public bool $AllowGroups = true;
     public bool $EnableTextLog = true;
     public bool $EnableExtendedLog = false;
+    public bool $UseMinifedAssetsInAdminPanel = true;
     public string $ConfigFile = '';
 
     public function __construct(array $Data)

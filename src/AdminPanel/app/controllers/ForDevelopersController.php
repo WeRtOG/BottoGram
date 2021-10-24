@@ -6,7 +6,11 @@
 */
 namespace WeRtOG\BottoGram\AdminPanel\MVC;
 
+use WeRtOG\BottoGram\AdminPanel\AdminPanel;
 use WeRtOG\BottoGram\AdminPanel\Models\SystemInfo;
+use WeRtOG\BottoGram\AdminPanel\Optimization\FrontendMinifer;
+use WeRtOG\BottoGram\AdminPanel\Optimization\MiniferMap;
+use WeRtOG\BottoGram\BottoConfig;
 use WeRtOG\FoxyMVC\Attributes\Action;
 use WeRtOG\FoxyMVC\ControllerResponse\JsonView;
 use WeRtOG\FoxyMVC\ControllerResponse\Response;
@@ -171,6 +175,48 @@ class ForDevelopersController extends CabinetPageController
         }
     }
 
+    #[Action]
+    public function Misc(): View
+    {
+        return new View(
+            ContentView: BOTTOGRAM_MVC_VIEWS . '/pages/ForDevelopersView.php',
+            PageTitle: 'Для разработчиков',
+            TemplateView: BOTTOGRAM_MVC_VIEWS . '/CabinetView.php',
+            Data: [
+                'SubPage' => BOTTOGRAM_MVC_VIEWS . '/pages/ForDevelopersMiscView.php'
+            ]
+        );
+    }
+
+    #[Action]
+    public function ReloadMinificationCache(): View
+    {
+        if(!$this->AdminPanel->CurrentUser->Login == 'admin')
+        {
+            Route::Navigate('');
+            exit();
+        }
+
+        AdminPanel::ReloadMinifedAssets();
+
+        return Route::Navigate('fordevelopers/misc');
+    }
+
+    #[Action(RequestMethod: 'POST')]
+    public function UpdateOptimizationSettings(): View
+    {
+        if(!$this->AdminPanel->CurrentUser->Login == 'admin')
+        {
+            Route::Navigate('');
+            exit();
+        }
+
+        $UseMinifedAssetsInAdminPanel = isset($_POST['BottoConfig_UseMinifedAssetsInAdminPanel']) ? $_POST['BottoConfig_UseMinifedAssetsInAdminPanel'] == 'on' : false;
+
+        BottoConfig::ChangeParameter('UseMinifedAssetsInAdminPanel', $UseMinifedAssetsInAdminPanel, $this->AdminPanel->Config->ConfigFile);
+
+        return Route::Navigate('fordevelopers/misc');
+    }
     
     #[Action]
     public function SystemInfo(): View

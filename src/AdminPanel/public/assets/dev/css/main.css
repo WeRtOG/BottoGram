@@ -24,6 +24,19 @@
 
     --ui-accent: var(--bs-blue);
 }
+
+html.unaviable {
+    display: none;
+}
+
+html.white-theme .dark-theme-only {
+    display: none;
+}
+
+html.dark-theme .white-theme-only {
+    display: none;
+}
+
 pre .token.attr-value, .token.char, .token.regex, .token.string, .token.variable {
     color: var(--ui-accent-alt);
 }

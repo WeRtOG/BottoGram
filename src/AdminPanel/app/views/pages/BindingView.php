@@ -1,3 +1,7 @@
+<?php
+    use WeRtOG\BottoGram\AdminPanel\AdminPanel;
+?>
+
 <div class="bot-binding m-4">
     <form class="token-change-form mb-5" action="<?=$this->Root?>/binding/changeBotToken" method="POST" autocomplete="off" onchange="ValidateForm(this)" oninput="ValidateForm(this)">
         <div class="mb-3">
@@ -34,3 +38,5 @@
     </form>
 
 </div>
+
+<?php AdminPanel::AsyncConnectJS($this, BOTTOGRAM_ADMIN_ASSETS . '/dev/js/page/BotBinding.js'); ?>

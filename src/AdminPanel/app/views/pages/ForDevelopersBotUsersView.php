@@ -1,3 +1,6 @@
+<?php
+    use WeRtOG\BottoGram\AdminPanel\AdminPanel;
+?>
 <section class="bot-users">
     <div class="search-bar">
         <div class="input-wrapper">
@@ -83,3 +86,5 @@
     </ul>
 </nav>
 <?php } ?>
+
+<?php AdminPanel::AsyncConnectJS($this, BOTTOGRAM_ADMIN_ASSETS . '/dev/js/page/BotUsers.js'); ?>

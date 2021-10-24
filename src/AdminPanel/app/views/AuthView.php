@@ -9,7 +9,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title><?=$this->PageTitle?></title>
 
-	<link rel="icon" type="image/x-icon" href="<?=$this->GenerateFilePublicPath(BOTTOGRAM_ADMIN_ASSETS . '/images/logo/icon.ico', AdminPanel::GetBuiltInСomponentsPathIntOffset())?>"/>
+	<link rel="icon" type="image/x-icon" href="<?=$this->GenerateFilePublicPath(BOTTOGRAM_ADMIN_ASSETS . '/production/images/logo/icon.ico', AdminPanel::GetBuiltInСomponentsPathIntOffset())?>"/>
 
 	<!-- Bootstrap CSS -->
 	<?php if($this->GlobalData['DarkTheme']) { ?>
@@ -20,13 +20,26 @@
 
 	<script>
 		const MVCRoot = "<?=$this->Root?>";
-		const UITheme = "<?=$this->GlobalData['DarkTheme'] ? 'dark' : 'white'?>";
+		var UITheme = "<?=$this->GlobalData['DarkTheme'] ? 'dark' : 'white'?>";
 	</script>
 
 	<!-- Место для CSS -->
 	<?php
-		$this->LoadCSS(BOTTOGRAM_ADMIN_ASSETS . '/css/main.css', AdminPanel::GetBuiltInСomponentsPathIntOffset());
-		$this->LoadCSS(BOTTOGRAM_ADMIN_ASSETS . '/css/auth.css', AdminPanel::GetBuiltInСomponentsPathIntOffset());
+		if($this->GlobalData['UseMinifedAssets'])
+		{
+			AdminPanel::ConnectCSS($this, BOTTOGRAM_ADMIN_ASSETS . '/production/css/main.css', true);
+			AdminPanel::ConnectCSS($this, BOTTOGRAM_ADMIN_ASSETS . '/production/css/auth.css', true);
+
+			AdminPanel::ConnectJS($this, BOTTOGRAM_ADMIN_ASSETS . '/production/js/navigation.js', true);
+		}
+		else
+		{
+			AdminPanel::ConnectCSS($this, BOTTOGRAM_ADMIN_ASSETS . '/dev/css/main.css');
+			AdminPanel::ConnectCSS($this, BOTTOGRAM_ADMIN_ASSETS . '/dev/css/auth.css');
+
+			AdminPanel::ConnectJS($this, BOTTOGRAM_ADMIN_ASSETS . '/dev/js/class.asyncevents.js');
+			AdminPanel::ConnectJS($this, BOTTOGRAM_ADMIN_ASSETS . '/dev/js/class.pagescripts.js');
+		}
 	?>
 
 </head>
@@ -38,13 +51,24 @@
 
 	<!-- transition.js + AniX -->
 	<?php
-		$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/js/lib/transition.min.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
-		$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/js/lib/anix.nova.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
+		$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/production/js/lib/transition.min.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
+		$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/production/js/lib/anix.nova.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
+		$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/production/js/lib/tinycolor.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
 	?>
 
 	<!-- Место для скриптов -->
 	<?php
-		$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/js/main.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
+			if($this->GlobalData['UseMinifedAssets'])
+			{
+				AdminPanel::ConnectJS($this, BOTTOGRAM_ADMIN_ASSETS . '/production/js/admin-ui.js', AdminPanel::GetBuiltInСomponentsPathIntOffset(), true);
+				AdminPanel::ConnectJS($this, BOTTOGRAM_ADMIN_ASSETS . '/production/js/main.js', AdminPanel::GetBuiltInСomponentsPathIntOffset(), true);
+			}
+			else
+			{
+				AdminPanel::ConnectJS($this, BOTTOGRAM_ADMIN_ASSETS . '/dev/js/class.personalization.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
+				AdminPanel::ConnectJS($this, BOTTOGRAM_ADMIN_ASSETS . '/dev/js/class.smartcharts.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
+				AdminPanel::ConnectJS($this, BOTTOGRAM_ADMIN_ASSETS . '/dev/js/main.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
+			}
 	?>
 
 	<!-- Bootstrap JS -->

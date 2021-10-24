@@ -1,0 +1,38 @@
+{
+    "css": [
+        {
+            "source": "dev/css/main.css",
+            "result": "production/css/main.css"
+        },
+        {
+            "source": "dev/css/auth.css",
+            "result": "production/css/auth.css"
+        },
+        {
+            "source": "dev/css/cabinet.css",
+            "result": "production/css/cabinet.css"
+        }
+    ],
+    "js": [
+        {
+            "source": ["dev/js/class.asyncevents.js", "dev/js/class.asyncnavigation.js", "dev/js/class.pagescripts.js"],
+            "result": "production/js/navigation.js"
+        },
+        {
+            "source": ["dev/js/class.personalization.js", "dev/js/class.smartcharts.js"],
+            "result": "production/js/admin-ui.js"
+        },
+        {
+            "source": "dev/js/main.js",
+            "result": "production/js/main.js"
+        },
+        {
+            "source": "dev/js/cabinet.js",
+            "result": "production/js/cabinet.js"
+        },
+        {
+            "sourceFolder": "dev/js/page",
+            "resultFolder": "production/js/page"
+        }
+    ]
+}

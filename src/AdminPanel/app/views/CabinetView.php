@@ -9,26 +9,61 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title><?=$this->PageTitle?></title>
 	
-		<link rel="icon" type="image/x-icon" href="<?=$this->GenerateFilePublicPath(BOTTOGRAM_ADMIN_ASSETS . '/images/logo/icon.ico', AdminPanel::GetBuiltInСomponentsPathIntOffset())?>"/>
+		<link rel="icon" type="image/x-icon" href="<?=$this->GenerateFilePublicPath(BOTTOGRAM_ADMIN_ASSETS . '/production/images/logo/icon.ico', AdminPanel::GetBuiltInСomponentsPathIntOffset())?>"/>
 
 		<!-- Bootstrap CSS -->
 		<?php if($this->GlobalData['DarkTheme']) { ?>
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.0.0/dist/cyborg/bootstrap.min.css">
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism-tomorrow.min.css" integrity="sha512-vswe+cgvic/XBoF1OcM/TeJ2FW0OofqAVdCZiEYkd6dwGXthvkSFWOoGGJgS2CW70VK5dQM5Oh+7ne47s74VTg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+		<link class="bootstrap-theme" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.0.0/dist/cyborg/bootstrap.min.css" crossorigin />
+		<link class="prismjs-theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism-tomorrow.min.css" crossorigin />
 		<?php } else { ?>
-		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+		<link class="bootstrap-theme" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" crossorigin />
+		<link class="prismjs-theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism.min.css" crossorigin />
 		<?php } ?>
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.6.1/font/bootstrap-icons.css">
 		<script>
 			const MVCRoot = "<?=$this->Root?>";
-			const UITheme = "<?=$this->GlobalData['DarkTheme'] ? 'dark' : 'white'?>";
+			
+			var UITheme = "<?=$this->GlobalData['DarkTheme'] ? 'dark' : 'white'?>";
+
+			const ThemeAssetsCSS = [
+				{
+					selector: '.bootstrap-theme',
+					darkTheme: 'https://cdn.jsdelivr.net/npm/bootswatch@5.0.0/dist/cyborg/bootstrap.min.css',
+					whiteTheme: 'https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css'
+				},
+				{
+					selector: '.prismjs-theme',
+					darkTheme: 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism-tomorrow.min.css',
+					whiteTheme: 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism.min.css'
+				}
+			];
 		</script>
 
 		<!-- Место для CSS -->
 		<?php
-			$this->LoadCSS(BOTTOGRAM_ADMIN_ASSETS . '/css/main.css', AdminPanel::GetBuiltInСomponentsPathIntOffset());
-			$this->LoadCSS(BOTTOGRAM_ADMIN_ASSETS . '/css/cabinet.css', AdminPanel::GetBuiltInСomponentsPathIntOffset());
+			if($this->GlobalData['UseMinifedAssets'])
+			{
+				AdminPanel::ConnectCSS($this, BOTTOGRAM_ADMIN_ASSETS . '/production/css/main.css', true);
+				AdminPanel::ConnectCSS($this, BOTTOGRAM_ADMIN_ASSETS . '/production/css/cabinet.css', true);
+
+				AdminPanel::ConnectJS($this, BOTTOGRAM_ADMIN_ASSETS . '/production/js/navigation.js', true);
+				AdminPanel::ConnectJS($this, BOTTOGRAM_ADMIN_ASSETS . '/production/js/admin-ui.js', AdminPanel::GetBuiltInСomponentsPathIntOffset(), true);
+				AdminPanel::ConnectJS($this, BOTTOGRAM_ADMIN_ASSETS . '/production/js/main.js', AdminPanel::GetBuiltInСomponentsPathIntOffset(), true);
+				AdminPanel::ConnectJS($this, BOTTOGRAM_ADMIN_ASSETS . '/production/js/cabinet.js', AdminPanel::GetBuiltInСomponentsPathIntOffset(), true);
+			}
+			else
+			{
+				AdminPanel::ConnectCSS($this, BOTTOGRAM_ADMIN_ASSETS . '/dev/css/main.css');
+				AdminPanel::ConnectCSS($this, BOTTOGRAM_ADMIN_ASSETS . '/dev/css/cabinet.css');
+
+				AdminPanel::ConnectJS($this, BOTTOGRAM_ADMIN_ASSETS . '/dev/js/class.asyncnavigation.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
+				AdminPanel::ConnectJS($this, BOTTOGRAM_ADMIN_ASSETS . '/dev/js/class.asyncevents.js');
+				AdminPanel::ConnectJS($this, BOTTOGRAM_ADMIN_ASSETS . '/dev/js/class.pagescripts.js');
+				AdminPanel::ConnectJS($this, BOTTOGRAM_ADMIN_ASSETS . '/dev/js/class.personalization.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
+				AdminPanel::ConnectJS($this, BOTTOGRAM_ADMIN_ASSETS . '/dev/js/class.smartcharts.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
+				AdminPanel::ConnectJS($this, BOTTOGRAM_ADMIN_ASSETS . '/dev/js/main.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
+				AdminPanel::ConnectJS($this, BOTTOGRAM_ADMIN_ASSETS . '/dev/js/cabinet.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
+			}
 		?>
 	</head>
 	<body>
@@ -36,7 +71,8 @@
 			<!-- Sidebar-->
 			<div data-speed="100" class="anix bg-light border-right sidebar-wrapper">
 				<div class="sidebar-heading">
-					<img class="logo" src="<?=$this->GenerateFilePublicPath(BOTTOGRAM_ADMIN_ASSETS . '/images/logo/icon-' . ($this->GlobalData['DarkTheme'] ? 'white' : 'black') . '.svg', AdminPanel::GetBuiltInСomponentsPathIntOffset())?>" />
+					<img class="logo dark-theme-only" src="<?=$this->GenerateFilePublicPath(BOTTOGRAM_ADMIN_ASSETS . '/production/images/logo/icon-white.svg', AdminPanel::GetBuiltInСomponentsPathIntOffset())?>" />
+					<img class="logo white-theme-only" src="<?=$this->GenerateFilePublicPath(BOTTOGRAM_ADMIN_ASSETS . '/production/images/logo/icon-black.svg', AdminPanel::GetBuiltInСomponentsPathIntOffset())?>" />
 					<h3><?=$this->GlobalData['BottoConfig']->Name?></h3>
 					<p class="powered-by">Powered by BottoGram</p>
 				</div>
@@ -68,23 +104,15 @@
 
 		<!-- transition.js + AniX -->
 		<?php
-			$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/js/lib/transition.min.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
-			$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/js/lib/anix.nova.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
-			$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/js/lib/tinycolor.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
-		?>
-
-		<!-- Место для скриптов -->
-		<?php
-			$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/js/main.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
-			$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/js/cabinet.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
+			$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/production/js/lib/transition.min.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
+			$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/production/js/lib/anix.nova.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
+			$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/production/js/lib/tinycolor.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
+			$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/production/js/lib/apexcharts.min.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
 		?>
 
 		<!-- Bootstrap JS + Jquery + Popper.js -->
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8" crossorigin="anonymous"></script>
-
-		<!-- ApexCharts.js -->
-		<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-
+		
 		<script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/prism.min.js" integrity="sha512-YBk7HhgDZvBxmtOfUdvX0z8IH2d10Hp3aEygaMNhtF8fSOvBZ16D/1bXZTJV6ndk/L/DlXxYStP8jrF77v2MIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 	</body>

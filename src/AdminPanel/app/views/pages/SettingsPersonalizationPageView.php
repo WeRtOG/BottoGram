@@ -1,13 +1,16 @@
+<?php
+    use WeRtOG\BottoGram\AdminPanel\AdminPanel;
+?>
 <div class="personalization">
     <h4>Тема</h4>
     <div class="theme-switch">
-        <div class="theme-wrapper dark<?=$this->GlobalData['DarkTheme'] ? ' active' : ' inactive'?>">
+        <div onclick="Personalization.ChangeUITheme('dark');" class="theme-wrapper dark<?=$this->GlobalData['DarkTheme'] ? ' active' : ' inactive'?>">
             <div class="theme">
                 <i class="bi bi-moon-stars"></i>
             </div>
             <p>Тёмная</p>
         </div>
-        <div class="theme-wrapper white<?=$this->GlobalData['DarkTheme'] ? ' inactive' : ' active'?>">
+        <div onclick="Personalization.ChangeUITheme('white')" class="theme-wrapper white<?=$this->GlobalData['DarkTheme'] ? ' inactive' : ' active'?>">
             <div class="theme">
                 <i class="bi bi-sun"></i>
             </div>
@@ -28,3 +31,5 @@
         <div class="color gray-dark"></div>
     </div>
 </div>
+
+<?php AdminPanel::AsyncConnectJS($this, BOTTOGRAM_ADMIN_ASSETS . '/dev/js/page/Personalization.js'); ?>

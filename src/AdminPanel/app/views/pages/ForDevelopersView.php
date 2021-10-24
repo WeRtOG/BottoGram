@@ -7,6 +7,9 @@
             <a data-reload=".settings-page .sub-page" class="async nav-link<?=CurrentMVCAction == "botusers" ? ' active' : '' ?>" href="<?=$this->Root?>/fordevelopers/botusers">Пользователи бота</a>
         </li>
         <li class="nav-item">
+            <a data-reload=".settings-page .sub-page" class="async nav-link<?=CurrentMVCAction == "misc" ? ' active' : '' ?>" href="<?=$this->Root?>/fordevelopers/misc">Прочее</a>
+        </li>
+        <li class="nav-item">
             <a data-reload=".settings-page .sub-page" class="async nav-link<?=CurrentMVCAction == "systeminfo" ? ' active' : '' ?>" href="<?=$this->Root?>/fordevelopers/systeminfo">О системе</a>
         </li>
     </ul>

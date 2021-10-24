@@ -14,6 +14,8 @@ use WeRtOG\BottoGram\AdminPanel\Models\AdminUser;
 use WeRtOG\BottoGram\AdminPanel\Models\AdminUsers;
 use WeRtOG\BottoGram\AdminPanel\Models\RequestLogs;
 use WeRtOG\BottoGram\AdminPanel\Models\SidebarCustomItems;
+use WeRtOG\BottoGram\AdminPanel\Optimization\FrontendMinifer;
+use WeRtOG\BottoGram\AdminPanel\Optimization\MiniferMap;
 use WeRtOG\BottoGram\BottoConfig;
 use WeRtOG\BottoGram\DatabaseManager\Database;
 use WeRtOG\BottoGram\DatabaseManager\DatabaseManager;
@@ -137,8 +139,83 @@ class AdminPanel
         }
     }
 
+    public static function ConnectJS(View $View, string $Path, bool $IsProductionAsset = false): void
+    {
+        if(!file_exists($Path) && $IsProductionAsset)
+        {
+            self::ReloadMinifedAssets();
+            if(file_exists($Path))
+            {
+                $View->LoadJS($Path, AdminPanel::GetBuiltInСomponentsPathIntOffset());
+                return; 
+            }
+
+            echo "<script>alert('Error: resource not exists. Path: $Path'); </script>";
+            return;
+        }
+
+        $View->LoadJS($Path, AdminPanel::GetBuiltInСomponentsPathIntOffset());
+    }
+
+    public static function AsyncConnectJS(View $View, string $Path, bool $IsProductionAsset = false): void
+    {
+        if(!file_exists($Path) && $IsProductionAsset)
+        {
+            self::ReloadMinifedAssets();
+            if(file_exists($Path))
+            {
+                $PublicPath = $View->GenerateFilePublicPath($Path, AdminPanel::GetBuiltInСomponentsPathIntOffset());
+                echo '<script>PageScripts.LoadPageScript("' . $PublicPath . '")</script>';
+                return; 
+            }
+
+            echo "<script>alert('Error: resource not exists. Path: $Path'); </script>";
+            return;
+        }
+
+        $PublicPath = $View->GenerateFilePublicPath($Path, AdminPanel::GetBuiltInСomponentsPathIntOffset());
+        echo '<script>PageScripts.LoadPageScript("' . $PublicPath . '")</script>';
+    }
+
+    public static function ConnectCSS(View $View, string $Path, bool $IsProductionAsset = false): void
+    {
+        if(!file_exists($Path) && $IsProductionAsset)
+        {
+            self::ReloadMinifedAssets();
+            if(file_exists($Path))
+            {
+                $View->LoadCSS($Path, AdminPanel::GetBuiltInСomponentsPathIntOffset());
+                return; 
+            }
+
+            echo "<script>alert('Error: resource not exists. Path: $Path'); </script>";
+            return;
+        }
+
+        $View->LoadCSS($Path, AdminPanel::GetBuiltInСomponentsPathIntOffset());
+    }
+
+    public static function ReloadMinifedAssets(): void
+    {
+        $Map = MiniferMap::FromJSONFile(BOTTOGRAM_ADMIN_ASSETS . '/minify-map.json', BOTTOGRAM_ADMIN_ASSETS);
+        if($Map != null)
+        {
+            FrontendMinifer::MinifyFromMap($Map);
+        }
+    }
+
     public function Start(string $Namespace, string $AdminPanelPath, string $ProjectRootPath = '', SidebarCustomItems $SidebarCustomItems = null, string $CustomControllersFolder = null, array $CustomModels = []): void
     {
+        /*
+        $Map = MiniferMap::FromJSONFile(BOTTOGRAM_ADMIN_ASSETS . '/minify-map.json', BOTTOGRAM_ADMIN_ASSETS);
+        if($Map != null)
+        {
+            $Result = FrontendMinifer::MinifyFromMap($Map);
+            print_r($Result);
+        }
+
+        return
+        */
         if($ProjectRootPath == '')
             $ProjectRootPath = $AdminPanelPath;
 
@@ -158,6 +235,7 @@ class AdminPanel
                 'AdminPanel' => $this,
             ], $CustomModels),
             GlobalData: [
+                'UseMinifedAssets' => $this->Config->UseMinifedAssetsInAdminPanel,
                 'DarkTheme' => $_COOKIE['dark-theme'] ?? false,
                 'CurrentUser' => $this->CurrentUser,
                 'BottoConfig' => $this->Config,

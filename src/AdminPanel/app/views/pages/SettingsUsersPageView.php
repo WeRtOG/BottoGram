@@ -1,3 +1,6 @@
+<?php
+    use WeRtOG\BottoGram\AdminPanel\AdminPanel;
+?>
 <div class="users-list">
     <?php
         $Users = $this->Data['Users'] ?? null;
@@ -30,7 +33,7 @@
                     <?php
                 }
                 ?>
-                <button class="smart-list-fab add-user">
+                <button onclick="TriggerModal('addUserModal')" class="smart-list-fab add-user">
                     <i class="bi bi-person-plus"></i>
                 </button>
             </div>
@@ -121,3 +124,5 @@
         </div>
     </form>
 </div>
+
+<?php AdminPanel::AsyncConnectJS($this, BOTTOGRAM_ADMIN_ASSETS . '/dev/js/page/UsersList.js'); ?>

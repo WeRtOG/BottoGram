@@ -1,8 +1,11 @@
+<?php
+    use WeRtOG\BottoGram\AdminPanel\AdminPanel;
+?>
 <div class="p-4 container">
     <div class="app-logs">
         <div class="loading">
             <?php 
-                $PreloaderPath = BOTTOGRAM_ADMIN_ASSETS . '/images/preloader.svg';
+                $PreloaderPath = BOTTOGRAM_ADMIN_ASSETS . '/production/images/preloader.svg';
                 if(file_exists($PreloaderPath))
                     include $PreloaderPath;
             ?>
@@ -30,3 +33,5 @@
         </form>
     </div>
 </div>
+
+<?php AdminPanel::AsyncConnectJS($this, BOTTOGRAM_ADMIN_ASSETS . '/dev/js/page/AppLogs.js'); ?>

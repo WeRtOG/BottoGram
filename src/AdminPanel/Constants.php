@@ -7,7 +7,7 @@
 
 require_once __DIR__ . '/../Constants.php';
 
-define('BOTTOGRAM_ADMIN_ROOT', __DIR__ . '/App-Root');
+define('BOTTOGRAM_ADMIN_ROOT', __DIR__ . '/App-root');
 define('BOTTOGRAM_ADMIN_ASSETS', BOTTOGRAM_ADMIN_ROOT . '/public/assets');
 
 define('BOTTOGRAM_ADMIN_REQUESTLOGSLIMIT', 20);

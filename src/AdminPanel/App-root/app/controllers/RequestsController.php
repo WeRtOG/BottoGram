@@ -36,7 +36,7 @@ class RequestsController extends CabinetPageController
         {
             $LastChecksum = $_GET['checksum'] ?? null;
 
-            $RequestLogs = $this->AdminPanel->RequestLogs->GetLogs(BOTTOGRAM_ADMIN_PAGELIMIT);
+            $RequestLogs = $this->AdminPanel->RequestLogs->GetLogs(BOTTOGRAM_ADMIN_REQUESTLOGSLIMIT);
 
             if($this->AdminPanel->CurrentUser->Login == 'admin')
             {

@@ -9,7 +9,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title><?=$this->PageTitle?></title>
 
-	<link rel="icon" type="image/x-icon" href="<?=$this->GenerateFilePublicPath(BOTTOGRAM_ADMIN_ASSETS . '/production/images/logo/icon.ico', AdminPanel::GetBuiltInСomponentsPathIntOffset())?>"/>
+	<link rel="icon" type="image/x-icon" href="<?=$this->GenerateFilePublicPath(BOTTOGRAM_ADMIN_ASSETS . '/generic/images/logo/icon.ico', AdminPanel::GetBuiltInСomponentsPathIntOffset())?>"/>
 
 	<!-- Bootstrap CSS -->
 	<?php if($this->GlobalData['DarkTheme']) { ?>
@@ -23,7 +23,6 @@
 		var UITheme = "<?=$this->GlobalData['DarkTheme'] ? 'dark' : 'white'?>";
 	</script>
 
-	<!-- Место для CSS -->
 	<?php
 		if($this->GlobalData['UseMinifedAssets'])
 		{
@@ -51,9 +50,9 @@
 
 	<!-- transition.js + AniX -->
 	<?php
-		$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/production/js/lib/transition.min.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
-		$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/production/js/lib/anix.nova.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
-		$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/production/js/lib/tinycolor.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
+		$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/generic/js/lib/transition.min.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
+		$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/generic/js/lib/anix.nova.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
+		$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/generic/js/lib/tinycolor.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
 	?>
 
 	<!-- Место для скриптов -->

@@ -4,7 +4,7 @@
 <section class="request-logs">
     <div class="loading">   
         <?php
-            $PreloaderPath = BOTTOGRAM_ADMIN_ASSETS . '/production/images/preloader.svg';
+            $PreloaderPath = BOTTOGRAM_ADMIN_ASSETS . '/generic/images/preloader.svg';
             if(file_exists($PreloaderPath))
                 include $PreloaderPath;
             

@@ -27,14 +27,10 @@ class FrontendMinifer
         $FilesToMinify = $Map->GetFilesToMinify();
 
         foreach($FilesToMinify['css'] as $Item)
-        {
             self::MinifyFromCSSItem($Item);
-        }
 
         foreach($FilesToMinify['js'] as $Item)
-        {
             self::MinifyFromJSItem($Item);
-        }
 
         return $FilesToMinify ?? [];
     }

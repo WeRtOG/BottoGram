@@ -7,7 +7,7 @@
                 <label class="form-check-label">Использовать минифицированный CSS и JS</label>
             </div>
         </div>
-        <div class="mt-5 mb-3">
+        <div class="mt-4 mb-3">
             <button type="submit" disabled class="btn btn-primary">Сохранить изменения</button>
             <a href="<?=$this->Root?>/fordevelopers/reloadMinificationCache"><div class="btn btn-primary">Обновить кеш минификации</div></a>
         </div>

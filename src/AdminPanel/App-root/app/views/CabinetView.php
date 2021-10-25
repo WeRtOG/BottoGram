@@ -9,7 +9,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title><?=$this->PageTitle?></title>
 	
-		<link rel="icon" type="image/x-icon" href="<?=$this->GenerateFilePublicPath(BOTTOGRAM_ADMIN_ASSETS . '/production/images/logo/icon.ico', AdminPanel::GetBuiltInСomponentsPathIntOffset())?>"/>
+		<link rel="icon" type="image/x-icon" href="<?=$this->GenerateFilePublicPath(BOTTOGRAM_ADMIN_ASSETS . '/generic/images/logo/icon.ico', AdminPanel::GetBuiltInСomponentsPathIntOffset())?>"/>
 
 		<!-- Bootstrap CSS -->
 		<?php if($this->GlobalData['DarkTheme']) { ?>
@@ -39,7 +39,6 @@
 			];
 		</script>
 
-		<!-- Место для CSS -->
 		<?php
 			if($this->GlobalData['UseMinifedAssets'])
 			{
@@ -71,8 +70,8 @@
 			<!-- Sidebar-->
 			<div data-speed="100" class="anix bg-light border-right sidebar-wrapper">
 				<div class="sidebar-heading">
-					<img class="logo dark-theme-only" src="<?=$this->GenerateFilePublicPath(BOTTOGRAM_ADMIN_ASSETS . '/production/images/logo/icon-white.svg', AdminPanel::GetBuiltInСomponentsPathIntOffset())?>" />
-					<img class="logo white-theme-only" src="<?=$this->GenerateFilePublicPath(BOTTOGRAM_ADMIN_ASSETS . '/production/images/logo/icon-black.svg', AdminPanel::GetBuiltInСomponentsPathIntOffset())?>" />
+					<img class="logo dark-theme-only" src="<?=$this->GenerateFilePublicPath(BOTTOGRAM_ADMIN_ASSETS . '/generic/images/logo/icon-white.svg', AdminPanel::GetBuiltInСomponentsPathIntOffset())?>" />
+					<img class="logo white-theme-only" src="<?=$this->GenerateFilePublicPath(BOTTOGRAM_ADMIN_ASSETS . '/generic/images/logo/icon-black.svg', AdminPanel::GetBuiltInСomponentsPathIntOffset())?>" />
 					<h3><?=$this->GlobalData['BottoConfig']->Name?></h3>
 					<p class="powered-by">Powered by BottoGram</p>
 				</div>
@@ -104,10 +103,10 @@
 
 		<!-- transition.js + AniX -->
 		<?php
-			$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/production/js/lib/transition.min.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
-			$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/production/js/lib/anix.nova.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
-			$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/production/js/lib/tinycolor.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
-			$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/production/js/lib/apexcharts.min.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
+			$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/generic/js/lib/transition.min.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
+			$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/generic/js/lib/anix.nova.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
+			$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/generic/js/lib/tinycolor.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
+			$this->LoadJS(BOTTOGRAM_ADMIN_ASSETS . '/generic/js/lib/apexcharts.min.js', AdminPanel::GetBuiltInСomponentsPathIntOffset());
 		?>
 
 		<!-- Bootstrap JS + Jquery + Popper.js -->

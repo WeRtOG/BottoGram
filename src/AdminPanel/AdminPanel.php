@@ -40,7 +40,7 @@ class AdminPanel
 
     public function __construct(BottoConfig $Config)
     {
-        define('BOTTOGRAM_MVC_ROOT', __DIR__ . '/app');
+        define('BOTTOGRAM_MVC_ROOT', __DIR__ . '/App-root/app');
         define('BOTTOGRAM_MVC_MODELS', BOTTOGRAM_MVC_ROOT . '/models');
         define('BOTTOGRAM_MVC_VIEWS', BOTTOGRAM_MVC_ROOT . '/views');
         define('BOTTOGRAM_MVC_CONTROLLERS', BOTTOGRAM_MVC_ROOT . '/controllers');
@@ -198,24 +198,13 @@ class AdminPanel
     public static function ReloadMinifedAssets(): void
     {
         $Map = MiniferMap::FromJSONFile(BOTTOGRAM_ADMIN_ASSETS . '/minify-map.json', BOTTOGRAM_ADMIN_ASSETS);
+        
         if($Map != null)
-        {
             FrontendMinifer::MinifyFromMap($Map);
-        }
     }
 
     public function Start(string $Namespace, string $AdminPanelPath, string $ProjectRootPath = '', SidebarCustomItems $SidebarCustomItems = null, string $CustomControllersFolder = null, array $CustomModels = []): void
     {
-        /*
-        $Map = MiniferMap::FromJSONFile(BOTTOGRAM_ADMIN_ASSETS . '/minify-map.json', BOTTOGRAM_ADMIN_ASSETS);
-        if($Map != null)
-        {
-            $Result = FrontendMinifer::MinifyFromMap($Map);
-            print_r($Result);
-        }
-
-        return
-        */
         if($ProjectRootPath == '')
             $ProjectRootPath = $AdminPanelPath;
 

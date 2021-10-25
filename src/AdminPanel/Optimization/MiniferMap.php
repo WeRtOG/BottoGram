@@ -6,8 +6,6 @@
 */
 namespace WeRtOG\BottoGram\AdminPanel\Optimization;
 
-use AssortieMarkt\Category;
-
 class MiniferMap
 {
 
@@ -28,16 +26,13 @@ class MiniferMap
                 if(isset($MinifyItemRAW->source) && isset($MinifyItemRAW->result))
                 {
                     if(is_string($MinifyItemRAW->source))
-                    {
                         $FilesToMinify[] = new MinifyItem([$this->AssetsPath . '/' . $MinifyItemRAW->source], $this->AssetsPath . '/' . $MinifyItemRAW->result);
-                    }
+
                     else if(is_array($MinifyItemRAW->source))
                     {
                         $CurrentSourceFiles = [];
                         foreach($MinifyItemRAW->source as $SourceFilePath)
-                        {
                             $CurrentSourceFiles[] = $this->AssetsPath . '/' . $SourceFilePath;
-                        }
 
                         $FilesToMinify[] = new MinifyItem($CurrentSourceFiles, $this->AssetsPath . '/' . $MinifyItemRAW->result);
                     }
@@ -67,16 +62,16 @@ class MiniferMap
     public function GetFilesToMinify(): array
     {
         if(!file_exists($this->AssetsPath . '/dev/js'))
-            mkdir($this->AssetsPath . '/dev/js');
+            mkdir($this->AssetsPath . '/dev/js', recursive: true);
 
         if(!file_exists($this->AssetsPath . '/production/js'))
-            mkdir($this->AssetsPath . '/production/js');
+            mkdir($this->AssetsPath . '/production/js', recursive: true);
 
         if(!file_exists($this->AssetsPath . '/dev/css'))
-            mkdir($this->AssetsPath . '/dev/css');
+            mkdir($this->AssetsPath . '/dev/css', recursive: true);
 
         if(!file_exists($this->AssetsPath . '/production/css'))
-            mkdir($this->AssetsPath . '/production/css');
+            mkdir($this->AssetsPath . '/production/css', recursive: true);
         
         $FilesToMinify = [
             'css' => $this->GetFilesToMinifyFromCategory(Category: 'css', FileExtension: 'css'),

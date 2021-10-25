@@ -8,8 +8,6 @@ namespace WeRtOG\BottoGram\AdminPanel\MVC;
 
 use WeRtOG\BottoGram\AdminPanel\AdminPanel;
 use WeRtOG\BottoGram\AdminPanel\Models\SystemInfo;
-use WeRtOG\BottoGram\AdminPanel\Optimization\FrontendMinifer;
-use WeRtOG\BottoGram\AdminPanel\Optimization\MiniferMap;
 use WeRtOG\BottoGram\BottoConfig;
 use WeRtOG\FoxyMVC\Attributes\Action;
 use WeRtOG\FoxyMVC\ControllerResponse\JsonView;
@@ -213,6 +211,11 @@ class ForDevelopersController extends CabinetPageController
 
         $UseMinifedAssetsInAdminPanel = isset($_POST['BottoConfig_UseMinifedAssetsInAdminPanel']) ? $_POST['BottoConfig_UseMinifedAssetsInAdminPanel'] == 'on' : false;
 
+        if($UseMinifedAssetsInAdminPanel)
+        {
+            AdminPanel::ReloadMinifedAssets();
+        }
+        
         BottoConfig::ChangeParameter('UseMinifedAssetsInAdminPanel', $UseMinifedAssetsInAdminPanel, $this->AdminPanel->Config->ConfigFile);
 
         return Route::Navigate('fordevelopers/misc');

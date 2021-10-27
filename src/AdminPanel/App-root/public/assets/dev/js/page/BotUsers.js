@@ -34,6 +34,17 @@ asyncEvents.OnInput('.bot-users .search-bar input', function(e, searchInput) {
     document.querySelector('.bot-users .search-bar .search').disabled =  searchTrimValue != '';
 });
 
+function HighlightLogic()
+{
+    if(document.querySelector('tr.highlight'))
+    {
+        document.querySelector('tr.highlight').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        history.replaceState && history.replaceState(
+            null, '', location.pathname + location.search.replace(/[\?&]highlight=[^&]+/, '').replace(/^&/, '?') + location.hash
+        );
+    }
+}
+
 document.addEventListener("DOMContentRebuilded", function(event) {
     pageHasBotUsers = document.querySelector('.bot-users') != null;
 
@@ -43,14 +54,10 @@ document.addEventListener("DOMContentRebuilded", function(event) {
     botUsersSearchBusy = false;
     botUsersSearchChecksum = '';
 
-    if(document.querySelector('tr.highlight'))
-    {
-        document.querySelector('tr.highlight').scrollIntoView({ behavior: 'smooth', block: 'center' });
-        history.replaceState && history.replaceState(
-            null, '', location.pathname + location.search.replace(/[\?&]highlight=[^&]+/, '').replace(/^&/, '?') + location.hash
-        );
-    }
+    HighlightLogic();
 });
+
+HighlightLogic();
 
 setInterval(function() {
     if(pageHasBotUsers)

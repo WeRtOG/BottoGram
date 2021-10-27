@@ -46,7 +46,7 @@ body {
     z-index: 2;
 }
 .form-signin input {
-    border-radius: 5px;
+    border-radius: 8px;
 }
 .form-signin input[type="login"] {
     margin-bottom: 10px;

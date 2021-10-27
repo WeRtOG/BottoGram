@@ -93,20 +93,39 @@ setInterval(function() {
                             {
                                 searchResults.classList.remove('no-data');
     
+                                var i = 1;
+
                                 response.results.forEach(result => {
-                                    var searchResultLink = document.createElement("a");
+                                    var searchResultLink = document.createElement('a');
                                     searchResultLink.href = MVCRoot + '/fordevelopers/botusers/?page=' + result.SearchResultPage + '&highlight=' + result.ID;
                                     searchResultLink.className = 'async';
                                     searchResultLink.setAttribute('data-reload', '.settings-page .sub-page');
     
                                     var searchResultDiv = document.createElement("div");
                                     searchResultDiv.className = 'search-result';
-                                    searchResultDiv.innerHTML = '<h3>' + result.FullName ?? result.UserName ?? 'Без имени' + '</h3>';
-                                    searchResultDiv.innerHTML += '<p><b>ID чата: </b>' + result.ChatID + '</p>';
+
+                                    var userName = result.FullName ?? result.UserName ?? 'Без имени';
+
+                                    searchResultIcon = document.createElement('div');
+                                    searchResultIcon.className = 'icon';
+                                    searchResultIcon.classList.add('color-' + result.ChatID.slice(-1));
+                                    searchResultIcon.innerHTML = userName.split(' ').map(function(str) { return str ? str[0].toUpperCase() : "";}).join('');
+
+                                    searchResultInfo = document.createElement('div');
+                                    searchResultInfo.className = 'info';
+                                    searchResultInfo.innerHTML = '<h3>' + userName + '</h3>';
+                                    searchResultInfo.innerHTML += '<p><b>ID чата: </b>' + result.ChatID + '</p>';
     
+                                    searchResultDiv.appendChild(searchResultIcon);
+                                    searchResultDiv.appendChild(searchResultInfo);
+
                                     searchResultLink.appendChild(searchResultDiv);
         
                                     searchResults.querySelector('.items').appendChild(searchResultLink);
+
+                                    i++;
+                                    if(i > 5)
+                                        i = 1;
                                 });
                             }
                             else

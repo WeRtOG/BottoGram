@@ -46,6 +46,9 @@ pre .token.boolean, .token.function, .token.number {
 pre .token.entity, .token.operator, .token.url {
     color: var(--bs-dark);
 }
+.token.atrule, .token.builtin, .token.important, .token.keyword, .token.selector {
+    color: var(--bs-gray);
+}
 html.white-theme pre .language-css .token.string, .style .token.string, .token.entity, .token.operator, .token.url {
     background: none;
 }

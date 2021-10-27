@@ -23,12 +23,9 @@
         <div class="color indigo"></div>
         <div class="color purple"></div>
         <div class="color pink"></div>
-        <div class="color red"></div>
         <div class="color orange"></div>
         <div class="color teal"></div>
-        <div class="color cyan"></div>
         <div class="color gray"></div>
-        <div class="color gray-dark"></div>
     </div>
 </div>
 

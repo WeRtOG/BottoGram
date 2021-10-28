@@ -63,16 +63,11 @@ html.dark-theme .cabinet .sidebar-wrapper {
     transition: all 0.3s ease;
     background-color: transparent !important;
     opacity: 0.8;
+    color: var(--ui-text) !important;
 }
 .cabinet .sidebar-wrapper .list-group-item i {
     margin-left: 5px;
     margin-right: 10px;
-}
-html.dark-theme .sidebar-wrapper .list-group-item {
-    color: #fff !important;
-}
-html.white-theme .sidebar-wrapper .list-group-item {
-    color: #000 !important;
 }
 html.white-theme .cabinet .sidebar-wrapper .list-group-item:hover {
     background-color: rgba(0,0,0,.05) !important;
@@ -161,11 +156,8 @@ html.dark-theme .cabinet .request-logs .log a {
 .cabinet .request-logs .log pre {
     border-radius: 5px;
 }
-html.dark-theme .cabinet .request-logs .log pre {
-    background-color: #111;
-}
-html.white-theme .cabinet .request-logs .log pre {
-    background-color: rgb(238, 238, 238);
+html .cabinet .request-logs .log pre {
+    background-color: var(--ui-item-background-mid);
 }
 .cabinet .request-logs .log pre code {
     white-space: pre-wrap;
@@ -221,7 +213,7 @@ html.white-theme .cabinet .theme-switch .theme-wrapper .theme {
     box-shadow: 0 5px 15px -15px var(--ui-main);
 }
 html.dark-theme .cabinet .theme-switch .theme-wrapper .theme {
-    background: #151515;
+    background: var(--ui-item-background-mid);
     color: #555;
     border: 2px solid rgba(255,255,255,.05);
     box-shadow: 0 5px 15px -15px var(--ui-main);
@@ -430,10 +422,10 @@ html.dark-theme .cabinet .settings-page .log-raw {
 html .cabinet .settings-page .nav {
     position: sticky;
     top: 0;
-    backdrop-filter: blur(50px);
     padding: 15px;
     margin: 0;
     z-index: 2;
+    background-color: var(--ui-item-background-low);
 }
 html .cabinet .settings-page .search-bar {
     width: 100%;
@@ -685,23 +677,14 @@ html.white-theme .cabinet .settings-page .table a {
 html .cabinet .settings-page .table td.no-username {
     opacity: .5;
 }
-html.dark-theme .cabinet .settings-page .table thead {
-    background-color: #111;
-}
-html.white-theme .cabinet .settings-page .table thead {
-    background-color: rgb(235, 235, 235);
+html .cabinet .settings-page .table thead {
+    background-color: var(--ui-item-background-mid);
 }
 html.white-theme .cabinet .settings-page .table tr.highlight {
     animation: highlight-white-theme 2000ms 0.5s 1 both;
 }
 html.dark-theme .cabinet .settings-page .table tr.highlight {
     animation: highlight-dark-theme 2000ms 0.5s 1 both;
-}
-html.dark-theme .cabinet .settings-page .nav {
-    background: rgba(0, 0, 0, 0.3);
-}
-html.white-theme .cabinet .settings-page .nav {
-    background: rgba(255, 255, 255, 0.3);
 }
 html .cabinet .settings-page.fordevelopers-page {
     min-height: 100%;
@@ -985,9 +968,9 @@ html.dark-theme .bot-info a {
 }
 html.dark-theme input:-webkit-autofill, html.dark-theme input:-webkit-autofill:hover, html.dark-theme input:-webkit-autofill:focus, html.dark-theme textarea:-webkit-autofill, html.dark-theme textarea:-webkit-autofill:hover, html.dark-theme textarea:-webkit-autofill:focus, html.dark-theme select:-webkit-autofill, html.dark-theme select:-webkit-autofill:hover, html.dark-theme select:-webkit-autofill:focus {
     -webkit-text-fill-color: white;
-    box-shadow: 0 0 0px 1000px #111 inset !important;
+    box-shadow: 0 0 0px 1000px var(--ui-item-background-mid) inset !important;
     transition: background-color 5000s ease-in-out 0s;
-    border-color: #222 !important;
+    border-color: var(--ui-item-background-mid-high) !important;
 }
 .pagination {
     width: fit-content;

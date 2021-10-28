@@ -25,6 +25,10 @@
     --ui-accent: var(--bs-blue);
 }
 
+html body {
+    background-color: var(--ui-background);
+}
+
 html.unaviable {
     display: none;
 }
@@ -53,10 +57,23 @@ html.white-theme pre .language-css .token.string, .style .token.string, .token.e
     background: none;
 }
 html.dark-theme {
+    --ui-text: white;
+    --ui-background: #060606;
+    --ui-item-background-low: #070707;
+    --ui-item-background-mid: #111;
+    --ui-item-background-mid-high: #222;
+    --ui-item-background-high: #333;
+
     --ui-main: rgba(255,255,255,.1);
     --ui-preloader-color: rgba(255,255,255,1);
 }
 html.white-theme {
+    --ui-text: black;
+    --ui-background: white;
+    --ui-item-background-low: rgb(250, 250, 250);
+    --ui-item-background-mid: rgb(240, 240, 240);
+    --ui-item-background-mid-high: rgb(220, 220, 220);
+    --ui-item-background-high: rgb(200, 200, 200);
     --ui-main: var(--ui-accent);
     --ui-preloader-color: var(--ui-accent);
 }
@@ -131,11 +148,60 @@ input.form-control {
     background-color: var(--bs-light) !important;
     color: var(--bs-dark) !important;
 }
-.form-check-input {
-    background-size: inherit;
+.form-switch {
+    display: flex;
+    align-items: center;
 }
+.form-check-input {
+    background-size: 44%;
+    position: relative;
+    width: 52px !important;
+    margin-top: 0;
+    height: 24px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-right: 8px;
+    border-width: 2px !important;
+    border-radius: 10px;
+}
+.form-check-input::after {
+    position: absolute;
+    left: -2px;
+    top: -2px;
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    content: '';
+    border-radius: inherit;
+    opacity: .2;
+    transition: all 0.2s ease;
+}
+
+html.white-theme .form-check-input::after {
+    box-shadow: 0 0 0 0px rgba(0,0,0,.2);
+}
+
+html.dark-theme .form-check-input::after {
+    box-shadow: 0 0 0 0px rgba(255,255,255,.2);
+}
+
+html .form-check-input:checked::after {
+    box-shadow: 0 0 0 0px var(--ui-accent);
+}
+
+html.white-theme .form-check-input:focus::after {
+    box-shadow: 0 0 0 5px rgba(0,0,0,.2);
+}
+
+html.dark-theme .form-check-input:focus::after {
+    box-shadow: 0 0 0 5px rgba(255,255,255,.1);
+}
+
+html .form-check-input:checked:focus::after {
+    box-shadow: 0 0 0 5px var(--ui-accent);
+}
+
 html.dark-theme input.form-control {
-    background-color: #111 !important;
+    background-color: var(--ui-item-background-mid) !important;
 }
 html.dark-theme input, html.dark-theme [type=submit] {
     box-shadow: none !important;
@@ -144,9 +210,6 @@ html.dark-theme input, html.dark-theme [type=submit] {
 html.dark-theme .btn.disabled, .btn:disabled, fieldset:disabled .btn {
     opacity: .3;
     transition: all 0.3s ease;
-}
-html.white-theme .form-switch .form-check-input {
-    border-width: 2px;
 }
 html.white-theme .form-switch .form-check-input:focus {
     border-color: rgba(0,0,0,.2);
@@ -164,84 +227,74 @@ html.dark-theme .form-switch .form-check-input {
     position: relative;
     transition: all 0.3s ease;
 }
-html.dark-theme .form-switch .form-check-input::after {
-    content: '';
-    position: absolute;
-    left: -2px;
-    top: -2px;
-    width: 3em;
-    margin-top: inherit;
-    height: inherit;
-    border-radius: inherit;
-    cursor: inherit;
-    transition: all 0.3s ease;
-    background: transparent;
-    box-shadow: 0px 0px 0px 4px rgb(255,255,255);
-    opacity: .0;
-    z-index: -1;
-}
-html .form-switch .form-check-input:focus::after {
-    opacity: .05;
-}
-html .form-switch .form-check-input:checked:focus::after {
-    box-shadow: 0px 0px 0px 4px var(--ui-accent);
-    opacity: .3;
-}
 html .form-switch .form-check-input:checked {
     opacity: 1;
     background-color: var(--ui-accent);
     border: 2px solid rgba(255, 255, 255, 0);
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba(255, 255, 255, 0.8)'/%3e%3c/svg%3e") !important;
 }
-.form-switch {
-    display: flex;
-    align-items: center;
-}
-.form-switch .form-check-input {
-    width: 3em;
-    margin-top: 0;
-    height: 1.4em;
-    margin-right: 8px;
-    margin-left: -2.5em;
-    border-radius: 2em;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
 
 ::-webkit-scrollbar {
     width: 16px;
     height: 16px;
+    background-color: var(--ui-item-background-low-high);
 }
 html.white-theme ::-webkit-scrollbar {
     border-top: 6px rgba(0, 0, 0, 0) solid;
     border-bottom: 6px rgba(0, 0, 0, 0) solid;
-    background-color: rgb(250, 250, 250);
 }
 html.dark-theme ::-webkit-scrollbar {
     border-top: 6px rgba(255, 255, 255, 0) solid;
     border-bottom: 6px rgba(255, 255, 255, 0) solid;
-    background-color: rgb(10, 10, 10);
 }
 ::-webkit-scrollbar-thumb {
     border-radius: 8px;
-}
-html.dark-theme ::-webkit-scrollbar-thumb {
-    background: #333;
-    border: 4px rgba(255, 255, 255, 0) solid;
+    background: var(--ui-item-background-high);
     background-clip: padding-box;
 }
+html.dark-theme ::-webkit-scrollbar-thumb {
+    border: 4px rgba(255, 255, 255, 0) solid;
+}
 html.dark-theme ::-webkit-scrollbar-thumb:hover {
-    background: #222;
     border: 4px rgba(255, 255, 255, 0) solid;
     background-clip: padding-box;
 }
 html.white-theme ::-webkit-scrollbar-thumb {
-    background: rgb(202, 202, 202);
     border: 4px rgba(255, 255, 255, 0) solid;
     background-clip: padding-box;
 }
 html.white-theme ::-webkit-scrollbar-thumb:hover {
-    background: rgb(172, 172, 172);
     border: 4px rgba(255, 255, 255, 0) solid;
     background-clip: padding-box;
+}
+
+.btn-check:focus + .btn, .btn:focus, .btn:active {
+    outline: 0;
+    box-shadow: none !important;
+}
+.btn {
+    position: relative;
+}
+.btn::after {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    content: '';
+    border-radius: inherit;
+    box-shadow: 0 0 0 0rem var(--ui-main);
+    opacity: .4;
+    transition: all 0.3s ease;
+}
+.btn:focus::after {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    content: '';
+    border-radius: inherit;
+    box-shadow: 0 0 0 .25rem var(--ui-main);
+    opacity: .4;
 }

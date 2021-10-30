@@ -27,7 +27,7 @@ body, html {
     box-sizing: border-box;
 }
 html.dark-theme .cabinet .sidebar-wrapper {
-    background-color: rgba(255, 255, 255, 0.01) !important;
+    background-color: var(--ui-item-background-low) !important;
 }
 .cabinet .sidebar-wrapper .sidebar-heading {
     text-align: center;
@@ -73,7 +73,7 @@ html.white-theme .cabinet .sidebar-wrapper .list-group-item:hover {
     background-color: rgba(0,0,0,.05) !important;
 }
 html.dark-theme .cabinet .sidebar-wrapper .list-group-item:hover {
-    background-color: rgba(255, 255, 255, 0.05) !important;
+    background-color: var(--ui-item-background-mid) !important;
 }
 .cabinet .sidebar-wrapper .list-group-item .bi {
     margin-right: 10px;
@@ -82,14 +82,14 @@ html.dark-theme .cabinet .sidebar-wrapper .list-group-item:hover {
 html.white-theme .cabinet .sidebar-wrapper .list-group-item.active,
 html.white-theme .cabinet .sidebar-wrapper .list-group-item.active:hover {
     background: var(--ui-main) !important;
-    box-shadow: 0 5px 15px -15px var(--ui-main);
+    box-shadow: 0 5px 15px -10px var(--ui-main);
     color: white !important;
     opacity: 1;
 }
 html.dark-theme .cabinet .sidebar-wrapper .list-group-item.active,
 html.dark-theme .cabinet .sidebar-wrapper .list-group-item.active:hover {
     background: var(--ui-main) !important;
-    box-shadow: 0 5px 15px -15px var(--ui-main);
+    box-shadow: 0 5px 15px -10px var(--ui-main);
     opacity: 1;
 }
 .cabinet .dashboard h3 {
@@ -139,9 +139,9 @@ html.dark-theme .cabinet .dashboard .double-group .double-group-block.info p b {
     opacity: 0;
 }
 .cabinet .request-logs .log {
-    border-radius: 5px;
+    border-radius: 10px;
     padding: 25px;
-    margin: 10px;
+    margin: 15px;
     box-sizing: border-box;
 }
 .cabinet .request-logs .log a {
@@ -163,7 +163,7 @@ html .cabinet .request-logs .log pre {
     white-space: pre-wrap;
 }
 html.dark-theme .cabinet .request-logs .log {
-    background-color: rgba(255,255,255,.02);
+    background-color: var(--ui-item-background-low);
 }
 html.white-theme .cabinet .request-logs .log {
     background-color: rgba(0,0,0,.035);
@@ -185,8 +185,8 @@ html.white-theme .cabinet .request-logs .log {
     width: 250px;
 }
 html.dark-theme .cabinet .theme-switch .theme-wrapper:hover {
-    background-color: rgba(255,255,255,.025);
-    border-color: rgba(255,255,255,.05);
+    background-color: var(--ui-item-background-low);
+    border-color: var(--ui-item-background-mid);
     box-shadow: 0 5px 15px -15px var(--ui-main);
 }
 html.white-theme .cabinet .theme-switch .theme-wrapper:hover {
@@ -201,8 +201,8 @@ html.white-theme .cabinet .theme-switch .theme-wrapper.active {
 }
 
 html.dark-theme .cabinet .theme-switch .theme-wrapper.active {
-    background-color: rgba(255,255,255,.03);
-    border-color: rgba(255,255,255,.05) !important;
+    background-color: var(--ui-item-background-low);
+    border-color: var(--ui-item-background-mid-high) !important;
     box-shadow: 0 5px 15px -15px var(--ui-main);
 }
 
@@ -213,9 +213,9 @@ html.white-theme .cabinet .theme-switch .theme-wrapper .theme {
     box-shadow: 0 5px 15px -15px var(--ui-main);
 }
 html.dark-theme .cabinet .theme-switch .theme-wrapper .theme {
-    background: var(--ui-item-background-mid);
-    color: #555;
-    border: 2px solid rgba(255,255,255,.05);
+    background: var(--ui-background);
+    color: rgba(255,255,255,.5);
+    border: 2px solid var(--ui-item-background-mid);
     box-shadow: 0 5px 15px -15px var(--ui-main);
 }
 
@@ -237,6 +237,8 @@ html.white-theme .cabinet .theme-switch .theme-wrapper.active .theme {
 
 html.dark-theme .cabinet .theme-switch .theme-wrapper.active .theme {
     color: white;
+    border-color: var(--ui-item-background-mid-high) !important;
+    background: var(--ui-background-low);
 }
 .cabinet .theme-switch .theme {
     min-width: 64px;
@@ -262,8 +264,13 @@ html.dark-theme .cabinet .theme-switch .theme-wrapper.active .theme {
     opacity: 1;
     transform: scale(1);
 }
+html.dark-theme .cabinet .theme-switch .theme-wrapper.inactive:hover .theme {
+    background-color: var(--ui-item-background-low);
+    border-color: var(--ui-item-background-mid-high);
+}
 .cabinet .theme-switch .theme-wrapper.inactive.white:hover .theme i { 
     transform: rotate(45deg);
+    color: var(--ui-text);
 }
 .cabinet .theme-switch .theme-wrapper.inactive.dark:hover .theme i { 
     transform: rotate(-5deg);
@@ -298,7 +305,7 @@ html.white-theme .cabinet .theme-switch .theme-wrapper.inactive.dark:hover .them
     opacity: 1;
     transition: all 0.3s ease;
     cursor: pointer;
-    opacity: .2;
+    opacity: .3;
 }
 
 .cabinet .personalization .color-select .color.blue { background: var(--bs-blue); }
@@ -425,7 +432,7 @@ html .cabinet .settings-page .nav {
     padding: 15px;
     margin: 0;
     z-index: 2;
-    background-color: var(--ui-item-background-low);
+    background-color: var(--ui-item-background-low-min);
 }
 html .cabinet .settings-page .search-bar {
     width: 100%;
@@ -440,13 +447,13 @@ html .cabinet .settings-page .search-bar {
     justify-content: center;
     align-items: center;
     z-index: 3;
-    backdrop-filter: blur(50px);
+    backdrop-filter: saturate(180%) blur(20px);
 }
 html.dark-theme .cabinet .settings-page .search-bar {
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(14, 14, 14, 0.2);
 }
 html.white-theme .cabinet .settings-page .search-bar {
-    background: rgba(245,245,245, 0.7);
+    background: rgba(245,245,245, 0.9);
 }
 html .cabinet .settings-page .search-bar .input-wrapper {
     width: 100%;
@@ -466,11 +473,11 @@ html .cabinet .settings-page .search-bar .input-wrapper input {
     outline: none;
 }
 html.dark-theme .cabinet .settings-page .search-bar .input-wrapper input {
-    background-color: rgba(255,255,255,.05);
+    background-color: var(--ui-item-background-overlay);
     color: rgba(255, 255, 255, .7);
 }
 html.white-theme .cabinet .settings-page .search-bar .input-wrapper input {
-    background-color: rgba(0,0,0,.05);
+    background-color: var(--ui-item-background-overlay);
     color: black;
 }
 html .cabinet .settings-page .search-bar .input-wrapper input::-webkit-input-placeholder {
@@ -525,7 +532,7 @@ html .cabinet .settings-page .search-results {
     max-width: 500px;
     max-height: 500px;
     border-radius: 10px;
-    backdrop-filter: blur(30px);
+    backdrop-filter: saturate(180%) blur(20px);
     box-shadow: 0px 10px 20px 0px rgb(0 0 0 / 20%);
     padding: 20px;
     box-sizing: border-box;
@@ -544,10 +551,10 @@ html .cabinet .settings-page .search-results.hidden {
     display: none;
 }
 html.dark-theme .cabinet .settings-page .search-results {
-    background-color: rgba(24,24,24,.5);
+    background-color: var(--ui-item-background-overlay);
 }
 html.white-theme .cabinet .settings-page .search-results {
-    background-color: rgba(250,250,250,.5);
+    background-color: var(--ui-item-background-overlay);
 }
 html .cabinet .settings-page .search-results .items {
     width: 100%;
@@ -718,7 +725,7 @@ html .cabinet .bot-users pre {
     margin: 0;
 }
 html.dark-theme .cabinet .bot-users pre {
-    background-color: rgba(255,255,255,.05);
+    background-color: var(--ui-item-background-mid);
 }
 html .cabinet .settings-page .app-logs .empty {
     opacity: .3;
@@ -757,7 +764,7 @@ html.dark-theme .cabinet .system-info-wrapper .system-info p b {
 }
 
 .modal-backdrop {
-    backdrop-filter: blur(10px);
+    backdrop-filter: saturate(180%) blur(20px);
 }
 html.dark-theme .modal-backdrop {
     background-color: rgba(0, 0, 0, .2);
@@ -864,7 +871,20 @@ html .modal.delete-confirm .modal-dialog .modal-content .modal-footer .modal-but
     font-size: 24px !important;
 }
 html.dark-theme .modal-dialog .modal-content {
-    background-color: rgba(19, 19, 19, .8);
+    position: relative;
+    background-color: transparent;
+    overflow: hidden;
+}
+html.dark-theme .modal-dialog .modal-content::after {
+    position: absolute;
+    content: '';
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--ui-item-background-mid);
+    z-index: -1;
+    opacity: .8;
 }
 html.white-theme .modal-dialog .modal-content {
     box-shadow: 0px 15px 50px 0px rgba(0, 0, 0, 0.15);
@@ -877,7 +897,7 @@ html.white-theme .modal-dialog .modal-content {
     background-color: rgba(255,255,255,.5) !important;
 }
 .apexcharts-tooltip.apexcharts-theme-dark {
-    background-color: rgba(10,10,10,.5) !important;
+    background-color: var(--ui-item-background-overlay) !important;
     box-shadow: none;
     border: 2px solid rgba(255,255,255,.05);
 }
@@ -886,7 +906,7 @@ html.white-theme .modal-dialog .modal-content {
 }
 .apexcharts-tooltip.apexcharts-theme-dark .apexcharts-tooltip-title {
     border-bottom: 2px solid rgba(255,255,255,.05) !important;
-    background-color: rgba(15,15,15,.8) !important;
+    background-color: var(--ui-item-background-overlay) !important;
 }
 html.white-theme .apexcharts-xaxistooltip {
     border: 1px solid rgba(0, 0, 0, .1) !important;
@@ -1035,7 +1055,7 @@ html.dark-theme .page-item.active .page-link {
         background-color: rgba(255,255,255,0);
     }
     50% {
-        background-color: rgba(255,255,255,.05);
+        background-color: var(--ui-item-background-overlay);
     }
     100% {
         background-color: rgba(255,255,255,.0);

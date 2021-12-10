@@ -455,7 +455,7 @@ class BottoGram
                 case UpdateType::CallbackQuery:
                     if(method_exists($CurrentMenu, 'OnCallbackQuery'))
                     {
-                        $CurrentMenu->{'OnCallbackQuery'}($this->Update->CallbackQuery, $this);
+                        $CurrentMenu->{'OnCallbackQuery'}($this->Update->CallbackQuery, $this->CurrentUser, $this->Telegram);
                     }
                     break;
                     

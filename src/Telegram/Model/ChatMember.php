@@ -62,7 +62,7 @@ class ChatMember extends TelegramModel
                 CanSendMediaMessages: $Object->{'can_send_media_messages'} ?? null,
                 CanSendPolls: $Object->{'can_send_polls'} ?? null,
                 CanSendOtherMessages: $Object->{'can_send_other_messages'} ?? null,
-                CanAddWebPagePreviews: $Object->{'can_add_web_page_previews' ?? null},
+                CanAddWebPagePreviews: $Object->{'can_add_web_page_previews'} ?? null,
                 UntilDate: isset($Object->{'until_date'}) ? DateTime::createFromFormat('U', $Object->{'until_date'}) : null
             );
         }

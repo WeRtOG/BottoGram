@@ -6,6 +6,7 @@
 */
 namespace WeRtOG\BottoGram\AdminPanel\MVC;
 
+use WeRtOG\BottoGram\AdminPanel\MVC\general\CabinetPageController;
 use WeRtOG\BottoGram\BottoConfig;
 use WeRtOG\BottoGram\Telegram\Telegram;
 use WeRtOG\FoxyMVC\Attributes\Action;

@@ -4,7 +4,7 @@
     WeRtOG
     BottoGram
 */
-namespace WeRtOG\BottoGram\AdminPanel\MVC;
+namespace WeRtOG\BottoGram\AdminPanel\MVC\general;
 
 use WeRtOG\BottoGram\AdminPanel\AdminPanel;
 use WeRtOG\FoxyMVC\Controller;

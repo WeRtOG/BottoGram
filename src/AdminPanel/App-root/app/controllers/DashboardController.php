@@ -7,6 +7,7 @@
 namespace WeRtOG\BottoGram\AdminPanel\MVC;
 
 use WeRtOG\BottoGram\AdminPanel\Models\BotInfo;
+use WeRtOG\BottoGram\AdminPanel\MVC\general\CabinetPageController;
 use WeRtOG\BottoGram\AdminPanel\Utils;
 use WeRtOG\FoxyMVC\Attributes\Action;
 use WeRtOG\FoxyMVC\ControllerResponse\JsonView;

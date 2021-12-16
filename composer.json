@@ -3,15 +3,25 @@
     "description": "PHP8 Telegram bot engine",
     "type": "library",
     "require": {
-        "guzzlehttp/guzzle": "7.0",
+        "guzzlehttp/guzzle": "7.4.x-dev",
         "wertog/foxy-mvc": "dev-main",
         "matthiasmullie/minify": "dev-master"
     },
     "license": "GPL-3.0-or-later",
     "autoload": {
         "psr-4": {
-            "WeRtOG\\BottoGram\\": "src/"
+            "WeRtOG\\BottoGram\\": "src/",
+            "WeRtOG\\BottoGram\\AdminPanel\\MVC\\": "src/AdminPanel/App-root/app/controllers/",
+            "WeRtOG\\BottoGram\\AdminPanel\\Models\\": "src/AdminPanel/App-root/app/models/"
         }
     },
-    "minimum-stability": "dev"
+    "minimum-stability": "dev",
+    "config": {
+        "platform": {
+            "php": "8.0",
+            "ext-gd": "0"
+        },
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
 }

@@ -8,6 +8,7 @@ namespace WeRtOG\BottoGram\AdminPanel\MVC;
 
 use WeRtOG\BottoGram\AdminPanel\AdminPanel;
 use WeRtOG\BottoGram\AdminPanel\Models\SystemInfo;
+use WeRtOG\BottoGram\AdminPanel\MVC\general\CabinetPageController;
 use WeRtOG\BottoGram\BottoConfig;
 use WeRtOG\FoxyMVC\Attributes\Action;
 use WeRtOG\FoxyMVC\ControllerResponse\JsonView;

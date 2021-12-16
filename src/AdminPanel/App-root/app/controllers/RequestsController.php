@@ -6,6 +6,7 @@
 */
 namespace WeRtOG\BottoGram\AdminPanel\MVC;
 
+use WeRtOG\BottoGram\AdminPanel\MVC\general\CabinetPageController;
 use WeRtOG\FoxyMVC\Attributes\Action;
 use WeRtOG\FoxyMVC\ControllerResponse\JsonView;
 use WeRtOG\FoxyMVC\ControllerResponse\View;

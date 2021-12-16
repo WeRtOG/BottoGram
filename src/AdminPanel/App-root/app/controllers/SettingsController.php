@@ -7,6 +7,7 @@
 namespace WeRtOG\BottoGram\AdminPanel\MVC;
 
 use Exception;
+use WeRtOG\BottoGram\AdminPanel\MVC\general\CabinetPageController;
 use WeRtOG\FoxyMVC\Attributes\Action;
 use WeRtOG\FoxyMVC\ControllerResponse\JsonView;
 use WeRtOG\FoxyMVC\ControllerResponse\Response;

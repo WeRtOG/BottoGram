@@ -38,7 +38,6 @@ class AdminUsers
     /**
      * Метод для получения пользователя по логину
      * @param string $Login Логин
-     * @return array|null Пользователь 
      */
     public function GetUserByLogin(?string $Login): ?AdminUser
     {

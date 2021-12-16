@@ -24,56 +24,38 @@ class Images
         $ext_out = strtolower(pathinfo($outfile, PATHINFO_EXTENSION));
         $ext_in = strtolower(pathinfo($infile, PATHINFO_EXTENSION));
 
-        if($ext_in == 'jpg' || $ext_in == 'jpeg')
-        {
-            $im = imagecreatefromjpeg($infile);
-        }
-        if($ext_in == 'png')
-        {
-            $im = imagecreatefrompng($infile);
-        }
-        if($ext_in == 'webp')
-        {
-            $im = imagecreatefromwebp($infile);
-        }
+        $im = match ($ext_in) {
+            'jpg', 'jpeg' => imagecreatefromjpeg($infile),
+            'png' => imagecreatefrompng($infile),
+            'webp' => imagecreatefromwebp($infile),
+        };
 
-        if($neww != -1)
-        {
+        /* TODO: need to add validation for image extensions. */
+
+        if ($neww !== -1) {
             $k1 = $neww / imagesx($im);
-        }
-        else
-        {
+        } else {
             $k1 = 1;
         }
-        if($newh != -1)
-        {
+        if ($newh !== -1) {
             $k2 = $newh / imagesy($im);
-        }
-        else
-        {
+        } else {
             $k2 = 1;
         }
 
-        $k = $k1>$k2?$k2:$k1;
+        $k = $k1 > $k2 ? $k2 : $k1;
 
-        $w = intval(imagesx($im)*$k);
-        $h = intval(imagesy($im)*$k);
+        $w = intval(imagesx($im) * $k);
+        $h = intval(imagesy($im) * $k);
 
-        $im1 = imagecreatetruecolor($w,$h);
+        $im1 = imagecreatetruecolor($w, $h);
         imagecopyresampled($im1, $im, 0, 0, 0, 0, $w, $h, imagesx($im), imagesy($im));
 
-        if($ext_out == 'jpg' || $ext_out == 'jpeg')
-        {
-            imagejpeg($im1, $outfile, $quality);
-        }
-        if($ext_out == 'png')
-        {
-            imagepng($im1, $outfile, -1);
-        }
-        if($ext_out == 'webp')
-        {
-            imagewebp($im1, $outfile, $quality);
-        }
+        match ($ext_out) {
+            'jpg', 'jpeg' => imagejpeg($im1, $outfile, $quality),
+            'png' => imagepng($im1, $outfile, -1),
+            'webp' => imagepng($im1, $outfile, $quality),
+        };
 
         imagedestroy($im);
         imagedestroy($im1);

@@ -4,10 +4,11 @@
     WeRtOG
     BottoGram
 */
+
 namespace WeRtOG\BottoGram;
 
 $AutoloadFile = __DIR__ . '/../vendor/autoload.php';
-if(file_exists($AutoloadFile)) require_once $AutoloadFile;
+if (file_exists($AutoloadFile)) require_once $AutoloadFile;
 
 use WeRtOG\BottoGram\DatabaseManager\Models\DatabaseConnection;
 use WeRtOG\BottoGram\Exceptions\BottoConfigException;
@@ -33,12 +34,9 @@ class BottoConfig
 
     public function __construct(array $Data)
     {
-        try
-        {
+        try {
             ModelHelper::SetParametersFromArray($this, $Data, true, true);
-        }
-        catch(ModelException $Exception)
-        {
+        } catch (ModelException $Exception) {
             throw new BottoConfigException($Exception->getMessage());
         }
     }
@@ -62,14 +60,11 @@ class BottoConfig
     public static function CreateFromJSONFile(string $Filename): self
     {
         $ParsedData = self::ParseJSONFile($Filename);
-        
-        try
-        {
-            if(isset($ParsedData['DatabaseConnection']))
+
+        try {
+            if (isset($ParsedData['DatabaseConnection']))
                 $ParsedData['DatabaseConnection'] = new DatabaseConnection($ParsedData['DatabaseConnection']);
-        }
-        catch(ModelException $Exception)
-        {
+        } catch (ModelException $Exception) {
             throw new BottoConfigException($Exception->getMessage());
         }
 
@@ -78,25 +73,18 @@ class BottoConfig
 
     public static function ChangeParameter(string $Name, $Value, string $ConfigFile): bool
     {
-        if(file_exists($ConfigFile))
-        {
-            $Config = self::ParseJSONFile($ConfigFile);
-            $Config[$Name] = $Value;
-            unset($Config['ConfigFile']);
+        $config = file_exists($ConfigFile);
+        if (!$config) return false;
 
-            file_put_contents($ConfigFile, json_encode($Config, JSON_PRETTY_PRINT));
+        $Config = self::ParseJSONFile($ConfigFile);
+        $Config[$Name] = $Value;
+        unset($Config['ConfigFile']);
 
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return (bool) file_put_contents($ConfigFile, json_encode($Config, JSON_PRETTY_PRINT));
     }
 
     public static function ChangeToken(string $Token, string $ConfigFile): int
     {
         return self::ChangeParameter('Token', $Token, $ConfigFile);
     }
-    
 }

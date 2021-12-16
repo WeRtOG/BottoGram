@@ -15,5 +15,13 @@
             "WeRtOG\\BottoGram\\AdminPanel\\Models\\": "src/AdminPanel/App-root/app/models/"
         }
     },
-    "minimum-stability": "dev"
+    "minimum-stability": "dev",
+    "config": {
+        "platform": {
+            "php": "8.0",
+            "ext-gd": "0"
+        },
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
 }
